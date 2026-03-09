@@ -1,310 +1,283 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>سودان كربتو</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سودان كربتو</title>
 
-  <style>
-    *{
-      box-sizing:border-box;
-    }
+<style>
 
-    body{
-      margin:0;
-      font-family:Tahoma, Arial, sans-serif;
-      background:linear-gradient(135deg, #07162b 0%, #0b1f3a 45%, #12345c 100%);
-      min-height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      padding:12px;
-    }
+body{
+margin:0;
+font-family:Tahoma,Arial;
+background:linear-gradient(135deg,#07162b,#0b1f3a,#12345c);
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+}
 
-    .container{
-      width:100%;
-      max-width:380px;
-      background:#dcebff;
-      border-radius:18px;
-      box-shadow:0 18px 45px rgba(0,0,0,0.28);
-      padding:22px 18px;
-      border:1px solid rgba(255,255,255,0.35);
-    }
+.container{
+width:95%;
+max-width:380px;
+background:#dcebff;
+border-radius:18px;
+padding:25px;
+box-shadow:0 15px 40px rgba(0,0,0,0.3);
+}
 
-    .crypto-logo{
-      width:84px;
-      height:84px;
-      margin:0 auto 10px;
-      border-radius:50%;
-      background:radial-gradient(circle at 30% 30%, #ffd86b, #f2a93b 65%, #d9871f 100%);
-      border:3px solid rgba(255,255,255,0.35);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:#ffffff;
-      box-shadow:0 0 24px rgba(242, 201, 76, 0.55);
-      animation:coinSpin 6s linear infinite;
-      position:relative;
-      overflow:hidden;
-    }
+.logo{
+text-align:center;
+font-size:22px;
+font-weight:bold;
+color:#2D6AF6;
+margin-bottom:5px;
+}
 
-    .crypto-logo::before{
-      content:"";
-      position:absolute;
-      inset:8px;
-      border:2px solid rgba(255,255,255,0.25);
-      border-radius:50%;
-    }
+.subtitle{
+text-align:center;
+font-size:12px;
+color:#555;
+margin-bottom:15px;
+}
 
-    .crypto-logo span{
-      position:relative;
-      z-index:2;
-      font-size:34px;
-      font-weight:700;
-      text-shadow:0 2px 8px rgba(0,0,0,0.15);
-    }
+h2{
+text-align:center;
+margin-bottom:10px;
+}
 
-    @keyframes coinSpin{
-      0%{transform:rotateY(0deg);}
-      100%{transform:rotateY(360deg);}
-    }
+label{
+font-weight:bold;
+font-size:13px;
+}
 
-    .logo{
-      text-align:center;
-      font-size:22px;
-      font-weight:700;
-      color:#2D6AF6;
-      margin-bottom:4px;
-    }
+input{
+width:100%;
+height:42px;
+border-radius:8px;
+border:1px solid #ccc;
+padding:8px;
+margin-top:5px;
+margin-bottom:10px;
+font-size:13px;
+}
 
-    .subtitle{
-      text-align:center;
-      color:#42526b;
-      font-size:12px;
-      margin-bottom:14px;
-    }
+.verify-btn{
+width:100%;
+height:45px;
+border:none;
+border-radius:8px;
+background:#2D6AF6;
+color:white;
+font-size:14px;
+font-weight:bold;
+cursor:pointer;
+}
 
-    h2{
-      margin:0 0 14px;
-      text-align:center;
-      color:#1A1A1A;
-      font-size:20px;
-    }
+.create-btn{
+width:100%;
+height:45px;
+border:none;
+border-radius:8px;
+background:#10B981;
+color:white;
+font-size:14px;
+font-weight:bold;
+cursor:pointer;
+margin-top:10px;
+opacity:0.5;
+}
 
-    label{
-      display:block;
-      margin-top:8px;
-      margin-bottom:4px;
-      font-size:13px;
-      font-weight:700;
-      color:#1A1A1A;
-    }
+.code-section{
+display:none;
+text-align:center;
+}
 
-    input{
-      width:100%;
-      height:42px;
-      border:1px solid #bfd0ea;
-      border-radius:8px;
-      padding:0 12px;
-      font-size:13px;
-      color:#1A1A1A;
-      background:#f7fbff;
-      outline:none;
-    }
+.code-box{
+display:flex;
+justify-content:center;
+gap:8px;
+margin:15px 0;
+}
 
-    input:focus{
-      border-color:#2D6AF6;
-      box-shadow:0 0 0 3px rgba(45,106,246,0.12);
-      background:#ffffff;
-    }
+.code-box input{
+width:38px;
+height:45px;
+text-align:center;
+font-size:20px;
+}
 
-    input[readonly]{
-      background:#edf4ff;
-      color:#516076;
-      cursor:not-allowed;
-    }
+.timer{
+font-size:13px;
+color:#444;
+}
 
-    .password-note{
-      font-size:11px;
-      color:#4f5d73;
-      margin-top:4px;
-      line-height:1.6;
-    }
+.resend{
+color:#2D6AF6;
+margin-top:8px;
+display:none;
+cursor:pointer;
+}
 
-    .password-wrap{
-      position:relative;
-      width:100%;
-    }
+.links{
+text-align:center;
+margin-top:10px;
+}
 
-    .password-wrap input{
-      padding-left:74px;
-    }
+.links a{
+display:block;
+color:#2D6AF6;
+text-decoration:none;
+margin-top:5px;
+}
 
-    .toggle-password{
-      position:absolute;
-      left:8px;
-      top:50%;
-      transform:translateY(-50%);
-      width:auto;
-      height:28px;
-      padding:0 10px;
-      border:none;
-      border-radius:6px;
-      background:#2D6AF6;
-      color:#ffffff;
-      font-size:11px;
-      font-weight:700;
-      cursor:pointer;
-      margin:0;
-      line-height:28px;
-    }
+footer{
+text-align:center;
+margin-top:15px;
+font-size:11px;
+color:#333;
+}
 
-    .toggle-password:hover{
-      opacity:0.92;
-    }
-
-    .main-btn{
-      width:100%;
-      height:44px;
-      border:none;
-      border-radius:8px;
-      font-size:14px;
-      font-weight:700;
-      cursor:pointer;
-      margin-top:10px;
-      transition:0.2s ease;
-    }
-
-    .main-btn:hover{
-      transform:translateY(-1px);
-    }
-
-    .verify{
-      background:#2D6AF6;
-      color:#ffffff;
-      box-shadow:0 10px 20px rgba(45,106,246,0.2);
-    }
-
-    .create{
-      background:#10B981;
-      color:#ffffff;
-      box-shadow:0 10px 20px rgba(16,185,129,0.2);
-    }
-
-    .links{
-      text-align:center;
-      margin-top:12px;
-    }
-
-    .links a{
-      display:block;
-      text-decoration:none;
-      color:#2D6AF6;
-      font-size:13px;
-      font-weight:700;
-      margin-top:6px;
-    }
-
-    .links a:hover{
-      text-decoration:underline;
-    }
-
-    footer{
-      text-align:center;
-      margin-top:14px;
-      font-size:11px;
-      color:#314057;
-      font-weight:600;
-    }
-
-    @media (max-width:420px){
-      .container{
-        max-width:100%;
-        padding:20px 16px;
-      }
-
-      .crypto-logo{
-        width:76px;
-        height:76px;
-      }
-
-      .crypto-logo span{
-        font-size:30px;
-      }
-
-      .logo{
-        font-size:20px;
-      }
-
-      h2{
-        font-size:18px;
-      }
-    }
-  </style>
+</style>
 </head>
+
 <body>
 
-  <div class="container">
-    <div class="crypto-logo"><span>₿</span></div>
-    <div class="logo">سودان كربتو</div>
-    <div class="subtitle">منصة العملات الرقمية في السودان</div>
+<div class="container">
 
-    <h2>إنشاء حساب</h2>
+<div class="logo">سودان كربتو</div>
+<div class="subtitle">منصة العملات الرقمية في السودان</div>
 
-    <label>الاسم الحقيقي</label>
-    <input type="text" placeholder="اكتب الاسم الحقيقي">
+<h2>إنشاء حساب</h2>
 
-    <label>البريد الإلكتروني</label>
-    <input type="email" placeholder="اكتب البريد الإلكتروني">
+<label>الاسم الحقيقي</label>
+<input type="text" placeholder="اكتب الاسم الحقيقي">
 
-    <label>الدولة</label>
-    <input type="text" value="السودان 🇸🇩 (+249)" readonly>
+<label>البريد الإلكتروني</label>
+<input type="email" id="email" placeholder="اكتب البريد الإلكتروني">
 
-    <label>رقم الهاتف</label>
-    <input type="tel" placeholder="مثال: 912345678">
+<button class="verify-btn" onclick="sendCode()">تحقق من البريد الإلكتروني</button>
 
-    <label>رمز الإحالة (اختياري)</label>
-    <input type="text" placeholder="رمز الإحالة">
+<div class="code-section" id="codeSection">
 
-    <label>كلمة المرور</label>
-    <div class="password-wrap">
-      <input type="password" id="password" placeholder="كلمة المرور">
-      <button type="button" class="toggle-password" onclick="togglePassword('password', this)">إظهار</button>
-    </div>
+<p>أدخل كود التحقق</p>
 
-    <div class="password-note">
-      يجب أن تتكون كلمة المرور من 8 أحرف أو أرقام على الأقل
-    </div>
+<div class="code-box">
+<input maxlength="1">
+<input maxlength="1">
+<input maxlength="1">
+<input maxlength="1">
+<input maxlength="1">
+<input maxlength="1">
+</div>
 
-    <label>تأكيد كلمة المرور</label>
-    <div class="password-wrap">
-      <input type="password" id="confirmPassword" placeholder="تأكيد كلمة المرور">
-      <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword', this)">إظهار</button>
-    </div>
+<div class="timer">
+إعادة إرسال الكود خلال <span id="count">60</span> ثانية
+</div>
 
-    <button class="main-btn verify">تحقق من البريد الإلكتروني</button>
-    <button class="main-btn create">إنشاء الحساب</button>
+<div class="resend" id="resend" onclick="sendCode()">
+إرسال كود جديد
+</div>
 
-    <div class="links">
-      <a href="login.html">تسجيل الدخول</a>
-      <a href="forgot.html">نسيت كلمة المرور؟</a>
-    </div>
+</div>
 
-    <footer>© سودان كربتو – جميع الحقوق محفوظة</footer>
-  </div>
+<label>الدولة</label>
+<input type="text" value="السودان 🇸🇩 (+249)" readonly>
 
-  <script>
-    function togglePassword(inputId, button){
-      const input = document.getElementById(inputId);
-      if(input.type === "password"){
-        input.type = "text";
-        button.textContent = "إخفاء";
-      } else {
-        input.type = "password";
-        button.textContent = "إظهار";
-      }
-    }
-  </script>
+<label>رقم الهاتف</label>
+<input type="tel" placeholder="مثال: 912345678">
+
+<label>رمز الإحالة (اختياري)</label>
+<input type="text" placeholder="رمز الإحالة">
+
+<label>كلمة المرور</label>
+<input type="password" placeholder="كلمة المرور">
+
+<label>تأكيد كلمة المرور</label>
+<input type="password" placeholder="تأكيد كلمة المرور">
+
+<button class="create-btn" id="createBtn">
+إنشاء الحساب
+</button>
+
+<div class="links">
+
+<a href="login.html">تسجيل الدخول</a>
+
+<a href="forgot.html">نسيت كلمة المرور؟</a>
+
+</div>
+
+<footer>
+© سودان كربتو – جميع الحقوق محفوظة
+</footer>
+
+</div>
+
+<script>
+
+function sendCode(){
+
+let email=document.getElementById("email").value
+
+if(email===""){
+alert("اكتب البريد الإلكتروني أولاً")
+return
+}
+
+document.getElementById("codeSection").style.display="block"
+
+startTimer()
+
+}
+
+function startTimer(){
+
+let time=60
+
+let count=document.getElementById("count")
+
+let resend=document.getElementById("resend")
+
+resend.style.display="none"
+
+let timer=setInterval(()=>{
+
+time--
+
+count.innerText=time
+
+if(time<=0){
+
+clearInterval(timer)
+
+count.innerText="0"
+
+resend.style.display="block"
+
+}
+
+},1000)
+
+}
+
+let inputs=document.querySelectorAll(".code-box input")
+
+inputs.forEach((input,index)=>{
+
+input.addEventListener("input",()=>{
+
+if(input.value.length==1 && index<5){
+
+inputs[index+1].focus()
+
+}
+
+})
+
+})
+
+</script>
 
 </body>
 </html>
