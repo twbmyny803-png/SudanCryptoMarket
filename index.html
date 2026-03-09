@@ -32,22 +32,39 @@
     }
 
     .crypto-logo{
-      width:82px;
-      height:82px;
+      width:84px;
+      height:84px;
       margin:0 auto 10px;
       border-radius:50%;
-      background:linear-gradient(135deg,#f2c94c,#f2994a);
+      background:radial-gradient(circle at 30% 30%, #ffd86b, #f2a93b 65%, #d9871f 100%);
+      border:3px solid rgba(255,255,255,0.35);
       display:flex;
       align-items:center;
       justify-content:center;
-      font-size:24px;
-      font-weight:700;
       color:#ffffff;
-      box-shadow:0 0 22px rgba(242, 201, 76, 0.55);
-      animation:rotateCoin 6s linear infinite;
+      box-shadow:0 0 24px rgba(242, 201, 76, 0.55);
+      animation:coinSpin 6s linear infinite;
+      position:relative;
+      overflow:hidden;
     }
 
-    @keyframes rotateCoin{
+    .crypto-logo::before{
+      content:"";
+      position:absolute;
+      inset:8px;
+      border:2px solid rgba(255,255,255,0.25);
+      border-radius:50%;
+    }
+
+    .crypto-logo span{
+      position:relative;
+      z-index:2;
+      font-size:34px;
+      font-weight:700;
+      text-shadow:0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    @keyframes coinSpin{
       0%{transform:rotateY(0deg);}
       100%{transform:rotateY(360deg);}
     }
@@ -114,6 +131,39 @@
       line-height:1.6;
     }
 
+    .password-wrap{
+      position:relative;
+      width:100%;
+    }
+
+    .password-wrap input{
+      padding-left:72px;
+    }
+
+    .toggle-password{
+      position:absolute;
+      left:6px;
+      top:50%;
+      transform:translateY(-50%);
+      height:30px;
+      min-width:58px;
+      border:none;
+      border-radius:6px;
+      background:#2D6AF6;
+      color:#ffffff;
+      font-size:11px;
+      font-weight:700;
+      cursor:pointer;
+      padding:0 10px;
+      margin:0;
+      box-shadow:none;
+    }
+
+    .toggle-password:hover{
+      transform:translateY(-50%);
+      opacity:0.92;
+    }
+
     button{
       width:100%;
       height:44px;
@@ -175,9 +225,12 @@
       }
 
       .crypto-logo{
-        width:74px;
-        height:74px;
-        font-size:22px;
+        width:76px;
+        height:76px;
+      }
+
+      .crypto-logo span{
+        font-size:30px;
       }
 
       .logo{
@@ -193,7 +246,7 @@
 <body>
 
   <div class="container">
-    <div class="crypto-logo">₿SC</div>
+    <div class="crypto-logo"><span>₿</span></div>
     <div class="logo">سودان كربتو</div>
     <div class="subtitle">منصة العملات الرقمية في السودان</div>
 
@@ -215,25 +268,19 @@
     <input type="text" placeholder="رمز الإحالة">
 
     <label>كلمة المرور</label>
-    <input type="password" placeholder="كلمة المرور">
+    <div class="password-wrap">
+      <input type="password" id="password" placeholder="كلمة المرور">
+      <button type="button" class="toggle-password" onclick="togglePassword('password', this)">إظهار</button>
+    </div>
 
     <div class="password-note">
       يجب أن تتكون كلمة المرور من 8 أحرف أو أرقام على الأقل
     </div>
 
     <label>تأكيد كلمة المرور</label>
-    <input type="password" placeholder="تأكيد كلمة المرور">
-
-    <button class="verify">تحقق من البريد الإلكتروني</button>
-    <button class="create">إنشاء الحساب</button>
-
-    <div class="links">
-      <a href="login.html">تسجيل الدخول</a>
-      <a href="forgot.html">نسيت كلمة المرور؟</a>
+    <div class="password-wrap">
+      <input type="password" id="confirmPassword" placeholder="تأكيد كلمة المرور">
+      <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword', this)">إظهار</button>
     </div>
 
-    <footer>© سودان كربتو – جميع الحقوق محفوظة</footer>
-  </div>
-
-</body>
-</html>
+    <button class="
