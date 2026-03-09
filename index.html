@@ -1,15 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Sudan Crypto</title>
 
 <style>
 
 body{
-font-family: Arial, sans-serif;
-background:#f4f6fb;
+font-family: Tahoma, Arial;
+background: linear-gradient(135deg,#eef2ff,#f8fafc);
 display:flex;
 justify-content:center;
 align-items:center;
@@ -20,90 +22,117 @@ margin:0;
 .container{
 background:white;
 padding:40px;
-border-radius:12px;
-width:340px;
-box-shadow:0 10px 30px rgba(0,0,0,0.1);
+border-radius:16px;
+width:360px;
+box-shadow:0 15px 40px rgba(0,0,0,0.1);
 text-align:center;
 }
 
 h2{
 color:#1A1A1A;
-margin-bottom:20px;
+margin-bottom:25px;
 }
 
 input{
 width:100%;
-padding:12px;
-margin:8px 0;
+padding:14px;
+margin:10px 0;
 border:1px solid #ddd;
-border-radius:6px;
+border-radius:8px;
+font-size:14px;
 }
 
 button{
 width:100%;
-padding:12px;
+padding:14px;
 border:none;
-border-radius:6px;
-background:#2D6AF6;
-color:white;
+border-radius:8px;
 font-size:16px;
 margin-top:10px;
 cursor:pointer;
+transition:0.3s;
 }
 
-button:hover{
-opacity:0.9;
+.verify{
+background:#2D6AF6;
+color:white;
+}
+
+.verify:hover{
+background:#1f54d8;
+}
+
+.create{
+background:#10B981;
+color:white;
+}
+
+.create:hover{
+background:#0f9f6e;
 }
 
 .links{
 margin-top:15px;
-font-size:14px;
 }
 
 .links a{
-color:#2D6AF6;
-text-decoration:none;
 display:block;
-margin-top:6px;
+margin-top:8px;
+text-decoration:none;
+color:#2D6AF6;
+font-size:14px;
 }
 
 footer{
 position:absolute;
-bottom:10px;
+bottom:15px;
 font-size:13px;
-color:#666;
+color:#777;
+}
+
+.logo{
+font-weight:bold;
+color:#2D6AF6;
+margin-bottom:10px;
+font-size:20px;
 }
 
 </style>
 </head>
 
+
 <body>
 
 <div class="container">
 
-<h2>Create Account</h2>
+<div class="logo">Sudan Crypto</div>
 
-<input type="text" placeholder="Full Name">
+<h2>إنشاء حساب</h2>
 
-<input type="email" placeholder="Email Address">
+<input type="text" placeholder="الاسم الكامل">
 
-<input type="text" value="Sudan 🇸🇩 (+249)" readonly>
+<input type="email" placeholder="البريد الإلكتروني">
 
-<input type="text" placeholder="Referral Code (Optional)">
+<input type="text" value="السودان 🇸🇩 (+249)" readonly>
 
-<button>Verify Email</button>
+<input type="text" placeholder="رمز الإحالة (اختياري)">
 
-<button>Create Account</button>
+<button class="verify">تحقق من البريد</button>
+
+<button class="create">إنشاء الحساب</button>
 
 <div class="links">
-<a href="#">Login</a>
-<a href="#">Forgot Password</a>
+
+<a href="#">تسجيل الدخول</a>
+
+<a href="#">نسيت كلمة المرور</a>
+
 </div>
 
 </div>
 
 <footer>
-© Sudan Crypto – All rights reserved
+© سودان كربتو – جميع الحقوق محفوظة
 </footer>
 
 </body>
