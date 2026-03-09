@@ -6,277 +6,513 @@
 <title>سودان كربتو</title>
 
 <style>
+*{
+  box-sizing:border-box;
+}
 
 body{
-margin:0;
-font-family:Tahoma,Arial;
-background:linear-gradient(135deg,#07162b,#0b1f3a,#12345c);
-display:flex;
-justify-content:center;
-align-items:center;
-min-height:100vh;
+  margin:0;
+  font-family:Tahoma, Arial, sans-serif;
+  background:linear-gradient(135deg,#07162b,#0b1f3a,#12345c);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  padding:12px;
 }
 
 .container{
-width:95%;
-max-width:380px;
-background:#dcebff;
-border-radius:18px;
-padding:25px;
-box-shadow:0 15px 40px rgba(0,0,0,0.3);
+  width:100%;
+  max-width:380px;
+  background:#dcebff;
+  border-radius:18px;
+  padding:22px 18px;
+  box-shadow:0 18px 45px rgba(0,0,0,0.28);
+  border:1px solid rgba(255,255,255,0.35);
 }
 
 .logo{
-text-align:center;
-font-size:22px;
-font-weight:bold;
-color:#2D6AF6;
-margin-bottom:5px;
+  text-align:center;
+  font-size:22px;
+  font-weight:700;
+  color:#2D6AF6;
+  margin-bottom:4px;
 }
 
 .subtitle{
-text-align:center;
-font-size:12px;
-color:#555;
-margin-bottom:15px;
+  text-align:center;
+  color:#42526b;
+  font-size:12px;
+  margin-bottom:14px;
 }
 
 h2{
-text-align:center;
-margin-bottom:10px;
+  margin:0 0 14px;
+  text-align:center;
+  color:#1A1A1A;
+  font-size:20px;
 }
 
 label{
-font-weight:bold;
-font-size:13px;
+  display:block;
+  margin-top:8px;
+  margin-bottom:4px;
+  font-size:13px;
+  font-weight:700;
+  color:#1A1A1A;
 }
 
 input{
-width:100%;
-height:42px;
-border-radius:8px;
-border:1px solid #ccc;
-padding:8px;
-margin-top:5px;
-margin-bottom:10px;
-font-size:13px;
+  width:100%;
+  height:42px;
+  border:1px solid #bfd0ea;
+  border-radius:8px;
+  padding:0 12px;
+  font-size:13px;
+  color:#1A1A1A;
+  background:#f7fbff;
+  outline:none;
 }
 
-.verify-btn{
-width:100%;
-height:45px;
-border:none;
-border-radius:8px;
-background:#2D6AF6;
-color:white;
-font-size:14px;
-font-weight:bold;
-cursor:pointer;
+input:focus{
+  border-color:#2D6AF6;
+  box-shadow:0 0 0 3px rgba(45,106,246,0.12);
+  background:#ffffff;
+}
+
+input[readonly]{
+  background:#edf4ff;
+  color:#516076;
+  cursor:not-allowed;
+}
+
+.password-note{
+  font-size:11px;
+  color:#4f5d73;
+  margin-top:4px;
+  line-height:1.6;
+}
+
+.password-wrap{
+  position:relative;
+  width:100%;
+}
+
+.password-wrap input{
+  padding-left:74px;
+}
+
+.toggle-password{
+  position:absolute;
+  left:8px;
+  top:50%;
+  transform:translateY(-50%);
+  width:auto;
+  height:28px;
+  padding:0 10px;
+  border:none;
+  border-radius:6px;
+  background:#2D6AF6;
+  color:#ffffff;
+  font-size:11px;
+  font-weight:700;
+  cursor:pointer;
+  margin:0;
+  line-height:28px;
+}
+
+.toggle-password:hover{
+  opacity:0.92;
+}
+
+.verify-btn,
+.create-btn,
+.code-confirm-btn{
+  width:100%;
+  height:44px;
+  border:none;
+  border-radius:8px;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  margin-top:10px;
+  transition:0.2s ease;
+}
+
+.verify-btn:hover,
+.create-btn:hover,
+.code-confirm-btn:hover{
+  transform:translateY(-1px);
+}
+
+.verify-btn,
+.code-confirm-btn{
+  background:#2D6AF6;
+  color:#ffffff;
+  box-shadow:0 10px 20px rgba(45,106,246,0.2);
 }
 
 .create-btn{
-width:100%;
-height:45px;
-border:none;
-border-radius:8px;
-background:#10B981;
-color:white;
-font-size:14px;
-font-weight:bold;
-cursor:pointer;
-margin-top:10px;
-opacity:0.5;
+  background:#10B981;
+  color:#ffffff;
+  box-shadow:0 10px 20px rgba(16,185,129,0.2);
+}
+
+.create-btn:disabled{
+  opacity:0.5;
+  cursor:not-allowed;
+  transform:none;
 }
 
 .code-section{
-display:none;
-text-align:center;
+  display:none;
+  text-align:center;
+  margin-top:14px;
+  padding:14px 10px 6px;
+  background:#eef5ff;
+  border:1px solid #cfe0fb;
+  border-radius:12px;
+}
+
+.code-title{
+  margin:0 0 10px;
+  font-size:14px;
+  font-weight:700;
+  color:#1A1A1A;
 }
 
 .code-box{
-display:flex;
-justify-content:center;
-gap:8px;
-margin:15px 0;
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  margin:14px 0;
+  direction:ltr;
 }
 
 .code-box input{
-width:38px;
-height:45px;
-text-align:center;
-font-size:20px;
+  width:42px;
+  height:48px;
+  text-align:center;
+  font-size:20px;
+  border-radius:10px;
+  border:2px solid #d4deef;
+  background:#fff;
+  padding:0;
+}
+
+.code-box input:focus{
+  border-color:#2D6AF6;
+  box-shadow:0 0 0 3px rgba(45,106,246,0.12);
 }
 
 .timer{
-font-size:13px;
-color:#444;
+  font-size:13px;
+  color:#444;
+  margin-top:8px;
 }
 
 .resend{
-color:#2D6AF6;
-margin-top:8px;
-display:none;
-cursor:pointer;
+  color:#2D6AF6;
+  margin-top:10px;
+  display:none;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:700;
+}
+
+.status-message{
+  margin-top:10px;
+  font-size:13px;
+  font-weight:700;
+  display:none;
+}
+
+.status-success{
+  color:#10B981;
+}
+
+.status-error{
+  color:#e74c3c;
 }
 
 .links{
-text-align:center;
-margin-top:10px;
+  text-align:center;
+  margin-top:12px;
 }
 
 .links a{
-display:block;
-color:#2D6AF6;
-text-decoration:none;
-margin-top:5px;
+  display:block;
+  text-decoration:none;
+  color:#2D6AF6;
+  font-size:13px;
+  font-weight:700;
+  margin-top:6px;
+}
+
+.links a:hover{
+  text-decoration:underline;
 }
 
 footer{
-text-align:center;
-margin-top:15px;
-font-size:11px;
-color:#333;
+  text-align:center;
+  margin-top:14px;
+  font-size:11px;
+  color:#314057;
+  font-weight:600;
 }
 
+@media (max-width:420px){
+  .container{
+    max-width:100%;
+    padding:20px 16px;
+  }
+
+  .logo{
+    font-size:20px;
+  }
+
+  h2{
+    font-size:18px;
+  }
+
+  .code-box input{
+    width:40px;
+    height:46px;
+  }
+}
 </style>
 </head>
-
 <body>
 
 <div class="container">
+  <div class="logo">سودان كربتو</div>
+  <div class="subtitle">منصة العملات الرقمية في السودان</div>
 
-<div class="logo">سودان كربتو</div>
-<div class="subtitle">منصة العملات الرقمية في السودان</div>
+  <h2>إنشاء حساب</h2>
 
-<h2>إنشاء حساب</h2>
+  <label>الاسم الحقيقي</label>
+  <input type="text" id="fullName" placeholder="اكتب الاسم الحقيقي">
 
-<label>الاسم الحقيقي</label>
-<input type="text" placeholder="اكتب الاسم الحقيقي">
+  <label>البريد الإلكتروني</label>
+  <input type="email" id="email" placeholder="اكتب البريد الإلكتروني">
 
-<label>البريد الإلكتروني</label>
-<input type="email" id="email" placeholder="اكتب البريد الإلكتروني">
+  <button class="verify-btn" onclick="sendCode()">تحقق من البريد الإلكتروني</button>
 
-<button class="verify-btn" onclick="sendCode()">تحقق من البريد الإلكتروني</button>
+  <div class="code-section" id="codeSection">
+    <p class="code-title">أدخل كود التحقق</p>
 
-<div class="code-section" id="codeSection">
+    <div class="code-box">
+      <input type="text" maxlength="1" inputmode="numeric">
+      <input type="text" maxlength="1" inputmode="numeric">
+      <input type="text" maxlength="1" inputmode="numeric">
+      <input type="text" maxlength="1" inputmode="numeric">
+      <input type="text" maxlength="1" inputmode="numeric">
+      <input type="text" maxlength="1" inputmode="numeric">
+    </div>
 
-<p>أدخل كود التحقق</p>
+    <button class="code-confirm-btn" onclick="verifyCode()">تأكيد الكود</button>
 
-<div class="code-box">
-<input maxlength="1">
-<input maxlength="1">
-<input maxlength="1">
-<input maxlength="1">
-<input maxlength="1">
-<input maxlength="1">
-</div>
+    <div class="timer">
+      إعادة إرسال الكود خلال <span id="count">60</span> ثانية
+    </div>
 
-<div class="timer">
-إعادة إرسال الكود خلال <span id="count">60</span> ثانية
-</div>
+    <div class="resend" id="resend" onclick="sendCode()">
+      إرسال كود جديد
+    </div>
 
-<div class="resend" id="resend" onclick="sendCode()">
-إرسال كود جديد
-</div>
+    <div class="status-message status-success" id="verifySuccess">
+      تم التحقق من البريد بنجاح
+    </div>
 
-</div>
+    <div class="status-message status-error" id="verifyError">
+    </div>
+  </div>
 
-<label>الدولة</label>
-<input type="text" value="السودان 🇸🇩 (+249)" readonly>
+  <label>الدولة</label>
+  <input type="text" value="السودان 🇸🇩 (+249)" readonly>
 
-<label>رقم الهاتف</label>
-<input type="tel" placeholder="مثال: 912345678">
+  <label>رقم الهاتف</label>
+  <input type="tel" id="phone" placeholder="مثال: 912345678">
 
-<label>رمز الإحالة (اختياري)</label>
-<input type="text" placeholder="رمز الإحالة">
+  <label>رمز الإحالة (اختياري)</label>
+  <input type="text" id="referralCode" placeholder="رمز الإحالة">
 
-<label>كلمة المرور</label>
-<input type="password" placeholder="كلمة المرور">
+  <label>كلمة المرور</label>
+  <div class="password-wrap">
+    <input type="password" id="password" placeholder="كلمة المرور">
+    <button type="button" class="toggle-password" onclick="togglePassword('password', this)">إظهار</button>
+  </div>
 
-<label>تأكيد كلمة المرور</label>
-<input type="password" placeholder="تأكيد كلمة المرور">
+  <div class="password-note">
+    يجب أن تتكون كلمة المرور من 8 أحرف أو أرقام على الأقل
+  </div>
 
-<button class="create-btn" id="createBtn">
-إنشاء الحساب
-</button>
+  <label>تأكيد كلمة المرور</label>
+  <div class="password-wrap">
+    <input type="password" id="confirmPassword" placeholder="تأكيد كلمة المرور">
+    <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword', this)">إظهار</button>
+  </div>
 
-<div class="links">
+  <button class="create-btn" id="createBtn" disabled>
+    إنشاء الحساب
+  </button>
 
-<a href="login.html">تسجيل الدخول</a>
+  <div class="links">
+    <a href="login.html">تسجيل الدخول</a>
+    <a href="forgot.html">نسيت كلمة المرور؟</a>
+  </div>
 
-<a href="forgot.html">نسيت كلمة المرور؟</a>
-
-</div>
-
-<footer>
-© سودان كربتو – جميع الحقوق محفوظة
-</footer>
-
+  <footer>© سودان كربتو – جميع الحقوق محفوظة</footer>
 </div>
 
 <script>
+const API_BASE = "https://sudancryptomarket-api.onrender.com";
 
-function sendCode(){
+let timerInterval = null;
+let emailVerified = false;
 
-let email=document.getElementById("email").value
-
-if(email===""){
-alert("اكتب البريد الإلكتروني أولاً")
-return
+function togglePassword(inputId, button){
+  const input = document.getElementById(inputId);
+  if(input.type === "password"){
+    input.type = "text";
+    button.textContent = "إخفاء";
+  } else {
+    input.type = "password";
+    button.textContent = "إظهار";
+  }
 }
 
-document.getElementById("codeSection").style.display="block"
+function showError(message){
+  const errorBox = document.getElementById("verifyError");
+  const successBox = document.getElementById("verifySuccess");
+  successBox.style.display = "none";
+  errorBox.textContent = message;
+  errorBox.style.display = "block";
+}
 
-startTimer()
+function showSuccess(message){
+  const errorBox = document.getElementById("verifyError");
+  const successBox = document.getElementById("verifySuccess");
+  errorBox.style.display = "none";
+  successBox.textContent = message;
+  successBox.style.display = "block";
+}
 
+function resetMessages(){
+  document.getElementById("verifyError").style.display = "none";
+  document.getElementById("verifySuccess").style.display = "none";
+}
+
+function sendCode(){
+  const email = document.getElementById("email").value.trim();
+
+  resetMessages();
+
+  if(email === ""){
+    alert("اكتب البريد الإلكتروني أولاً");
+    return;
+  }
+
+  fetch(`${API_BASE}/send-code`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ email })
+  })
+  .then(async (res) => {
+    const data = await res.json();
+
+    if(!res.ok){
+      throw new Error(data.message || "فشل إرسال الكود");
+    }
+
+    document.getElementById("codeSection").style.display = "block";
+    startTimer();
+    alert("تم إرسال كود التحقق إلى بريدك الإلكتروني");
+  })
+  .catch((err) => {
+    alert(err.message || "حدث خطأ أثناء إرسال الكود");
+  });
 }
 
 function startTimer(){
+  let time = 60;
+  const count = document.getElementById("count");
+  const resend = document.getElementById("resend");
 
-let time=60
+  resend.style.display = "none";
+  count.innerText = time;
 
-let count=document.getElementById("count")
+  if(timerInterval){
+    clearInterval(timerInterval);
+  }
 
-let resend=document.getElementById("resend")
+  timerInterval = setInterval(() => {
+    time--;
+    count.innerText = time;
 
-resend.style.display="none"
-
-let timer=setInterval(()=>{
-
-time--
-
-count.innerText=time
-
-if(time<=0){
-
-clearInterval(timer)
-
-count.innerText="0"
-
-resend.style.display="block"
-
+    if(time <= 0){
+      clearInterval(timerInterval);
+      timerInterval = null;
+      count.innerText = "0";
+      resend.style.display = "block";
+    }
+  }, 1000);
 }
 
-},1000)
+const inputs = document.querySelectorAll(".code-box input");
 
+inputs.forEach((input, index) => {
+  input.addEventListener("input", () => {
+    input.value = input.value.replace(/[^0-9]/g, "");
+
+    if(input.value.length === 1 && index < inputs.length - 1){
+      inputs[index + 1].focus();
+    }
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if(e.key === "Backspace" && input.value === "" && index > 0){
+      inputs[index - 1].focus();
+    }
+  });
+});
+
+function verifyCode(){
+  const email = document.getElementById("email").value.trim();
+  const code = Array.from(inputs).map(input => input.value).join("");
+
+  resetMessages();
+
+  if(code.length !== 6){
+    showError("اكتب كود التحقق كاملاً");
+    return;
+  }
+
+  fetch(`${API_BASE}/verify-code`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ email, code })
+  })
+  .then(async (res) => {
+    const data = await res.json();
+
+    if(!res.ok){
+      throw new Error(data.message || "فشل التحقق من الكود");
+    }
+
+    emailVerified = true;
+    document.getElementById("createBtn").disabled = false;
+    document.getElementById("createBtn").style.opacity = "1";
+    showSuccess("تم التحقق من البريد بنجاح");
+  })
+  .catch((err) => {
+    showError(err.message || "حدث خطأ أثناء التحقق");
+  });
 }
-
-let inputs=document.querySelectorAll(".code-box input")
-
-inputs.forEach((input,index)=>{
-
-input.addEventListener("input",()=>{
-
-if(input.value.length==1 && index<5){
-
-inputs[index+1].focus()
-
-}
-
-})
-
-})
-
 </script>
 
 </body>
