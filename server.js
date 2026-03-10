@@ -1,525 +1,423 @@
-const express = require("express");
-const cors = require("cors");
-const { Resend } = require("resend");
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تسجيل الدخول | سودان كربتو</title>
 
-const app = express();
+<style>
+*{box-sizing:border-box;}
 
-app.use(cors());
-app.use(express.json());
-
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-// تخزين مؤقت
-const otpStore = {};
-const users = {};
-
-const RATE_LIMIT_MS = 60 * 1000; // 60 ثانية
-const OTP_EXPIRES_MS = 5 * 60 * 1000; // 5 دقائق
-const PASSWORD_MIN_LENGTH = 8;
-
-// تنظيف البريد
-function normalizeEmail(email) {
-  return String(email || "").trim().toLowerCase();
+body{
+margin:0;
+font-family:Tahoma, Arial, sans-serif;
+background:linear-gradient(135deg,#07162b,#0b1f3a,#12345c);
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+padding:12px;
 }
 
-// تنظيف النص
-function cleanText(value) {
-  return String(value || "").trim();
+.container{
+width:100%;
+max-width:380px;
+background:#dcebff;
+border-radius:18px;
+padding:22px 18px;
+box-shadow:0 18px 45px rgba(0,0,0,0.28);
+border:1px solid rgba(255,255,255,0.35);
 }
 
-// توليد كود 6 أرقام
-function generateOTP() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+.logo{
+text-align:center;
+font-size:22px;
+font-weight:700;
+color:#2D6AF6;
+margin-bottom:4px;
 }
 
-// فحص الإيميل
-function isValidEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+.subtitle{
+text-align:center;
+color:#42526b;
+font-size:12px;
+margin-bottom:14px;
 }
 
-// فحص الهاتف السوداني بشكل بسيط
-function isValidPhone(phone) {
-  return /^[0-9]{9,15}$/.test(phone);
+h2{
+margin:0 0 14px;
+text-align:center;
+color:#1A1A1A;
+font-size:20px;
 }
 
-// فحص كلمة المرور
-function isValidPassword(password) {
-  return String(password || "").length >= PASSWORD_MIN_LENGTH;
+label{
+display:block;
+margin-top:8px;
+margin-bottom:4px;
+font-size:13px;
+font-weight:700;
+color:#1A1A1A;
 }
 
-// التحقق هل الكود صالح
-function isOtpValid(saved, code, purpose) {
-  if (!saved) return { ok: false, message: "لم يتم طلب كود" };
-
-  if (saved.purpose !== purpose) {
-    return { ok: false, message: "نوع الكود غير صحيح" };
-  }
-
-  if (Date.now() > saved.expiresAt) {
-    return { ok: false, message: "انتهت صلاحية الكود" };
-  }
-
-  if (saved.code !== code) {
-    return { ok: false, message: "الكود غير صحيح" };
-  }
-
-  return { ok: true };
+input{
+width:100%;
+height:42px;
+border:1px solid #bfd0ea;
+border-radius:8px;
+padding:0 12px;
+font-size:13px;
+background:#f7fbff;
+outline:none;
 }
 
-// الصفحة الرئيسية
-app.get("/", (req, res) => {
-  res.json({
-    success: true,
-    message: "Sudan Crypto API running"
-  });
+input:focus{
+border-color:#2D6AF6;
+box-shadow:0 0 0 3px rgba(45,106,246,0.12);
+background:#ffffff;
+}
+
+.password-wrap{
+position:relative;
+}
+
+.password-wrap input{
+padding-left:74px;
+}
+
+.toggle-password{
+position:absolute;
+left:8px;
+top:50%;
+transform:translateY(-50%);
+height:28px;
+padding:0 10px;
+border:none;
+border-radius:6px;
+background:#2D6AF6;
+color:#fff;
+font-size:11px;
+font-weight:700;
+cursor:pointer;
+}
+
+.verify-btn,
+.confirm-btn{
+width:100%;
+height:44px;
+border:none;
+border-radius:8px;
+font-size:14px;
+font-weight:700;
+cursor:pointer;
+margin-top:10px;
+}
+
+.verify-btn{
+background:#2D6AF6;
+color:#fff;
+}
+
+.confirm-btn{
+background:#10B981;
+color:#fff;
+}
+
+.code-section{
+display:none;
+text-align:center;
+margin-top:14px;
+padding:14px 10px;
+background:#eef5ff;
+border-radius:12px;
+}
+
+.code-box{
+display:flex;
+justify-content:center;
+gap:8px;
+margin:14px 0;
+direction:ltr;
+}
+
+.code-box input{
+width:42px;
+height:48px;
+text-align:center;
+font-size:20px;
+border-radius:10px;
+border:2px solid #d4deef;
+background:#fff;
+}
+
+.timer{
+font-size:13px;
+margin-top:8px;
+}
+
+.resend{
+color:#2D6AF6;
+margin-top:10px;
+display:none;
+cursor:pointer;
+font-size:13px;
+font-weight:700;
+}
+
+.status-message{
+margin-top:10px;
+font-size:13px;
+font-weight:700;
+display:none;
+color:#e74c3c;
+text-align:center;
+}
+
+.links{
+text-align:center;
+margin-top:12px;
+}
+
+.links a{
+display:block;
+text-decoration:none;
+color:#2D6AF6;
+font-size:13px;
+font-weight:700;
+margin-top:6px;
+}
+
+footer{
+text-align:center;
+margin-top:14px;
+font-size:11px;
+color:#314057;
+font-weight:600;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="logo">سودان كربتو</div>
+<div class="subtitle">تسجيل الدخول إلى حسابك</div>
+
+<h2>تسجيل الدخول</h2>
+
+<label>البريد الإلكتروني</label>
+<input type="email" id="email" placeholder="اكتب البريد الإلكتروني">
+
+<label>كلمة السر</label>
+<div class="password-wrap">
+<input type="password" id="password" placeholder="اكتب كلمة السر">
+<button type="button" class="toggle-password" onclick="togglePassword()">إظهار</button>
+</div>
+
+<button class="verify-btn" onclick="sendLoginCode()">إرسال كود التحقق</button>
+
+<div class="code-section" id="codeSection">
+
+<p>أدخل كود التحقق</p>
+
+<div class="code-box">
+<input type="text" maxlength="1">
+<input type="text" maxlength="1">
+<input type="text" maxlength="1">
+<input type="text" maxlength="1">
+<input type="text" maxlength="1">
+<input type="text" maxlength="1">
+</div>
+
+<button class="confirm-btn" onclick="confirmLogin()">تأكيد الكود</button>
+
+<div class="timer">
+إعادة إرسال الكود خلال <span id="count">60</span> ثانية
+</div>
+
+<div class="resend" id="resend" onclick="sendLoginCode()">
+إرسال كود جديد
+</div>
+
+<div class="status-message" id="statusMessage"></div>
+
+</div>
+
+<div class="links">
+<a href="forgot.html">هل نسيت كلمة السر؟</a>
+<a href="index.html">إنشاء حساب جديد</a>
+</div>
+
+<footer>© سودان كربتو</footer>
+
+</div>
+
+<script>
+
+const API_BASE="https://sudancryptomarket-api.onrender.com";
+
+let timerInterval=null;
+let sending=false;
+
+function togglePassword(){
+
+const input=document.getElementById("password");
+const button=document.querySelector(".toggle-password");
+
+if(input.type==="password"){
+input.type="text";
+button.textContent="إخفاء";
+}else{
+input.type="password";
+button.textContent="إظهار";
+}
+
+}
+
+function showStatus(msg){
+const box=document.getElementById("statusMessage");
+box.textContent=msg;
+box.style.display="block";
+}
+
+function clearStatus(){
+document.getElementById("statusMessage").style.display="none";
+}
+
+function sendLoginCode(){
+
+if(sending) return;
+
+const email=document.getElementById("email").value.trim();
+const password=document.getElementById("password").value.trim();
+
+clearStatus();
+
+if(email===""){
+showStatus("اكتب البريد الإلكتروني");
+return;
+}
+
+if(password===""){
+showStatus("اكتب كلمة السر");
+return;
+}
+
+sending=true;
+
+fetch(`${API_BASE}/send-code`,{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+email,
+purpose:"login"
+})
+})
+.then(res=>res.json())
+.then(data=>{
+
+if(data.success===false){
+throw new Error(data.message);
+}
+
+document.getElementById("codeSection").style.display="block";
+startTimer();
+
+})
+.catch(err=>{
+showStatus(err.message);
+sending=false;
 });
 
-// إرسال كود عام حسب الغرض
-app.post("/send-code", async (req, res) => {
-  try {
-    const email = normalizeEmail(req.body.email);
-    const purpose = cleanText(req.body.purpose || "register");
-    const now = Date.now();
+}
 
-    if (!email) {
-      return res.json({
-        success: false,
-        message: "البريد الإلكتروني مطلوب"
-      });
-    }
+function startTimer(){
 
-    if (!isValidEmail(email)) {
-      return res.json({
-        success: false,
-        message: "صيغة البريد الإلكتروني غير صحيحة"
-      });
-    }
+let time=60;
 
-    // التحقق حسب الغرض
-    if (purpose === "register" && users[email]) {
-      return res.json({
-        success: false,
-        message: "هذا البريد مسجل مسبقاً"
-      });
-    }
+const count=document.getElementById("count");
+const resend=document.getElementById("resend");
 
-    if ((purpose === "login" || purpose === "reset") && !users[email]) {
-      return res.json({
-        success: false,
-        message: "الحساب غير موجود"
-      });
-    }
+resend.style.display="none";
 
-    const existing = otpStore[email];
-    if (existing && existing.lastSentAt && now - existing.lastSentAt < RATE_LIMIT_MS) {
-      const secondsLeft = Math.ceil((RATE_LIMIT_MS - (now - existing.lastSentAt)) / 1000);
+count.innerText=time;
 
-      return res.json({
-        success: false,
-        message: `انتظر ${secondsLeft} ثانية قبل طلب كود جديد`
-      });
-    }
+timerInterval=setInterval(()=>{
 
-    const code = generateOTP();
+time--;
+count.innerText=time;
 
-    otpStore[email] = {
-      code,
-      purpose,
-      expiresAt: now + OTP_EXPIRES_MS,
-      lastSentAt: now,
-      verified: false
-    };
+if(time<=0){
+clearInterval(timerInterval);
+resend.style.display="block";
+sending=false;
+}
 
-    let subject = "رمز التحقق - سودان كربتو";
-    let title = "سودان كربتو";
-    let text = "رمز التحقق الخاص بك هو:";
+},1000);
 
-    if (purpose === "login") {
-      subject = "رمز تسجيل الدخول - سودان كربتو";
-      text = "رمز تسجيل الدخول الخاص بك هو:";
-    }
+}
 
-    if (purpose === "reset") {
-      subject = "إعادة تعيين كلمة السر - سودان كربتو";
-      text = "رمز إعادة تعيين كلمة السر هو:";
-    }
+const inputs=document.querySelectorAll(".code-box input");
 
-    await resend.emails.send({
-      from: "Sudan Crypto <noreply@sudancrypto.com>",
-      to: email,
-      subject,
-      html: `
-        <div style="font-family: Arial, sans-serif; direction: rtl; text-align: right; background:#f7f9fc; padding:24px;">
-          <div style="max-width:520px; margin:0 auto; background:#ffffff; border-radius:14px; padding:28px; border:1px solid #e6ecf5;">
-            <h2 style="margin:0 0 12px; color:#2D6AF6;">${title}</h2>
-            <p style="font-size:16px; color:#1A1A1A; margin:0 0 14px;">${text}</p>
-            <div style="font-size:34px; font-weight:bold; letter-spacing:6px; color:#2D6AF6; margin:20px 0; text-align:center;">
-              ${code}
-            </div>
-            <p style="font-size:14px; color:#444; margin:0 0 10px;">ينتهي هذا الرمز خلال 5 دقائق.</p>
-            <p style="font-size:14px; color:#444; margin:0;">إذا لم تطلب هذا الرمز يمكنك تجاهل الرسالة.</p>
-          </div>
-        </div>
-      `
-    });
+inputs.forEach((input,index)=>{
 
-    return res.json({
-      success: true,
-      message: "تم إرسال الكود"
-    });
-  } catch (error) {
-    console.error("Send code error:", error);
+input.addEventListener("input",()=>{
 
-    return res.json({
-      success: false,
-      message: "فشل إرسال الكود"
-    });
-  }
+input.value=input.value.replace(/[^0-9]/g,"");
+
+if(input.value.length===1 && index<inputs.length-1){
+inputs[index+1].focus();
+}
+
 });
 
-// التحقق من الكود فقط
-app.post("/verify-code", (req, res) => {
-  const email = normalizeEmail(req.body.email);
-  const code = cleanText(req.body.code);
-  const purpose = cleanText(req.body.purpose || "register");
-
-  if (!email || !code) {
-    return res.json({
-      success: false,
-      message: "البريد الإلكتروني والكود مطلوبان"
-    });
-  }
-
-  const saved = otpStore[email];
-  const check = isOtpValid(saved, code, purpose);
-
-  if (!check.ok) {
-    return res.json({
-      success: false,
-      message: check.message
-    });
-  }
-
-  otpStore[email].verified = true;
-
-  return res.json({
-    success: true,
-    message: "تم التحقق بنجاح"
-  });
 });
 
-// تسجيل حساب جديد
-app.post("/register", (req, res) => {
-  const name = cleanText(req.body.name);
-  const email = normalizeEmail(req.body.email);
-  const phone = cleanText(req.body.phone);
-  const referral = cleanText(req.body.referral);
-  const password = cleanText(req.body.password);
+function confirmLogin(){
 
-  if (!name) {
-    return res.json({
-      success: false,
-      message: "الاسم الحقيقي مطلوب"
-    });
-  }
+const email=document.getElementById("email").value.trim();
+const password=document.getElementById("password").value.trim();
 
-  if (!email) {
-    return res.json({
-      success: false,
-      message: "البريد الإلكتروني مطلوب"
-    });
-  }
+const code=Array.from(inputs).map(i=>i.value).join("");
 
-  if (!isValidEmail(email)) {
-    return res.json({
-      success: false,
-      message: "صيغة البريد الإلكتروني غير صحيحة"
-    });
-  }
+clearStatus();
 
-  if (!phone) {
-    return res.json({
-      success: false,
-      message: "رقم الهاتف مطلوب"
-    });
-  }
+if(code.length!==6){
+showStatus("اكتب كود التحقق كاملاً");
+return;
+}
 
-  if (!isValidPhone(phone)) {
-    return res.json({
-      success: false,
-      message: "رقم الهاتف غير صحيح"
-    });
-  }
+fetch(`${API_BASE}/login`,{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+email,
+password
+})
+})
+.then(res=>res.json())
+.then(data=>{
 
-  if (!password) {
-    return res.json({
-      success: false,
-      message: "كلمة المرور مطلوبة"
-    });
-  }
+if(data.success===false){
+throw new Error(data.message);
+}
 
-  if (!isValidPassword(password)) {
-    return res.json({
-      success: false,
-      message: "كلمة المرور يجب أن تكون 8 أحرف أو أكثر"
-    });
-  }
+/* الانتقال للصفحة الرئيسية بعد نجاح الدخول */
+window.location.href="dashboard.html";
 
-  if (users[email]) {
-    return res.json({
-      success: false,
-      message: "هذا البريد مسجل مسبقاً"
-    });
-  }
-
-  const saved = otpStore[email];
-
-  if (!saved || saved.purpose !== "register" || saved.verified !== true) {
-    return res.json({
-      success: false,
-      message: "يجب التحقق من البريد الإلكتروني أولاً"
-    });
-  }
-
-  users[email] = {
-    id: Date.now().toString(),
-    name,
-    email,
-    phone,
-    referral,
-    password,
-    emailVerified: true,
-    createdAt: new Date().toISOString()
-  };
-
-  delete otpStore[email];
-
-  return res.json({
-    success: true,
-    message: "تم إنشاء الحساب بنجاح",
-    user: {
-      id: users[email].id,
-      name: users[email].name,
-      email: users[email].email,
-      phone: users[email].phone,
-      referral: users[email].referral,
-      createdAt: users[email].createdAt
-    }
-  });
+})
+.catch(err=>{
+showStatus(err.message);
 });
 
-// تسجيل الدخول: كلمة السر + كود الإيميل
-app.post("/login", (req, res) => {
-  const email = normalizeEmail(req.body.email);
-  const password = cleanText(req.body.password);
-  const code = cleanText(req.body.code);
+}
 
-  if (!email) {
-    return res.json({
-      success: false,
-      message: "البريد الإلكتروني مطلوب"
-    });
-  }
+</script>
 
-  if (!password) {
-    return res.json({
-      success: false,
-      message: "كلمة المرور مطلوبة"
-    });
-  }
-
-  if (!code) {
-    return res.json({
-      success: false,
-      message: "كود التحقق مطلوب"
-    });
-  }
-
-  const user = users[email];
-
-  if (!user) {
-    return res.json({
-      success: false,
-      message: "الحساب غير موجود"
-    });
-  }
-
-  if (user.password !== password) {
-    return res.json({
-      success: false,
-      message: "كلمة السر غير صحيحة"
-    });
-  }
-
-  const saved = otpStore[email];
-  const check = isOtpValid(saved, code, "login");
-
-  if (!check.ok) {
-    return res.json({
-      success: false,
-      message: check.message
-    });
-  }
-
-  delete otpStore[email];
-
-  return res.json({
-    success: true,
-    message: "تم تسجيل الدخول بنجاح",
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-      referral: user.referral,
-      createdAt: user.createdAt
-    }
-  });
-});
-
-// طلب كود نسيان كلمة السر
-app.post("/forgot-password", async (req, res) => {
-  try {
-    const email = normalizeEmail(req.body.email);
-    const now = Date.now();
-
-    if (!email) {
-      return res.json({
-        success: false,
-        message: "البريد الإلكتروني مطلوب"
-      });
-    }
-
-    if (!users[email]) {
-      return res.json({
-        success: false,
-        message: "الحساب غير موجود"
-      });
-    }
-
-    const existing = otpStore[email];
-    if (existing && existing.lastSentAt && now - existing.lastSentAt < RATE_LIMIT_MS) {
-      const secondsLeft = Math.ceil((RATE_LIMIT_MS - (now - existing.lastSentAt)) / 1000);
-
-      return res.json({
-        success: false,
-        message: `انتظر ${secondsLeft} ثانية قبل طلب كود جديد`
-      });
-    }
-
-    const code = generateOTP();
-
-    otpStore[email] = {
-      code,
-      purpose: "reset",
-      expiresAt: now + OTP_EXPIRES_MS,
-      lastSentAt: now,
-      verified: false
-    };
-
-    await resend.emails.send({
-      from: "Sudan Crypto <noreply@sudancrypto.com>",
-      to: email,
-      subject: "إعادة تعيين كلمة السر - سودان كربتو",
-      html: `
-        <div style="font-family: Arial, sans-serif; direction: rtl; text-align: right; background:#f7f9fc; padding:24px;">
-          <div style="max-width:520px; margin:0 auto; background:#ffffff; border-radius:14px; padding:28px; border:1px solid #e6ecf5;">
-            <h2 style="margin:0 0 12px; color:#2D6AF6;">سودان كربتو</h2>
-            <p style="font-size:16px; color:#1A1A1A; margin:0 0 14px;">رمز إعادة تعيين كلمة السر هو:</p>
-            <div style="font-size:34px; font-weight:bold; letter-spacing:6px; color:#2D6AF6; margin:20px 0; text-align:center;">
-              ${code}
-            </div>
-            <p style="font-size:14px; color:#444; margin:0;">ينتهي هذا الرمز خلال 5 دقائق.</p>
-          </div>
-        </div>
-      `
-    });
-
-    return res.json({
-      success: true,
-      message: "تم إرسال كود تغيير كلمة السر"
-    });
-  } catch (error) {
-    console.error("Forgot password error:", error);
-
-    return res.json({
-      success: false,
-      message: "فشل إرسال كود تغيير كلمة السر"
-    });
-  }
-});
-
-// تغيير كلمة السر
-app.post("/reset-password", (req, res) => {
-  const email = normalizeEmail(req.body.email);
-  const code = cleanText(req.body.code);
-  const newPassword = cleanText(req.body.password);
-
-  if (!email) {
-    return res.json({
-      success: false,
-      message: "البريد الإلكتروني مطلوب"
-    });
-  }
-
-  if (!code) {
-    return res.json({
-      success: false,
-      message: "كود التحقق مطلوب"
-    });
-  }
-
-  if (!newPassword) {
-    return res.json({
-      success: false,
-      message: "كلمة المرور الجديدة مطلوبة"
-    });
-  }
-
-  if (!isValidPassword(newPassword)) {
-    return res.json({
-      success: false,
-      message: "كلمة المرور يجب أن تكون 8 أحرف أو أكثر"
-    });
-  }
-
-  if (!users[email]) {
-    return res.json({
-      success: false,
-      message: "الحساب غير موجود"
-    });
-  }
-
-  const saved = otpStore[email];
-  const check = isOtpValid(saved, code, "reset");
-
-  if (!check.ok) {
-    return res.json({
-      success: false,
-      message: check.message
-    });
-  }
-
-  users[email].password = newPassword;
-
-  delete otpStore[email];
-
-  return res.json({
-    success: true,
-    message: "تم تغيير كلمة السر بنجاح"
-  });
-});
-
-// اختبار سريع لعرض المستخدمين المحفوظين مؤقتاً
-app.get("/users", (req, res) => {
-  return res.json({
-    success: true,
-    users
-  });
-});
-
-const PORT = process.env.PORT || 10000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+</body>
+</html>
