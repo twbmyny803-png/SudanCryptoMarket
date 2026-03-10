@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>سودان كربتو | الرئيسية</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Tahoma, Arial, sans-serif;
+      background: linear-gradient(135deg, #07162b, #0b1f3a, #12345c);
+      min-height: 100vh;
+      color: #111827;
+    }
+
+    .app {
+      max-width: 420px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: #f4f8ff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .topbar {
+      background: linear-gradient(135deg, #0f4ea8, #0d6efd, #17a2b8);
+      color: #fff;
+      padding: 16px 16px 18px;
+      border-bottom-left-radius: 24px;
+      border-bottom-right-radius: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+    }
+
+    .topbar-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      backdrop-filter: blur(4px);
+    }
+
+    .brand-text h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .brand-text p {
+      margin: 3px 0 0;
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .top-icons {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .welcome-box {
+      margin-top: 16px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 18px;
+      padding: 14px;
+      backdrop-filter: blur(6px);
+    }
+
+    .welcome-box h2 {
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+
+    .welcome-box p {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.7;
+      opacity: 0.95;
+    }
+
+    .content {
+      padding: 14px 14px 90px;
+    }
+
+    .banner {
+      background: linear-gradient(135deg, #ffffff, #eef6ff);
+      border-radius: 22px;
+      padding: 14px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      box-shadow: 0 8px 20px rgba(23, 75, 140, 0.08);
+      border: 1px solid #e2ebf8;
+    }
+
+    .banner-art {
+      width: 120px;
+      min-width: 120px;
+      height: 120px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #d8f3dc, #b7e4c7, #95d5b2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 46px;
+    }
+
+    .banner-text h3 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      line-height: 1.3;
+      color: #1f2937;
+    }
+
+    .banner-text p {
+      margin: 0 0 10px;
+      font-size: 13px;
+      color: #4b5563;
+      line-height: 1.8;
+    }
+
+    .banner-badge {
+      display: inline-block;
+      background: #22c55e;
+      color: #fff;
+      padding: 7px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .stats-grid {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .stat-card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 14px 12px;
+      box-shadow: 0 8px 20px rgba(15, 78, 168, 0.06);
+      border: 1px solid #e7eef9;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 21px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 6px;
+    }
+
+    .stat-sub {
+      font-size: 12px;
+      color: #2563eb;
+      font-weight: 700;
+    }
+
+    .section-title {
+      margin: 18px 0 10px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px 10px;
+      background: #fff;
+      border-radius: 20px;
+      padding: 16px 10px;
+      box-shadow: 0 8px 20px rgba(15, 78, 168, 0.06);
+      border: 1px solid #e7eef9;
+    }
+
+    .action-item {
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .action-icon {
+      width: 58px;
+      height: 58px;
+      margin: 0 auto 8px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    .c1 { background: linear-gradient(135deg, #a855f7, #c084fc); }
+    .c2 { background: linear-gradient(135deg, #f59e0b, #fb923c); }
+    .c3 { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+    .c4 { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+    .c5 { background: linear-gradient(135deg, #10b981, #34d399); }
+    .c6 { background: linear-gradient(135deg, #06b6d4, #38bdf8); }
+
+    .action-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: #374151;
+      line-height: 1.5;
+    }
+
+    .promo-grid {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .promo-card {
+      border-radius: 18px;
+      padding: 14px;
+      color: #1f2937;
+      min-height: 122px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .promo-card h4 {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    .promo-card p {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .promo-card .arrow {
+      position: absolute;
+      bottom: 12px;
+      left: 14px;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .promo-green {
+      background: linear-gradient(135deg, #d9f99d, #a3e635);
+    }
+
+    .promo-blue {
+      background: linear-gradient(135deg, #bfdbfe, #60a5fa);
+    }
+
+    .activity-card {
+      margin-top: 16px;
+      background: #fff;
+      border-radius: 20px;
+      padding: 14px;
+      box-shadow: 0 8px 20px rgba(15, 78, 168, 0.06);
+      border: 1px solid #e7eef9;
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 11px 0;
+      border-bottom: 1px solid #eef2f7;
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .activity-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #fff;
+    }
+
+    .activity-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 4px;
+    }
+
+    .activity-sub {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .activity-amount {
+      font-size: 13px;
+      font-weight: 700;
+      color: #111827;
+      white-space: nowrap;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 420px;
+      background: rgba(255, 255, 255, 0.96);
+      border-top: 1px solid #e5e7eb;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      padding: 10px 6px 12px;
+      backdrop-filter: blur(10px);
+    }
+
+    .nav-item {
+      text-align: center;
+      font-size: 11px;
+      color: #4b5563;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .nav-icon {
+      width: 42px;
+      height: 42px;
+      margin: 0 auto 4px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 19px;
+      background: #eef2ff;
+      color: #2563eb;
+    }
+
+    .nav-item.active .nav-icon {
+      background: #d9f99d;
+      color: #3f6212;
+    }
+
+    .nav-item.active {
+      color: #111827;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="topbar-row">
+        <div class="brand">
+          <div class="brand-logo">₿</div>
+          <div class="brand-text">
+            <h1>سودان كربتو</h1>
+            <p>لوحة المستخدم</p>
+          </div>
+        </div>
+
+        <div class="top-icons">
+          <button class="icon-btn" title="الدعم">🎧</button>
+          <button class="icon-btn" title="اللغة">🌐</button>
+          <button class="icon-btn" title="الإشعارات">🔔</button>
+        </div>
+      </div>
+
+      <div class="welcome-box">
+        <h2>مرحباً، أحمد</h2>
+        <p>
+          أهلاً بك في منصة سودان كربتو. تابع رصيدك، أرباحك اليومية،
+          والباقات النشطة من مكان واحد.
+        </p>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="banner">
+        <div class="banner-art">📈</div>
+        <div class="banner-text">
+          <h3>منصة سودان كربتو</h3>
+          <p>
+            منصة تداول واستثمار رقمية تساعدك على متابعة الأرباح
+            وإدارة الإيداع والسحب بسهولة.
+          </p>
+          <span class="banner-badge">منصة موثوقة للنمو المستمر</span>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">الرصيد الكلي</div>
+          <div class="stat-value">125.00 USDT</div>
+          <div class="stat-sub">الأصول الحالية</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">الدخل اليومي</div>
+          <div class="stat-value">2.50 USDT</div>
+          <div class="stat-sub">يتم تحديثه يومياً</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">الباقة الحالية</div>
+          <div class="stat-value">Silver</div>
+          <div class="stat-sub">2% يومي</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">أرباح الإحالة</div>
+          <div class="stat-value">12.00 USDT</div>
+          <div class="stat-sub">3 أعضاء</div>
+        </div>
+      </div>
+
+      <div class="section-title">الخدمات الرئيسية</div>
+
+      <div class="actions-grid">
+        <div class="action-item">
+          <div class="action-icon c1">🏢</div>
+          <div class="action-text">عن المنصة</div>
+        </div>
+
+        <div class="action-item">
+          <div class="action-icon c2">👥</div>
+          <div class="action-text">فريقي</div>
+        </div>
+
+        <div class="action-item">
+          <div class="action-icon c3">💳</div>
+          <div class="action-text">إيداع</div>
+        </div>
+
+        <div class="action-item">
+          <div class="action-icon c4">💸</div>
+          <div class="action-text">سحب</div>
+        </div>
+
+        <div class="action-item">
+          <div class="action-icon c5">📄</div>
+          <div class="action-text">سجل العمليات</div>
+        </div>
+
+        <div class="action-item">
+          <div class="action-icon c6">🛟</div>
+          <div class="action-text">مركز المساعدة</div>
+        </div>
+      </div>
+
+      <div class="promo-grid">
+        <div class="promo-card promo-green">
+          <h4>دعوة الأصدقاء</h4>
+          <p>شارك رابط الإحالة الخاص بك واحصل على أرباح إضافية من فريقك.</p>
+          <div class="arrow">←</div>
+        </div>
+
+        <div class="promo-card promo-blue">
+          <h4>شراء باقة</h4>
+          <p>اختر الباقة المناسبة وابدأ في تحقيق دخل يومي مستمر.</p>
+          <div class="arrow">←</div>
+        </div>
+      </div>
+
+      <div class="section-title">آخر العمليات</div>
+
+      <div class="activity-card">
+        <div class="activity-item">
+          <div class="activity-left">
+            <div class="activity-badge c3">⬇</div>
+            <div>
+              <div class="activity-title">آخر إيداع</div>
+              <div class="activity-sub">اليوم - 10:30 صباحاً</div>
+            </div>
+          </div>
+          <div class="activity-amount">+50 USDT</div>
+        </div>
+
+        <div class="activity-item">
+          <div class="activity-left">
+            <div class="activity-badge c4">⬆</div>
+            <div>
+              <div class="activity-title">آخر سحب</div>
+              <div class="activity-sub">أمس - 08:15 مساءً</div>
+            </div>
+          </div>
+          <div class="activity-amount">-20 USDT</div>
+        </div>
+
+        <div class="activity-item">
+          <div class="activity-left">
+            <div class="activity-badge c5">💰</div>
+            <div>
+              <div class="activity-title">ربح يومي</div>
+              <div class="activity-sub">تم إضافته تلقائياً</div>
+            </div>
+          </div>
+          <div class="activity-amount">+2.50 USDT</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <a href="dashboard.html" class="nav-item active">
+        <div class="nav-icon">⌂</div>
+        الرئيسية
+      </a>
+
+      <a href="#" class="nav-item">
+        <div class="nav-icon">📈</div>
+        الدخل اليومي
+      </a>
+
+      <a href="#" class="nav-item">
+        <div class="nav-icon">👥</div>
+        الإحالات
+      </a>
+
+      <a href="#" class="nav-item">
+        <div class="nav-icon">💼</div>
+        الأصول
+      </a>
+
+      <a href="#" class="nav-item">
+        <div class="nav-icon">👤</div>
+        حسابي
+      </a>
+    </div>
+  </div>
+</body>
+  </html>
