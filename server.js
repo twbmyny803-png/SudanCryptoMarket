@@ -1,423 +1,192 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>تسجيل الدخول | سودان كربتو</title>
+const express = require("express");
+const cors = require("cors");
 
-<style>
-*{box-sizing:border-box;}
+const app = express();
 
-body{
-margin:0;
-font-family:Tahoma, Arial, sans-serif;
-background:linear-gradient(135deg,#07162b,#0b1f3a,#12345c);
-display:flex;
-justify-content:center;
-align-items:center;
-min-height:100vh;
-padding:12px;
+app.use(cors());
+app.use(express.json());
+
+/* قاعدة بيانات مؤقتة */
+let users = {};
+
+/* تخزين الأكواد */
+let codes = {};
+
+/* ------------------------ */
+/* إرسال كود تحقق */
+/* ------------------------ */
+
+app.post("/send-code",(req,res)=>{
+
+const {email,purpose} = req.body;
+
+if(!email){
+return res.json({
+success:false,
+message:"البريد مطلوب"
+});
 }
 
-.container{
-width:100%;
-max-width:380px;
-background:#dcebff;
-border-radius:18px;
-padding:22px 18px;
-box-shadow:0 18px 45px rgba(0,0,0,0.28);
-border:1px solid rgba(255,255,255,0.35);
-}
+const code = Math.floor(100000 + Math.random()*900000).toString();
 
-.logo{
-text-align:center;
-font-size:22px;
-font-weight:700;
-color:#2D6AF6;
-margin-bottom:4px;
-}
+codes[email] = code;
 
-.subtitle{
-text-align:center;
-color:#42526b;
-font-size:12px;
-margin-bottom:14px;
-}
+/* في مشروعنا الحالي سنرجع الكود فقط */
+console.log("OTP Code:",code);
 
-h2{
-margin:0 0 14px;
-text-align:center;
-color:#1A1A1A;
-font-size:20px;
-}
-
-label{
-display:block;
-margin-top:8px;
-margin-bottom:4px;
-font-size:13px;
-font-weight:700;
-color:#1A1A1A;
-}
-
-input{
-width:100%;
-height:42px;
-border:1px solid #bfd0ea;
-border-radius:8px;
-padding:0 12px;
-font-size:13px;
-background:#f7fbff;
-outline:none;
-}
-
-input:focus{
-border-color:#2D6AF6;
-box-shadow:0 0 0 3px rgba(45,106,246,0.12);
-background:#ffffff;
-}
-
-.password-wrap{
-position:relative;
-}
-
-.password-wrap input{
-padding-left:74px;
-}
-
-.toggle-password{
-position:absolute;
-left:8px;
-top:50%;
-transform:translateY(-50%);
-height:28px;
-padding:0 10px;
-border:none;
-border-radius:6px;
-background:#2D6AF6;
-color:#fff;
-font-size:11px;
-font-weight:700;
-cursor:pointer;
-}
-
-.verify-btn,
-.confirm-btn{
-width:100%;
-height:44px;
-border:none;
-border-radius:8px;
-font-size:14px;
-font-weight:700;
-cursor:pointer;
-margin-top:10px;
-}
-
-.verify-btn{
-background:#2D6AF6;
-color:#fff;
-}
-
-.confirm-btn{
-background:#10B981;
-color:#fff;
-}
-
-.code-section{
-display:none;
-text-align:center;
-margin-top:14px;
-padding:14px 10px;
-background:#eef5ff;
-border-radius:12px;
-}
-
-.code-box{
-display:flex;
-justify-content:center;
-gap:8px;
-margin:14px 0;
-direction:ltr;
-}
-
-.code-box input{
-width:42px;
-height:48px;
-text-align:center;
-font-size:20px;
-border-radius:10px;
-border:2px solid #d4deef;
-background:#fff;
-}
-
-.timer{
-font-size:13px;
-margin-top:8px;
-}
-
-.resend{
-color:#2D6AF6;
-margin-top:10px;
-display:none;
-cursor:pointer;
-font-size:13px;
-font-weight:700;
-}
-
-.status-message{
-margin-top:10px;
-font-size:13px;
-font-weight:700;
-display:none;
-color:#e74c3c;
-text-align:center;
-}
-
-.links{
-text-align:center;
-margin-top:12px;
-}
-
-.links a{
-display:block;
-text-decoration:none;
-color:#2D6AF6;
-font-size:13px;
-font-weight:700;
-margin-top:6px;
-}
-
-footer{
-text-align:center;
-margin-top:14px;
-font-size:11px;
-color:#314057;
-font-weight:600;
-}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-<div class="logo">سودان كربتو</div>
-<div class="subtitle">تسجيل الدخول إلى حسابك</div>
-
-<h2>تسجيل الدخول</h2>
-
-<label>البريد الإلكتروني</label>
-<input type="email" id="email" placeholder="اكتب البريد الإلكتروني">
-
-<label>كلمة السر</label>
-<div class="password-wrap">
-<input type="password" id="password" placeholder="اكتب كلمة السر">
-<button type="button" class="toggle-password" onclick="togglePassword()">إظهار</button>
-</div>
-
-<button class="verify-btn" onclick="sendLoginCode()">إرسال كود التحقق</button>
-
-<div class="code-section" id="codeSection">
-
-<p>أدخل كود التحقق</p>
-
-<div class="code-box">
-<input type="text" maxlength="1">
-<input type="text" maxlength="1">
-<input type="text" maxlength="1">
-<input type="text" maxlength="1">
-<input type="text" maxlength="1">
-<input type="text" maxlength="1">
-</div>
-
-<button class="confirm-btn" onclick="confirmLogin()">تأكيد الكود</button>
-
-<div class="timer">
-إعادة إرسال الكود خلال <span id="count">60</span> ثانية
-</div>
-
-<div class="resend" id="resend" onclick="sendLoginCode()">
-إرسال كود جديد
-</div>
-
-<div class="status-message" id="statusMessage"></div>
-
-</div>
-
-<div class="links">
-<a href="forgot.html">هل نسيت كلمة السر؟</a>
-<a href="index.html">إنشاء حساب جديد</a>
-</div>
-
-<footer>© سودان كربتو</footer>
-
-</div>
-
-<script>
-
-const API_BASE="https://sudancryptomarket-api.onrender.com";
-
-let timerInterval=null;
-let sending=false;
-
-function togglePassword(){
-
-const input=document.getElementById("password");
-const button=document.querySelector(".toggle-password");
-
-if(input.type==="password"){
-input.type="text";
-button.textContent="إخفاء";
-}else{
-input.type="password";
-button.textContent="إظهار";
-}
-
-}
-
-function showStatus(msg){
-const box=document.getElementById("statusMessage");
-box.textContent=msg;
-box.style.display="block";
-}
-
-function clearStatus(){
-document.getElementById("statusMessage").style.display="none";
-}
-
-function sendLoginCode(){
-
-if(sending) return;
-
-const email=document.getElementById("email").value.trim();
-const password=document.getElementById("password").value.trim();
-
-clearStatus();
-
-if(email===""){
-showStatus("اكتب البريد الإلكتروني");
-return;
-}
-
-if(password===""){
-showStatus("اكتب كلمة السر");
-return;
-}
-
-sending=true;
-
-fetch(`${API_BASE}/send-code`,{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-email,
-purpose:"login"
-})
-})
-.then(res=>res.json())
-.then(data=>{
-
-if(data.success===false){
-throw new Error(data.message);
-}
-
-document.getElementById("codeSection").style.display="block";
-startTimer();
-
-})
-.catch(err=>{
-showStatus(err.message);
-sending=false;
+res.json({
+success:true,
+message:"تم إرسال الكود"
 });
 
+});
+
+/* ------------------------ */
+/* إنشاء حساب */
+/* ------------------------ */
+
+app.post("/register",(req,res)=>{
+
+const {name,email,password} = req.body;
+
+if(!name || !email || !password){
+return res.json({
+success:false,
+message:"كل الحقول مطلوبة"
+});
 }
 
-function startTimer(){
-
-let time=60;
-
-const count=document.getElementById("count");
-const resend=document.getElementById("resend");
-
-resend.style.display="none";
-
-count.innerText=time;
-
-timerInterval=setInterval(()=>{
-
-time--;
-count.innerText=time;
-
-if(time<=0){
-clearInterval(timerInterval);
-resend.style.display="block";
-sending=false;
+if(users[email]){
+return res.json({
+success:false,
+message:"الحساب موجود مسبقاً"
+});
 }
 
-},1000);
+users[email] = {
 
+name:name,
+email:email,
+password:password,
+
+balance:0,
+dailyIncome:0,
+
+operations:[]
+
+};
+
+res.json({
+success:true,
+message:"تم إنشاء الحساب"
+});
+
+});
+
+/* ------------------------ */
+/* تسجيل الدخول */
+/* ------------------------ */
+
+app.post("/login",(req,res)=>{
+
+const {email,password} = req.body;
+
+const user = users[email];
+
+if(!user){
+return res.json({
+success:false,
+message:"البريد غير مسجل"
+});
 }
 
-const inputs=document.querySelectorAll(".code-box input");
-
-inputs.forEach((input,index)=>{
-
-input.addEventListener("input",()=>{
-
-input.value=input.value.replace(/[^0-9]/g,"");
-
-if(input.value.length===1 && index<inputs.length-1){
-inputs[index+1].focus();
+if(user.password !== password){
+return res.json({
+success:false,
+message:"كلمة السر غير صحيحة"
+});
 }
+
+res.json({
+success:true,
+message:"تم تسجيل الدخول"
+});
+
+});
+
+/* ------------------------ */
+/* جلب بيانات المستخدم */
+/* ------------------------ */
+
+app.post("/user-data",(req,res)=>{
+
+const {email} = req.body;
+
+const user = users[email];
+
+if(!user){
+return res.json({
+success:false,
+message:"المستخدم غير موجود"
+});
+}
+
+res.json({
+
+success:true,
+
+name:user.name,
+
+balance:user.balance,
+
+dailyIncome:user.dailyIncome,
+
+operations:user.operations
 
 });
 
 });
 
-function confirmLogin(){
+/* ------------------------ */
+/* إضافة عملية */
+/* ------------------------ */
 
-const email=document.getElementById("email").value.trim();
-const password=document.getElementById("password").value.trim();
+app.post("/add-operation",(req,res)=>{
 
-const code=Array.from(inputs).map(i=>i.value).join("");
+const {email,type,amount} = req.body;
 
-clearStatus();
+const user = users[email];
 
-if(code.length!==6){
-showStatus("اكتب كود التحقق كاملاً");
-return;
+if(!user){
+return res.json({success:false});
 }
 
-fetch(`${API_BASE}/login`,{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-email,
-password
-})
-})
-.then(res=>res.json())
-.then(data=>{
+user.operations.unshift({
 
-if(data.success===false){
-throw new Error(data.message);
-}
+type:type,
+amount:amount,
+time:new Date().toLocaleString()
 
-/* الانتقال للصفحة الرئيسية بعد نجاح الدخول */
-window.location.href="dashboard.html";
-
-})
-.catch(err=>{
-showStatus(err.message);
 });
 
+if(type === "deposit"){
+user.balance += amount;
 }
 
-</script>
+if(type === "withdraw"){
+user.balance -= amount;
+}
 
-</body>
-</html>
+res.json({success:true});
+
+});
+
+/* ------------------------ */
+/* تشغيل السيرفر */
+/* ------------------------ */
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT,()=>{
+console.log("Server running on port",PORT);
+});
