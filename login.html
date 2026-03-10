@@ -203,10 +203,8 @@ input:focus{
   font-size:13px;
   font-weight:700;
   display:none;
-}
-
-.status-error{
   color:#e74c3c;
+  text-align:center;
 }
 
 .links{
@@ -297,7 +295,7 @@ footer{
       إرسال كود جديد
     </div>
 
-    <div class="status-message status-error" id="statusMessage"></div>
+    <div class="status-message" id="statusMessage"></div>
   </div>
 
   <div class="links">
@@ -363,12 +361,15 @@ function sendLoginCode(){
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ email })
+    body: JSON.stringify({
+      email,
+      purpose: "login"
+    })
   })
   .then(async (res) => {
     const data = await res.json();
 
-    if(!res.ok || data.success === false){
+    if(data.success === false){
       throw new Error(data.message || "فشل إرسال الكود");
     }
 
@@ -452,12 +453,16 @@ function confirmLogin(){
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ email, password, code })
+    body: JSON.stringify({
+      email,
+      password,
+      code
+    })
   })
   .then(async (res) => {
     const data = await res.json();
 
-    if(!res.ok || data.success === false){
+    if(data.success === false){
       throw new Error(data.message || "فشل تسجيل الدخول");
     }
 
@@ -470,4 +475,4 @@ function confirmLogin(){
 </script>
 
 </body>
-                            </html>
+</html>
