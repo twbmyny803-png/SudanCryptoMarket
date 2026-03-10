@@ -208,6 +208,7 @@ input:focus{
   font-weight:700;
   display:none;
   color:#e74c3c;
+  text-align:center;
 }
 
 .links{
@@ -373,7 +374,7 @@ function sendResetCode(){
   .then(async (res) => {
     const data = await res.json();
 
-    if(!res.ok || data.success === false){
+    if(data.success === false){
       throw new Error(data.message || "فشل إرسال الكود");
     }
 
@@ -452,12 +453,16 @@ function confirmResetCode(){
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ email, code })
+    body: JSON.stringify({
+      email,
+      code,
+      purpose: "reset"
+    })
   })
   .then(async (res) => {
     const data = await res.json();
 
-    if(!res.ok || data.success === false){
+    if(data.success === false){
       throw new Error(data.message || "الكود غير صحيح");
     }
 
@@ -505,7 +510,7 @@ function saveNewPassword(){
   .then(async (res) => {
     const data = await res.json();
 
-    if(!res.ok || data.success === false){
+    if(data.success === false){
       throw new Error(data.message || "فشل تغيير كلمة السر");
     }
 
