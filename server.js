@@ -9,10 +9,10 @@ app.use(express.json());
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// تخزين مؤقت للأكواد في الذاكرة
+// تخزين مؤقت للأكواد
 const otpStore = {};
-const RATE_LIMIT_MS = 60 * 1000; // دقيقة بين كل إرسال
-const OTP_EXPIRES_MS = 5 * 60 * 1000; // 5 دقائق
+const RATE_LIMIT_MS = 60 * 1000; 
+const OTP_EXPIRES_MS = 5 * 60 * 1000; 
 const MAX_VERIFY_ATTEMPTS = 3;
 
 // تنظيف البريد
@@ -20,17 +20,17 @@ function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
 }
 
-// توليد كود 6 أرقام
+// توليد كود
 function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// فحص بسيط للبريد
+// فحص البريد
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-// الصفحة الرئيسية للسيرفر
+// الصفحة الرئيسية
 app.get("/", (req, res) => {
   res.json({
     success: true,
@@ -38,9 +38,10 @@ app.get("/", (req, res) => {
   });
 });
 
-// إرسال كود التحقق
+// إرسال الكود
 app.post("/send-code", async (req, res) => {
   try {
+
     const email = normalizeEmail(req.body.email);
 
     if (!email) {
@@ -61,6 +62,7 @@ app.post("/send-code", async (req, res) => {
     const existing = otpStore[email];
 
     if (existing && existing.lastSentAt && now - existing.lastSentAt < RATE_LIMIT_MS) {
+
       const secondsLeft = Math.ceil((RATE_LIMIT_MS - (now - existing.lastSentAt)) / 1000);
 
       return res.status(429).json({
@@ -80,28 +82,27 @@ app.post("/send-code", async (req, res) => {
     };
 
     await resend.emails.send({
-      from: "Sudan Crypto <onboarding@resend.dev>",
+      from: "Sudan Crypto <noreply@sudancrypto.com>",
       to: email,
       subject: "رمز التحقق - سودان كربتو",
       html: `
-        <div style="font-family: Arial, sans-serif; direction: rtl; text-align: right; background:#f7f9fc; padding:24px;">
-          <div style="max-width:520px; margin:0 auto; background:#ffffff; border-radius:14px; padding:28px; border:1px solid #e6ecf5;">
-            <h2 style="margin:0 0 12px; color:#2D6AF6;">سودان كربتو</h2>
-            <p style="font-size:16px; color:#1A1A1A; margin:0 0 14px;">
-              تم طلب رمز تحقق لحسابك.
-            </p>
-            <p style="font-size:15px; color:#444; margin:0 0 14px;">
-              رمز التحقق الخاص بك هو:
-            </p>
-            <div style="font-size:34px; font-weight:bold; letter-spacing:6px; color:#2D6AF6; margin:20px 0; text-align:center;">
+        <div style="font-family: Arial; direction: rtl; text-align: right; background:#f7f9fc; padding:24px;">
+          <div style="max-width:520px; margin:auto; background:#fff; border-radius:14px; padding:28px; border:1px solid #e6ecf5;">
+            
+            <h2 style="color:#2D6AF6;">سودان كربتو</h2>
+
+            <p>تم طلب رمز تحقق لحسابك.</p>
+
+            <p>رمز التحقق الخاص بك هو:</p>
+
+            <div style="font-size:34px; font-weight:bold; letter-spacing:6px; color:#2D6AF6; text-align:center; margin:20px;">
               ${code}
             </div>
-            <p style="font-size:14px; color:#444; margin:0 0 10px;">
-              ينتهي هذا الرمز خلال 5 دقائق.
-            </p>
-            <p style="font-size:14px; color:#444; margin:0;">
-              إذا لم تطلب هذا الرمز، تجاهل هذه الرسالة.
-            </p>
+
+            <p>ينتهي هذا الرمز خلال 5 دقائق.</p>
+
+            <p>إذا لم تطلب هذا الرمز يمكنك تجاهل الرسالة.</p>
+
           </div>
         </div>
       `
@@ -111,7 +112,9 @@ app.post("/send-code", async (req, res) => {
       success: true,
       message: "تم إرسال كود التحقق"
     });
+
   } catch (error) {
+
     console.error("Send code error:", error);
 
     return res.status(500).json({
@@ -122,8 +125,10 @@ app.post("/send-code", async (req, res) => {
 });
 
 // التحقق من الكود
-app.post("/verify-code", async (req, res) => {
+app.post("/verify-code", (req, res) => {
+
   try {
+
     const email = normalizeEmail(req.body.email);
     const code = String(req.body.code || "").trim();
 
@@ -144,6 +149,7 @@ app.post("/verify-code", async (req, res) => {
     }
 
     if (Date.now() > saved.expiresAt) {
+
       delete otpStore[email];
 
       return res.status(400).json({
@@ -153,15 +159,17 @@ app.post("/verify-code", async (req, res) => {
     }
 
     if (saved.attempts >= MAX_VERIFY_ATTEMPTS) {
+
       delete otpStore[email];
 
       return res.status(400).json({
         success: false,
-        message: "تم تجاوز عدد المحاولات المسموح، اطلب كودًا جديدًا"
+        message: "تم تجاوز عدد المحاولات المسموح"
       });
     }
 
     if (saved.code !== code) {
+
       saved.attempts += 1;
 
       const attemptsLeft = MAX_VERIFY_ATTEMPTS - saved.attempts;
@@ -169,7 +177,7 @@ app.post("/verify-code", async (req, res) => {
       return res.status(400).json({
         success: false,
         message: attemptsLeft > 0
-          ? `الكود غير صحيح. تبقت ${attemptsLeft} محاولة`
+          ? `الكود غير صحيح تبقت ${attemptsLeft} محاولة`
           : "الكود غير صحيح"
       });
     }
@@ -180,18 +188,21 @@ app.post("/verify-code", async (req, res) => {
       success: true,
       message: "تم التحقق بنجاح"
     });
+
   } catch (error) {
-    console.error("Verify code error:", error);
+
+    console.error("Verify error:", error);
 
     return res.status(500).json({
       success: false,
-      message: "فشل التحقق من الكود"
+      message: "فشل التحقق"
     });
   }
+
 });
 
 const PORT = process.env.PORT || 10000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log("Server running on port", PORT);
 });
