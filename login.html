@@ -6,472 +6,413 @@
 <title>تسجيل الدخول | سودان كربتو</title>
 
 <style>
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box;}
 
 body{
-  margin:0;
-  font-family:Tahoma, Arial, sans-serif;
-  background:linear-gradient(135deg,#07162b,#0b1f3a,#12345c);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  padding:12px;
+margin:0;
+font-family:Tahoma, Arial, sans-serif;
+background:linear-gradient(135deg,#07162b,#0b1f3a,#12345c);
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+padding:12px;
 }
 
 .container{
-  width:100%;
-  max-width:380px;
-  background:#dcebff;
-  border-radius:18px;
-  padding:22px 18px;
-  box-shadow:0 18px 45px rgba(0,0,0,0.28);
-  border:1px solid rgba(255,255,255,0.35);
+width:100%;
+max-width:380px;
+background:#dcebff;
+border-radius:18px;
+padding:22px 18px;
+box-shadow:0 18px 45px rgba(0,0,0,0.28);
+border:1px solid rgba(255,255,255,0.35);
 }
 
 .logo{
-  text-align:center;
-  font-size:22px;
-  font-weight:700;
-  color:#2D6AF6;
-  margin-bottom:4px;
+text-align:center;
+font-size:22px;
+font-weight:700;
+color:#2D6AF6;
+margin-bottom:4px;
 }
 
 .subtitle{
-  text-align:center;
-  color:#42526b;
-  font-size:12px;
-  margin-bottom:14px;
+text-align:center;
+color:#42526b;
+font-size:12px;
+margin-bottom:14px;
 }
 
 h2{
-  margin:0 0 14px;
-  text-align:center;
-  color:#1A1A1A;
-  font-size:20px;
+margin:0 0 14px;
+text-align:center;
+color:#1A1A1A;
+font-size:20px;
 }
 
 label{
-  display:block;
-  margin-top:8px;
-  margin-bottom:4px;
-  font-size:13px;
-  font-weight:700;
-  color:#1A1A1A;
+display:block;
+margin-top:8px;
+margin-bottom:4px;
+font-size:13px;
+font-weight:700;
+color:#1A1A1A;
 }
 
 input{
-  width:100%;
-  height:42px;
-  border:1px solid #bfd0ea;
-  border-radius:8px;
-  padding:0 12px;
-  font-size:13px;
-  color:#1A1A1A;
-  background:#f7fbff;
-  outline:none;
+width:100%;
+height:42px;
+border:1px solid #bfd0ea;
+border-radius:8px;
+padding:0 12px;
+font-size:13px;
+background:#f7fbff;
+outline:none;
 }
 
 input:focus{
-  border-color:#2D6AF6;
-  box-shadow:0 0 0 3px rgba(45,106,246,0.12);
-  background:#ffffff;
+border-color:#2D6AF6;
+box-shadow:0 0 0 3px rgba(45,106,246,0.12);
+background:#ffffff;
 }
 
 .password-wrap{
-  position:relative;
-  width:100%;
+position:relative;
 }
 
 .password-wrap input{
-  padding-left:74px;
+padding-left:74px;
 }
 
 .toggle-password{
-  position:absolute;
-  left:8px;
-  top:50%;
-  transform:translateY(-50%);
-  width:auto;
-  height:28px;
-  padding:0 10px;
-  border:none;
-  border-radius:6px;
-  background:#2D6AF6;
-  color:#ffffff;
-  font-size:11px;
-  font-weight:700;
-  cursor:pointer;
-  margin:0;
-  line-height:28px;
-}
-
-.toggle-password:hover{
-  opacity:0.92;
+position:absolute;
+left:8px;
+top:50%;
+transform:translateY(-50%);
+height:28px;
+padding:0 10px;
+border:none;
+border-radius:6px;
+background:#2D6AF6;
+color:#fff;
+font-size:11px;
+font-weight:700;
+cursor:pointer;
 }
 
 .verify-btn,
 .confirm-btn{
-  width:100%;
-  height:44px;
-  border:none;
-  border-radius:8px;
-  font-size:14px;
-  font-weight:700;
-  cursor:pointer;
-  margin-top:10px;
-  transition:0.2s ease;
-}
-
-.verify-btn:hover,
-.confirm-btn:hover{
-  transform:translateY(-1px);
+width:100%;
+height:44px;
+border:none;
+border-radius:8px;
+font-size:14px;
+font-weight:700;
+cursor:pointer;
+margin-top:10px;
 }
 
 .verify-btn{
-  background:#2D6AF6;
-  color:#ffffff;
-  box-shadow:0 10px 20px rgba(45,106,246,0.2);
+background:#2D6AF6;
+color:#fff;
 }
 
 .confirm-btn{
-  background:#10B981;
-  color:#ffffff;
-  box-shadow:0 10px 20px rgba(16,185,129,0.2);
+background:#10B981;
+color:#fff;
 }
 
 .code-section{
-  display:none;
-  text-align:center;
-  margin-top:14px;
-  padding:14px 10px 6px;
-  background:#eef5ff;
-  border:1px solid #cfe0fb;
-  border-radius:12px;
-}
-
-.code-title{
-  margin:0 0 10px;
-  font-size:14px;
-  font-weight:700;
-  color:#1A1A1A;
+display:none;
+text-align:center;
+margin-top:14px;
+padding:14px 10px;
+background:#eef5ff;
+border-radius:12px;
 }
 
 .code-box{
-  display:flex;
-  justify-content:center;
-  gap:8px;
-  margin:14px 0;
-  direction:ltr;
+display:flex;
+justify-content:center;
+gap:8px;
+margin:14px 0;
+direction:ltr;
 }
 
 .code-box input{
-  width:42px;
-  height:48px;
-  text-align:center;
-  font-size:20px;
-  border-radius:10px;
-  border:2px solid #d4deef;
-  background:#fff;
-  padding:0;
-}
-
-.code-box input:focus{
-  border-color:#2D6AF6;
-  box-shadow:0 0 0 3px rgba(45,106,246,0.12);
+width:42px;
+height:48px;
+text-align:center;
+font-size:20px;
+border-radius:10px;
+border:2px solid #d4deef;
+background:#fff;
 }
 
 .timer{
-  font-size:13px;
-  color:#444;
-  margin-top:8px;
+font-size:13px;
+margin-top:8px;
 }
 
 .resend{
-  color:#2D6AF6;
-  margin-top:10px;
-  display:none;
-  cursor:pointer;
-  font-size:13px;
-  font-weight:700;
+color:#2D6AF6;
+margin-top:10px;
+display:none;
+cursor:pointer;
+font-size:13px;
+font-weight:700;
 }
 
 .status-message{
-  margin-top:10px;
-  font-size:13px;
-  font-weight:700;
-  display:none;
-  color:#e74c3c;
-  text-align:center;
+margin-top:10px;
+font-size:13px;
+font-weight:700;
+display:none;
+color:#e74c3c;
+text-align:center;
 }
 
 .links{
-  text-align:center;
-  margin-top:12px;
+text-align:center;
+margin-top:12px;
 }
 
 .links a{
-  display:block;
-  text-decoration:none;
-  color:#2D6AF6;
-  font-size:13px;
-  font-weight:700;
-  margin-top:6px;
-}
-
-.links a:hover{
-  text-decoration:underline;
+display:block;
+text-decoration:none;
+color:#2D6AF6;
+font-size:13px;
+font-weight:700;
+margin-top:6px;
 }
 
 footer{
-  text-align:center;
-  margin-top:14px;
-  font-size:11px;
-  color:#314057;
-  font-weight:600;
-}
-
-@media (max-width:420px){
-  .container{
-    max-width:100%;
-    padding:20px 16px;
-  }
-
-  .logo{
-    font-size:20px;
-  }
-
-  h2{
-    font-size:18px;
-  }
-
-  .code-box input{
-    width:40px;
-    height:46px;
-  }
+text-align:center;
+margin-top:14px;
+font-size:11px;
+color:#314057;
+font-weight:600;
 }
 </style>
 </head>
+
 <body>
 
 <div class="container">
-  <div class="logo">سودان كربتو</div>
-  <div class="subtitle">تسجيل الدخول إلى حسابك</div>
 
-  <h2>تسجيل الدخول</h2>
+<div class="logo">سودان كربتو</div>
+<div class="subtitle">تسجيل الدخول إلى حسابك</div>
 
-  <label>البريد الإلكتروني</label>
-  <input type="email" id="email" placeholder="اكتب البريد الإلكتروني">
+<h2>تسجيل الدخول</h2>
 
-  <label>كلمة السر</label>
-  <div class="password-wrap">
-    <input type="password" id="password" placeholder="اكتب كلمة السر">
-    <button type="button" class="toggle-password" onclick="togglePassword()">إظهار</button>
-  </div>
+<label>البريد الإلكتروني</label>
+<input type="email" id="email" placeholder="اكتب البريد الإلكتروني">
 
-  <button class="verify-btn" onclick="sendLoginCode()">إرسال كود التحقق</button>
+<label>كلمة السر</label>
 
-  <div class="code-section" id="codeSection">
-    <p class="code-title">أدخل كود التحقق</p>
+<div class="password-wrap">
+<input type="password" id="password" placeholder="اكتب كلمة السر">
+<button type="button" class="toggle-password" onclick="togglePassword()">إظهار</button>
+</div>
 
-    <div class="code-box">
-      <input type="text" maxlength="1" inputmode="numeric">
-      <input type="text" maxlength="1" inputmode="numeric">
-      <input type="text" maxlength="1" inputmode="numeric">
-      <input type="text" maxlength="1" inputmode="numeric">
-      <input type="text" maxlength="1" inputmode="numeric">
-      <input type="text" maxlength="1" inputmode="numeric">
-    </div>
+<button class="verify-btn" onclick="sendLoginCode()">إرسال كود التحقق</button>
 
-    <button class="confirm-btn" onclick="confirmLogin()">تأكيد الكود</button>
+<div class="code-section" id="codeSection">
 
-    <div class="timer">
-      إعادة إرسال الكود خلال <span id="count">60</span> ثانية
-    </div>
+<p>أدخل كود التحقق</p>
 
-    <div class="resend" id="resend" onclick="sendLoginCode()">
-      إرسال كود جديد
-    </div>
+<div class="code-box">
+<input type="text" maxlength="1">
+<input type="text" maxlength="1">
+<input type="text" maxlength="1">
+<input type="text" maxlength="1">
+<input type="text" maxlength="1">
+<input type="text" maxlength="1">
+</div>
 
-    <div class="status-message" id="statusMessage"></div>
-  </div>
+<button class="confirm-btn" onclick="confirmLogin()">تأكيد الكود</button>
 
-  <div class="links">
-    <a href="forgot.html">هل نسيت كلمة السر؟</a>
-    <a href="index.html">إنشاء حساب جديد</a>
-  </div>
+<div class="timer">
+إعادة إرسال الكود خلال <span id="count">60</span> ثانية
+</div>
 
-  <footer>© سودان كربتو – جميع الحقوق محفوظة</footer>
+<div class="resend" id="resend" onclick="sendLoginCode()">
+إرسال كود جديد
+</div>
+
+<div class="status-message" id="statusMessage"></div>
+
+</div>
+
+<div class="links">
+<a href="forgot.html">هل نسيت كلمة السر؟</a>
+<a href="index.html">إنشاء حساب جديد</a>
+</div>
+
+<footer>© سودان كربتو</footer>
+
 </div>
 
 <script>
-const API_BASE = "https://sudancryptomarket-api.onrender.com";
-let timerInterval = null;
-let sending = false;
+
+const API_BASE="https://sudancryptomarket-api.onrender.com";
+let timerInterval=null;
+let sending=false;
 
 function togglePassword(){
-  const input = document.getElementById("password");
-  const button = document.querySelector(".toggle-password");
+const input=document.getElementById("password");
+const button=document.querySelector(".toggle-password");
 
-  if(input.type === "password"){
-    input.type = "text";
-    button.textContent = "إخفاء";
-  } else {
-    input.type = "password";
-    button.textContent = "إظهار";
-  }
+if(input.type==="password"){
+input.type="text";
+button.textContent="إخفاء";
+}else{
+input.type="password";
+button.textContent="إظهار";
+}
 }
 
-function showStatus(message){
-  const box = document.getElementById("statusMessage");
-  box.textContent = message;
-  box.style.display = "block";
+function showStatus(msg){
+const box=document.getElementById("statusMessage");
+box.textContent=msg;
+box.style.display="block";
 }
 
 function clearStatus(){
-  const box = document.getElementById("statusMessage");
-  box.textContent = "";
-  box.style.display = "none";
+document.getElementById("statusMessage").style.display="none";
 }
 
 function sendLoginCode(){
-  if(sending) return;
 
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
+if(sending) return;
 
-  clearStatus();
+const email=document.getElementById("email").value.trim();
+const password=document.getElementById("password").value.trim();
 
-  if(email === ""){
-    showStatus("اكتب البريد الإلكتروني");
-    return;
-  }
+clearStatus();
 
-  if(password === ""){
-    showStatus("اكتب كلمة السر");
-    return;
-  }
+if(email===""){
+showStatus("اكتب البريد الإلكتروني");
+return;
+}
 
-  sending = true;
+if(password===""){
+showStatus("اكتب كلمة السر");
+return;
+}
 
-  fetch(`${API_BASE}/send-code`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      email,
-      purpose: "login"
-    })
-  })
-  .then(async (res) => {
-    const data = await res.json();
+sending=true;
 
-    if(data.success === false){
-      throw new Error(data.message || "فشل إرسال الكود");
-    }
+fetch(`${API_BASE}/send-code`,{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+email,
+purpose:"login"
+})
+})
+.then(res=>res.json())
+.then(data=>{
 
-    document.getElementById("codeSection").style.display = "block";
-    startTimer();
-  })
-  .catch((err) => {
-    showStatus(err.message || "فشل إرسال الكود");
-    sending = false;
-  });
+if(data.success===false){
+throw new Error(data.message);
+}
+
+document.getElementById("codeSection").style.display="block";
+startTimer();
+
+})
+.catch(err=>{
+showStatus(err.message);
+sending=false;
+});
 }
 
 function startTimer(){
-  let time = 60;
-  const count = document.getElementById("count");
-  const resend = document.getElementById("resend");
 
-  resend.style.display = "none";
-  count.innerText = time;
+let time=60;
 
-  if(timerInterval){
-    clearInterval(timerInterval);
-  }
+const count=document.getElementById("count");
+const resend=document.getElementById("resend");
 
-  timerInterval = setInterval(() => {
-    time--;
-    count.innerText = time;
+resend.style.display="none";
+count.innerText=time;
 
-    if(time <= 0){
-      clearInterval(timerInterval);
-      timerInterval = null;
-      count.innerText = "0";
-      resend.style.display = "block";
-      sending = false;
-    }
-  }, 1000);
+timerInterval=setInterval(()=>{
+
+time--;
+count.innerText=time;
+
+if(time<=0){
+clearInterval(timerInterval);
+resend.style.display="block";
+sending=false;
 }
 
-const codeInputs = document.querySelectorAll(".code-box input");
+},1000);
+}
 
-codeInputs.forEach((input, index) => {
-  input.addEventListener("input", () => {
-    input.value = input.value.replace(/[^0-9]/g, "");
+const inputs=document.querySelectorAll(".code-box input");
 
-    if(input.value.length === 1 && index < codeInputs.length - 1){
-      codeInputs[index + 1].focus();
-    }
-  });
+inputs.forEach((input,index)=>{
 
-  input.addEventListener("keydown", (e) => {
-    if(e.key === "Backspace" && input.value === "" && index > 0){
-      codeInputs[index - 1].focus();
-    }
-  });
+input.addEventListener("input",()=>{
+
+input.value=input.value.replace(/[^0-9]/g,"");
+
+if(input.value.length===1 && index<inputs.length-1){
+inputs[index+1].focus();
+}
+
+});
 });
 
 function confirmLogin(){
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
-  const code = Array.from(codeInputs).map(input => input.value).join("");
 
-  clearStatus();
+const email=document.getElementById("email").value.trim();
+const password=document.getElementById("password").value.trim();
+const code=Array.from(inputs).map(i=>i.value).join("");
 
-  if(email === ""){
-    showStatus("اكتب البريد الإلكتروني");
-    return;
-  }
+clearStatus();
 
-  if(password === ""){
-    showStatus("اكتب كلمة السر");
-    return;
-  }
-
-  if(code.length !== 6){
-    showStatus("اكتب كود التحقق كاملاً");
-    return;
-  }
-
-  fetch(`${API_BASE}/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      email,
-      password,
-      code
-    })
-  })
-  .then(async (res) => {
-    const data = await res.json();
-
-    if(data.success === false){
-      throw new Error(data.message || "فشل تسجيل الدخول");
-    }
-
-    window.location.href = "dashboard.html";
-  })
-  .catch((err) => {
-    showStatus(err.message || "فشل تسجيل الدخول");
-  });
+if(code.length!==6){
+showStatus("اكتب كود التحقق كاملاً");
+return;
 }
+
+fetch(`${API_BASE}/login`,{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+email,
+password,
+code
+})
+})
+.then(res=>res.json())
+.then(data=>{
+
+if(data.success===false){
+throw new Error(data.message);
+}
+
+/* حفظ الإيميل */
+localStorage.setItem("userEmail",email);
+
+/* الانتقال للداشبورد */
+window.location.href="dashboard.html";
+
+})
+.catch(err=>{
+showStatus(err.message);
+});
+}
+
 </script>
 
 </body>
