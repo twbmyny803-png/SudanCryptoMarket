@@ -225,6 +225,7 @@ input[readonly]{
   font-size:13px;
   font-weight:700;
   display:none;
+  text-align:center;
 }
 
 .status-success{
@@ -320,12 +321,8 @@ footer{
       إرسال كود جديد
     </div>
 
-    <div class="status-message status-success" id="verifySuccess">
-      تم التحقق من البريد بنجاح
-    </div>
-
-    <div class="status-message status-error" id="verifyError">
-    </div>
+    <div class="status-message status-success" id="verifySuccess"></div>
+    <div class="status-message status-error" id="verifyError"></div>
   </div>
 
   <label>الدولة</label>
@@ -353,13 +350,15 @@ footer{
     <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword', this)">إظهار</button>
   </div>
 
-  <button class="create-btn" id="createBtn" disabled>
+  <button class="create-btn" id="createBtn" onclick="createAccount()" disabled>
     إنشاء الحساب
   </button>
 
+  <div class="status-message status-success" id="registerSuccess"></div>
+  <div class="status-message status-error" id="registerError"></div>
+
   <div class="links">
     <a href="login.html">تسجيل الدخول</a>
-    <a href="forgot.html">نسيت كلمة المرور؟</a>
   </div>
 
   <footer>© سودان كربتو – جميع الحقوق محفوظة</footer>
@@ -373,6 +372,7 @@ let emailVerified = false;
 
 function togglePassword(inputId, button){
   const input = document.getElementById(inputId);
+
   if(input.type === "password"){
     input.type = "text";
     button.textContent = "إخفاء";
@@ -382,7 +382,7 @@ function togglePassword(inputId, button){
   }
 }
 
-function showError(message){
+function showVerifyError(message){
   const errorBox = document.getElementById("verifyError");
   const successBox = document.getElementById("verifySuccess");
   successBox.style.display = "none";
@@ -390,7 +390,7 @@ function showError(message){
   errorBox.style.display = "block";
 }
 
-function showSuccess(message){
+function showVerifySuccess(message){
   const errorBox = document.getElementById("verifyError");
   const successBox = document.getElementById("verifySuccess");
   errorBox.style.display = "none";
@@ -398,15 +398,37 @@ function showSuccess(message){
   successBox.style.display = "block";
 }
 
-function resetMessages(){
+function resetVerifyMessages(){
   document.getElementById("verifyError").style.display = "none";
   document.getElementById("verifySuccess").style.display = "none";
+}
+
+function showRegisterError(message){
+  const errorBox = document.getElementById("registerError");
+  const successBox = document.getElementById("registerSuccess");
+  successBox.style.display = "none";
+  errorBox.textContent = message;
+  errorBox.style.display = "block";
+}
+
+function showRegisterSuccess(message){
+  const errorBox = document.getElementById("registerError");
+  const successBox = document.getElementById("registerSuccess");
+  errorBox.style.display = "none";
+  successBox.textContent = message;
+  successBox.style.display = "block";
+}
+
+function resetRegisterMessages(){
+  document.getElementById("registerError").style.display = "none";
+  document.getElementById("registerSuccess").style.display = "none";
 }
 
 function sendCode(){
   const email = document.getElementById("email").value.trim();
 
-  resetMessages();
+  resetVerifyMessages();
+  resetRegisterMessages();
 
   if(email === ""){
     alert("اكتب البريد الإلكتروني أولاً");
@@ -423,7 +445,7 @@ function sendCode(){
   .then(async (res) => {
     const data = await res.json();
 
-    if(!res.ok){
+    if(!res.ok || data.success === false){
       throw new Error(data.message || "فشل إرسال الكود");
     }
 
@@ -432,7 +454,7 @@ function sendCode(){
     alert("تم إرسال كود التحقق إلى بريدك الإلكتروني");
   })
   .catch((err) => {
-    alert(err.message || "حدث خطأ أثناء إرسال الكود");
+    showVerifyError(err.message || "حدث خطأ أثناء إرسال الكود");
   });
 }
 
@@ -483,10 +505,16 @@ function verifyCode(){
   const email = document.getElementById("email").value.trim();
   const code = Array.from(inputs).map(input => input.value).join("");
 
-  resetMessages();
+  resetVerifyMessages();
+  resetRegisterMessages();
+
+  if(email === ""){
+    showVerifyError("اكتب البريد الإلكتروني");
+    return;
+  }
 
   if(code.length !== 6){
-    showError("اكتب كود التحقق كاملاً");
+    showVerifyError("اكتب كود التحقق كاملاً");
     return;
   }
 
@@ -500,17 +528,96 @@ function verifyCode(){
   .then(async (res) => {
     const data = await res.json();
 
-    if(!res.ok){
+    if(!res.ok || data.success === false){
       throw new Error(data.message || "فشل التحقق من الكود");
     }
 
     emailVerified = true;
     document.getElementById("createBtn").disabled = false;
-    document.getElementById("createBtn").style.opacity = "1";
-    showSuccess("تم التحقق من البريد بنجاح");
+    showVerifySuccess("تم التحقق من البريد بنجاح");
   })
   .catch((err) => {
-    showError(err.message || "حدث خطأ أثناء التحقق");
+    showVerifyError(err.message || "حدث خطأ أثناء التحقق");
+  });
+}
+
+function createAccount(){
+  const fullName = document.getElementById("fullName").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const referralCode = document.getElementById("referralCode").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const confirmPassword = document.getElementById("confirmPassword").value.trim();
+
+  resetRegisterMessages();
+
+  if(!emailVerified){
+    showRegisterError("يجب التحقق من البريد الإلكتروني أولاً");
+    return;
+  }
+
+  if(fullName === ""){
+    showRegisterError("اكتب الاسم الحقيقي");
+    return;
+  }
+
+  if(email === ""){
+    showRegisterError("اكتب البريد الإلكتروني");
+    return;
+  }
+
+  if(phone === ""){
+    showRegisterError("اكتب رقم الهاتف");
+    return;
+  }
+
+  if(password === ""){
+    showRegisterError("اكتب كلمة المرور");
+    return;
+  }
+
+  if(password.length < 8){
+    showRegisterError("كلمة المرور يجب أن تكون 8 أحرف أو أكثر");
+    return;
+  }
+
+  if(confirmPassword === ""){
+    showRegisterError("اكتب تأكيد كلمة المرور");
+    return;
+  }
+
+  if(password !== confirmPassword){
+    showRegisterError("كلمتا المرور غير متطابقتين");
+    return;
+  }
+
+  fetch(`${API_BASE}/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      name: fullName,
+      email: email,
+      phone: phone,
+      password: password,
+      referral: referralCode
+    })
+  })
+  .then(async (res) => {
+    const data = await res.json();
+
+    if(!res.ok || data.success === false){
+      throw new Error(data.message || "فشل إنشاء الحساب");
+    }
+
+    showRegisterSuccess("تم إنشاء الحساب بنجاح");
+    setTimeout(() => {
+      window.location.href = "login.html";
+    }, 1200);
+  })
+  .catch((err) => {
+    showRegisterError(err.message || "حدث خطأ أثناء إنشاء الحساب");
   });
 }
 </script>
