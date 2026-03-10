@@ -299,55 +299,6 @@
       min-height: 80px;
     }
 
-    .activity-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 11px 0;
-      border-bottom: 1px solid #eef2f7;
-    }
-
-    .activity-item:last-child {
-      border-bottom: none;
-    }
-
-    .activity-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .activity-badge {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      color: #fff;
-    }
-
-    .activity-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: #1f2937;
-      margin-bottom: 4px;
-    }
-
-    .activity-sub {
-      font-size: 11px;
-      color: #6b7280;
-    }
-
-    .activity-amount {
-      font-size: 13px;
-      font-weight: 700;
-      color: #111827;
-      white-space: nowrap;
-    }
-
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -520,22 +471,22 @@
         الرئيسية
       </a>
 
-      <a href="#" class="nav-item">
+      <a href="daily.html" class="nav-item">
         <div class="nav-icon">📈</div>
         الدخل اليومي
       </a>
 
-      <a href="#" class="nav-item">
+      <a href="referrals.html" class="nav-item">
         <div class="nav-icon">👥</div>
         الإحالات
       </a>
 
-      <a href="#" class="nav-item">
+      <a href="assets.html" class="nav-item">
         <div class="nav-icon">💼</div>
         الأصول
       </a>
 
-      <a href="#" class="nav-item">
+      <a href="account.html" class="nav-item">
         <div class="nav-icon">👤</div>
         حسابي
       </a>
@@ -543,47 +494,47 @@
   </div>
 
 <script>
-
 const API = "https://sudancryptomarket-api.onrender.com";
 
 const email = localStorage.getItem("userEmail");
 
-if(!email){
-window.location.href="login.html";
+if (!email) {
+  window.location.href = "login.html";
+} else {
+  fetch(API + "/user-data", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ email })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (!data.success) {
+      localStorage.removeItem("userEmail");
+      window.location.href = "login.html";
+      return;
+    }
+
+    document.getElementById("userName").innerText = data.name || "مستخدم";
+    document.getElementById("balance").innerText = (data.balance || 0) + " USDT";
+    document.getElementById("dailyIncome").innerText = (data.dailyIncome || 0) + " USDT";
+
+    const box = document.getElementById("activityBox");
+
+    if (!data.operations || data.operations.length === 0) {
+      box.innerHTML = `
+        <div style="text-align:center;padding:20px;color:#6b7280;font-size:13px;">
+          لا توجد عمليات بعد
+        </div>
+      `;
+    }
+  })
+  .catch(() => {
+    localStorage.removeItem("userEmail");
+    window.location.href = "login.html";
+  });
 }
-
-fetch(API + "/user-data",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({email})
-})
-.then(res=>res.json())
-.then(data=>{
-
-if(data.success===false){
-return;
-}
-
-document.getElementById("userName").innerText = data.name;
-document.getElementById("balance").innerText = data.balance + " USDT";
-document.getElementById("dailyIncome").innerText = data.dailyIncome + " USDT";
-
-const box = document.getElementById("activityBox");
-
-if(!data.operations || data.operations.length === 0){
-
-box.innerHTML = `
-<div style="text-align:center;padding:20px;color:#6b7280;font-size:13px;">
-لا توجد عمليات بعد
-</div>
-`;
-
-}
-
-});
-
 </script>
 </body>
 </html>
