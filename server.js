@@ -12,9 +12,9 @@ let users = {};
 /* تخزين الأكواد */
 let codes = {};
 
-/* ------------------------ */
+/* ---------------------- */
 /* إرسال كود تحقق */
-/* ------------------------ */
+/* ---------------------- */
 
 app.post("/send-code",(req,res)=>{
 
@@ -27,12 +27,33 @@ message:"البريد مطلوب"
 });
 }
 
+/* لو تسجيل دخول نتأكد الحساب موجود */
+if(purpose === "login"){
+if(!users[email]){
+return res.json({
+success:false,
+message:"البريد غير مسجل"
+});
+}
+}
+
+/* لو استرجاع كلمة السر */
+if(purpose === "reset"){
+if(!users[email]){
+return res.json({
+success:false,
+message:"البريد غير مسجل"
+});
+}
+}
+
+/* إنشاء كود */
 const code = Math.floor(100000 + Math.random()*900000).toString();
 
 codes[email] = code;
 
-/* في مشروعنا الحالي سنرجع الكود فقط */
-console.log("OTP Code:",code);
+/* يظهر في console فقط */
+console.log("OTP for",email,":",code);
 
 res.json({
 success:true,
@@ -41,9 +62,10 @@ message:"تم إرسال الكود"
 
 });
 
-/* ------------------------ */
+
+/* ---------------------- */
 /* إنشاء حساب */
-/* ------------------------ */
+/* ---------------------- */
 
 app.post("/register",(req,res)=>{
 
@@ -52,14 +74,14 @@ const {name,email,password} = req.body;
 if(!name || !email || !password){
 return res.json({
 success:false,
-message:"كل الحقول مطلوبة"
+message:"البيانات ناقصة"
 });
 }
 
 if(users[email]){
 return res.json({
 success:false,
-message:"الحساب موجود مسبقاً"
+message:"الحساب مسجل مسبقاً"
 });
 }
 
@@ -83,9 +105,10 @@ message:"تم إنشاء الحساب"
 
 });
 
-/* ------------------------ */
+
+/* ---------------------- */
 /* تسجيل الدخول */
-/* ------------------------ */
+/* ---------------------- */
 
 app.post("/login",(req,res)=>{
 
@@ -114,9 +137,37 @@ message:"تم تسجيل الدخول"
 
 });
 
-/* ------------------------ */
+
+/* ---------------------- */
+/* استرجاع كلمة السر */
+/* ---------------------- */
+
+app.post("/reset-password",(req,res)=>{
+
+const {email,password} = req.body;
+
+const user = users[email];
+
+if(!user){
+return res.json({
+success:false,
+message:"الحساب غير موجود"
+});
+}
+
+users[email].password = password;
+
+res.json({
+success:true,
+message:"تم تغيير كلمة السر"
+});
+
+});
+
+
+/* ---------------------- */
 /* جلب بيانات المستخدم */
-/* ------------------------ */
+/* ---------------------- */
 
 app.post("/user-data",(req,res)=>{
 
@@ -126,8 +177,7 @@ const user = users[email];
 
 if(!user){
 return res.json({
-success:false,
-message:"المستخدم غير موجود"
+success:false
 });
 }
 
@@ -147,43 +197,10 @@ operations:user.operations
 
 });
 
-/* ------------------------ */
-/* إضافة عملية */
-/* ------------------------ */
 
-app.post("/add-operation",(req,res)=>{
-
-const {email,type,amount} = req.body;
-
-const user = users[email];
-
-if(!user){
-return res.json({success:false});
-}
-
-user.operations.unshift({
-
-type:type,
-amount:amount,
-time:new Date().toLocaleString()
-
-});
-
-if(type === "deposit"){
-user.balance += amount;
-}
-
-if(type === "withdraw"){
-user.balance -= amount;
-}
-
-res.json({success:true});
-
-});
-
-/* ------------------------ */
+/* ---------------------- */
 /* تشغيل السيرفر */
-/* ------------------------ */
+/* ---------------------- */
 
 const PORT = process.env.PORT || 3000;
 
