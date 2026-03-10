@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حسابي | سودان كربتو</title>
+
+<style>
+
+*{
+box-sizing:border-box;
+}
+
+body{
+margin:0;
+font-family:Tahoma, Arial, sans-serif;
+background:linear-gradient(135deg,#07162b,#0b1f3a,#12345c);
+min-height:100vh;
+}
+
+.app{
+max-width:420px;
+margin:0 auto;
+background:#f4f8ff;
+min-height:100vh;
+}
+
+.header{
+background:linear-gradient(135deg,#0d6efd,#17a2b8);
+padding:20px;
+color:#fff;
+border-bottom-left-radius:22px;
+border-bottom-right-radius:22px;
+}
+
+.header h2{
+margin:0;
+font-size:20px;
+}
+
+.content{
+padding:16px;
+}
+
+.card{
+background:#fff;
+border-radius:16px;
+padding:14px;
+margin-bottom:12px;
+box-shadow:0 8px 20px rgba(0,0,0,.06);
+}
+
+.item{
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:12px 6px;
+border-bottom:1px solid #eef2f7;
+}
+
+.item:last-child{
+border-bottom:none;
+}
+
+.item-left{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.icon{
+width:38px;
+height:38px;
+border-radius:10px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:18px;
+color:#fff;
+}
+
+.i1{background:#3b82f6;}
+.i2{background:#10b981;}
+.i3{background:#8b5cf6;}
+.i4{background:#f59e0b;}
+.i5{background:#0ea5e9;}
+.i6{background:#ef4444;}
+
+.text{
+font-size:14px;
+font-weight:700;
+color:#111827;
+}
+
+.value{
+font-size:13px;
+color:#374151;
+}
+
+.button{
+cursor:pointer;
+}
+
+.bottom-nav{
+position:fixed;
+bottom:0;
+left:50%;
+transform:translateX(-50%);
+width:100%;
+max-width:420px;
+background:#fff;
+border-top:1px solid #e5e7eb;
+display:grid;
+grid-template-columns:repeat(5,1fr);
+padding:10px 6px;
+}
+
+.nav-item{
+text-align:center;
+font-size:11px;
+color:#555;
+text-decoration:none;
+font-weight:700;
+}
+
+.nav-icon{
+width:40px;
+height:40px;
+margin:0 auto 4px;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:18px;
+background:#eef2ff;
+}
+
+.active .nav-icon{
+background:#d9f99d;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<div class="header">
+<h2>حسابي</h2>
+</div>
+
+<div class="content">
+
+<!-- بيانات المستخدم -->
+
+<div class="card">
+
+<div class="item">
+<div class="item-left">
+<div class="icon i1">👤</div>
+<div class="text">الاسم</div>
+</div>
+<div id="userName" class="value">...</div>
+</div>
+
+<div class="item">
+<div class="item-left">
+<div class="icon i1">📧</div>
+<div class="text">البريد</div>
+</div>
+<div id="userEmail" class="value">...</div>
+</div>
+
+<div class="item">
+<div class="item-left">
+<div class="icon i1">📱</div>
+<div class="text">رقم الهاتف</div>
+</div>
+<div id="userPhone" class="value">...</div>
+</div>
+
+</div>
+
+<!-- الحساب -->
+
+<div class="card">
+
+<div class="item button">
+<div class="item-left">
+<div class="icon i2">🔒</div>
+<div class="text">تغيير كلمة المرور</div>
+</div>
+</div>
+
+<div class="item button">
+<div class="item-left">
+<div class="icon i3">✔</div>
+<div class="text">توثيق الحساب</div>
+</div>
+</div>
+
+</div>
+
+<!-- الدعم -->
+
+<div class="card">
+
+<div class="item button" onclick="openWhatsapp()">
+<div class="item-left">
+<div class="icon i4">📱</div>
+<div class="text">واتساب الدعم</div>
+</div>
+</div>
+
+<div class="item button" onclick="openTelegram()">
+<div class="item-left">
+<div class="icon i5">✈</div>
+<div class="text">تليجرام الدعم</div>
+</div>
+</div>
+
+<div class="item button" onclick="openChannel()">
+<div class="item-left">
+<div class="icon i5">📢</div>
+<div class="text">قناة المجتمع</div>
+</div>
+</div>
+
+</div>
+
+<!-- خروج -->
+
+<div class="card">
+
+<div class="item button" onclick="logout()">
+<div class="item-left">
+<div class="icon i6">⎋</div>
+<div class="text">تسجيل الخروج</div>
+</div>
+</div>
+
+</div>
+
+</div>
+
+<!-- القائمة السفلية -->
+
+<div class="bottom-nav">
+
+<a href="dashboard.html" class="nav-item">
+<div class="nav-icon">⌂</div>
+الرئيسية
+</a>
+
+<a href="daily.html" class="nav-item">
+<div class="nav-icon">📈</div>
+الدخل
+</a>
+
+<a href="referrals.html" class="nav-item">
+<div class="nav-icon">👥</div>
+الإحالات
+</a>
+
+<a href="assets.html" class="nav-item">
+<div class="nav-icon">💼</div>
+الأصول
+</a>
+
+<a href="account.html" class="nav-item active">
+<div class="nav-icon">👤</div>
+حسابي
+</a>
+
+</div>
+
+</div>
+
+<script>
+
+const API = "https://sudancryptomarket-api.onrender.com";
+
+const email = localStorage.getItem("userEmail");
+
+if(!email){
+window.location.href="login.html";
+}
+
+fetch(API + "/user-data",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({email})
+})
+.then(res=>res.json())
+.then(data=>{
+
+if(!data.success){
+localStorage.removeItem("userEmail");
+window.location.href="login.html";
+return;
+}
+
+document.getElementById("userName").innerText = data.name || "";
+document.getElementById("userEmail").innerText = data.email || "";
+document.getElementById("userPhone").innerText = data.phone || "";
+
+});
+
+function logout(){
+
+localStorage.removeItem("userEmail");
+window.location.href="login.html";
+
+}
+
+function openWhatsapp(){
+
+window.open("https://wa.me/16727123329","_blank");
+
+}
+
+function openTelegram(){
+
+window.open("https://t.me/lool0002","_blank");
+
+}
+
+function openChannel(){
+
+window.open("https://t.me/crypto_sudanees","_blank");
+
+}
+
+</script>
+
+</body>
+  </html>
