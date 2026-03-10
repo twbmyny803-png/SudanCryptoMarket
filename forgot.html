@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>استعادة كلمة السر | سودان كربتو</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Tahoma, Arial, sans-serif;
+  background:linear-gradient(135deg,#07162b,#0b1f3a,#12345c);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  padding:12px;
+}
+
+.container{
+  width:100%;
+  max-width:380px;
+  background:#dcebff;
+  border-radius:18px;
+  padding:22px 18px;
+  box-shadow:0 18px 45px rgba(0,0,0,0.28);
+  border:1px solid rgba(255,255,255,0.35);
+}
+
+.logo{
+  text-align:center;
+  font-size:22px;
+  font-weight:700;
+  color:#2D6AF6;
+  margin-bottom:4px;
+}
+
+.subtitle{
+  text-align:center;
+  color:#42526b;
+  font-size:12px;
+  margin-bottom:14px;
+}
+
+h2{
+  margin:0 0 14px;
+  text-align:center;
+  color:#1A1A1A;
+  font-size:20px;
+}
+
+label{
+  display:block;
+  margin-top:8px;
+  margin-bottom:4px;
+  font-size:13px;
+  font-weight:700;
+  color:#1A1A1A;
+}
+
+input{
+  width:100%;
+  height:42px;
+  border:1px solid #bfd0ea;
+  border-radius:8px;
+  padding:0 12px;
+  font-size:13px;
+  color:#1A1A1A;
+  background:#f7fbff;
+  outline:none;
+}
+
+input:focus{
+  border-color:#2D6AF6;
+  box-shadow:0 0 0 3px rgba(45,106,246,0.12);
+  background:#ffffff;
+}
+
+.password-wrap{
+  position:relative;
+  width:100%;
+}
+
+.password-wrap input{
+  padding-left:74px;
+}
+
+.toggle-password{
+  position:absolute;
+  left:8px;
+  top:50%;
+  transform:translateY(-50%);
+  width:auto;
+  height:28px;
+  padding:0 10px;
+  border:none;
+  border-radius:6px;
+  background:#2D6AF6;
+  color:#ffffff;
+  font-size:11px;
+  font-weight:700;
+  cursor:pointer;
+  margin:0;
+  line-height:28px;
+}
+
+.toggle-password:hover{
+  opacity:0.92;
+}
+
+.send-btn,
+.confirm-btn,
+.save-btn{
+  width:100%;
+  height:44px;
+  border:none;
+  border-radius:8px;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  margin-top:10px;
+  transition:0.2s ease;
+}
+
+.send-btn:hover,
+.confirm-btn:hover,
+.save-btn:hover{
+  transform:translateY(-1px);
+}
+
+.send-btn,
+.confirm-btn{
+  background:#2D6AF6;
+  color:#ffffff;
+  box-shadow:0 10px 20px rgba(45,106,246,0.2);
+}
+
+.save-btn{
+  background:#10B981;
+  color:#ffffff;
+  box-shadow:0 10px 20px rgba(16,185,129,0.2);
+}
+
+.code-section,
+.reset-section{
+  display:none;
+  text-align:center;
+  margin-top:14px;
+  padding:14px 10px 6px;
+  background:#eef5ff;
+  border:1px solid #cfe0fb;
+  border-radius:12px;
+}
+
+.code-title{
+  margin:0 0 10px;
+  font-size:14px;
+  font-weight:700;
+  color:#1A1A1A;
+}
+
+.code-box{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  margin:14px 0;
+  direction:ltr;
+}
+
+.code-box input{
+  width:42px;
+  height:48px;
+  text-align:center;
+  font-size:20px;
+  border-radius:10px;
+  border:2px solid #d4deef;
+  background:#fff;
+  padding:0;
+}
+
+.code-box input:focus{
+  border-color:#2D6AF6;
+  box-shadow:0 0 0 3px rgba(45,106,246,0.12);
+}
+
+.timer{
+  font-size:13px;
+  color:#444;
+  margin-top:8px;
+}
+
+.resend{
+  color:#2D6AF6;
+  margin-top:10px;
+  display:none;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:700;
+}
+
+.status-message{
+  margin-top:10px;
+  font-size:13px;
+  font-weight:700;
+  display:none;
+  color:#e74c3c;
+}
+
+.links{
+  text-align:center;
+  margin-top:12px;
+}
+
+.links a{
+  display:block;
+  text-decoration:none;
+  color:#2D6AF6;
+  font-size:13px;
+  font-weight:700;
+  margin-top:6px;
+}
+
+.links a:hover{
+  text-decoration:underline;
+}
+
+footer{
+  text-align:center;
+  margin-top:14px;
+  font-size:11px;
+  color:#314057;
+  font-weight:600;
+}
+
+@media (max-width:420px){
+  .container{
+    max-width:100%;
+    padding:20px 16px;
+  }
+
+  .logo{
+    font-size:20px;
+  }
+
+  h2{
+    font-size:18px;
+  }
+
+  .code-box input{
+    width:40px;
+    height:46px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="logo">سودان كربتو</div>
+  <div class="subtitle">استعادة كلمة السر</div>
+
+  <h2>هل نسيت كلمة السر؟</h2>
+
+  <label>البريد الإلكتروني</label>
+  <input type="email" id="email" placeholder="اكتب البريد الإلكتروني">
+
+  <button class="send-btn" onclick="sendResetCode()">إرسال الكود</button>
+
+  <div class="code-section" id="codeSection">
+    <p class="code-title">أدخل كود التحقق</p>
+
+    <div class="code-box">
+      <input type="text" maxlength="1" inputmode="numeric">
+      <input type="text" maxlength="1" inputmode="numeric">
+      <input type="text" maxlength="1" inputmode="numeric">
+      <input type="text" maxlength="1" inputmode="numeric">
+      <input type="text" maxlength="1" inputmode="numeric">
+      <input type="text" maxlength="1" inputmode="numeric">
+    </div>
+
+    <button class="confirm-btn" onclick="confirmResetCode()">تأكيد الكود</button>
+
+    <div class="timer">
+      إعادة إرسال الكود خلال <span id="count">60</span> ثانية
+    </div>
+
+    <div class="resend" id="resend" onclick="sendResetCode()">
+      إرسال كود جديد
+    </div>
+  </div>
+
+  <div class="reset-section" id="resetSection">
+    <label>كلمة السر الجديدة</label>
+    <div class="password-wrap">
+      <input type="password" id="newPassword" placeholder="اكتب كلمة السر الجديدة">
+      <button type="button" class="toggle-password" onclick="togglePassword('newPassword', this)">إظهار</button>
+    </div>
+
+    <label>تأكيد كلمة السر الجديدة</label>
+    <div class="password-wrap">
+      <input type="password" id="confirmPassword" placeholder="أعد كتابة كلمة السر الجديدة">
+      <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword', this)">إظهار</button>
+    </div>
+
+    <button class="save-btn" onclick="saveNewPassword()">حفظ كلمة السر</button>
+  </div>
+
+  <div class="status-message" id="statusMessage"></div>
+
+  <div class="links">
+    <a href="login.html">الرجوع إلى تسجيل الدخول</a>
+    <a href="index.html">إنشاء حساب جديد</a>
+  </div>
+
+  <footer>© سودان كربتو – جميع الحقوق محفوظة</footer>
+</div>
+
+<script>
+const API_BASE = "https://sudancryptomarket-api.onrender.com";
+let timerInterval = null;
+let sending = false;
+let verifiedCode = "";
+
+function togglePassword(inputId, button){
+  const input = document.getElementById(inputId);
+
+  if(input.type === "password"){
+    input.type = "text";
+    button.textContent = "إخفاء";
+  } else {
+    input.type = "password";
+    button.textContent = "إظهار";
+  }
+}
+
+function showStatus(message){
+  const box = document.getElementById("statusMessage");
+  box.textContent = message;
+  box.style.display = "block";
+}
+
+function clearStatus(){
+  const box = document.getElementById("statusMessage");
+  box.textContent = "";
+  box.style.display = "none";
+}
+
+function sendResetCode(){
+  if(sending) return;
+
+  const email = document.getElementById("email").value.trim();
+
+  clearStatus();
+
+  if(email === ""){
+    showStatus("اكتب البريد الإلكتروني");
+    return;
+  }
+
+  sending = true;
+
+  fetch(`${API_BASE}/forgot-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ email })
+  })
+  .then(async (res) => {
+    const data = await res.json();
+
+    if(!res.ok || data.success === false){
+      throw new Error(data.message || "فشل إرسال الكود");
+    }
+
+    document.getElementById("codeSection").style.display = "block";
+    document.getElementById("resetSection").style.display = "none";
+    startTimer();
+  })
+  .catch((err) => {
+    showStatus(err.message || "فشل إرسال الكود");
+    sending = false;
+  });
+}
+
+function startTimer(){
+  let time = 60;
+  const count = document.getElementById("count");
+  const resend = document.getElementById("resend");
+
+  resend.style.display = "none";
+  count.innerText = time;
+
+  if(timerInterval){
+    clearInterval(timerInterval);
+  }
+
+  timerInterval = setInterval(() => {
+    time--;
+    count.innerText = time;
+
+    if(time <= 0){
+      clearInterval(timerInterval);
+      timerInterval = null;
+      count.innerText = "0";
+      resend.style.display = "block";
+      sending = false;
+    }
+  }, 1000);
+}
+
+const codeInputs = document.querySelectorAll(".code-box input");
+
+codeInputs.forEach((input, index) => {
+  input.addEventListener("input", () => {
+    input.value = input.value.replace(/[^0-9]/g, "");
+
+    if(input.value.length === 1 && index < codeInputs.length - 1){
+      codeInputs[index + 1].focus();
+    }
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if(e.key === "Backspace" && input.value === "" && index > 0){
+      codeInputs[index - 1].focus();
+    }
+  });
+});
+
+function confirmResetCode(){
+  const email = document.getElementById("email").value.trim();
+  const code = Array.from(codeInputs).map(input => input.value).join("");
+
+  clearStatus();
+
+  if(email === ""){
+    showStatus("اكتب البريد الإلكتروني");
+    return;
+  }
+
+  if(code.length !== 6){
+    showStatus("اكتب كود التحقق كاملاً");
+    return;
+  }
+
+  fetch(`${API_BASE}/verify-code`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ email, code })
+  })
+  .then(async (res) => {
+    const data = await res.json();
+
+    if(!res.ok || data.success === false){
+      throw new Error(data.message || "الكود غير صحيح");
+    }
+
+    verifiedCode = code;
+    document.getElementById("resetSection").style.display = "block";
+  })
+  .catch((err) => {
+    showStatus(err.message || "الكود غير صحيح");
+  });
+}
+
+function saveNewPassword(){
+  const email = document.getElementById("email").value.trim();
+  const newPassword = document.getElementById("newPassword").value.trim();
+  const confirmPassword = document.getElementById("confirmPassword").value.trim();
+
+  clearStatus();
+
+  if(newPassword === "" || confirmPassword === ""){
+    showStatus("اكتب كلمة السر الجديدة");
+    return;
+  }
+
+  if(newPassword.length < 8){
+    showStatus("كلمة السر يجب أن تكون 8 أحرف أو أكثر");
+    return;
+  }
+
+  if(newPassword !== confirmPassword){
+    showStatus("كلمتا السر غير متطابقتين");
+    return;
+  }
+
+  fetch(`${API_BASE}/reset-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      email,
+      code: verifiedCode,
+      password: newPassword
+    })
+  })
+  .then(async (res) => {
+    const data = await res.json();
+
+    if(!res.ok || data.success === false){
+      throw new Error(data.message || "فشل تغيير كلمة السر");
+    }
+
+    alert("تم تغيير كلمة السر بنجاح");
+    window.location.href = "login.html";
+  })
+  .catch((err) => {
+    showStatus(err.message || "فشل تغيير كلمة السر");
+  });
+}
+</script>
+
+</body>
+</html>
