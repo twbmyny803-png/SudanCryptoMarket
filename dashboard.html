@@ -296,6 +296,7 @@
       padding: 14px;
       box-shadow: 0 8px 20px rgba(15, 78, 168, 0.06);
       border: 1px solid #e7eef9;
+      min-height: 80px;
     }
 
     .activity-item {
@@ -413,7 +414,7 @@
       </div>
 
       <div class="welcome-box">
-        <h2>مرحباً، أحمد</h2>
+        <h2>مرحباً، <span id="userName">...</span></h2>
         <p>
           أهلاً بك في منصة سودان كربتو. تابع رصيدك، أرباحك اليومية،
           والباقات النشطة من مكان واحد.
@@ -437,13 +438,13 @@
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-label">الرصيد الكلي</div>
-          <div class="stat-value">125.00 USDT</div>
+          <div class="stat-value" id="balance">0 USDT</div>
           <div class="stat-sub">الأصول الحالية</div>
         </div>
 
         <div class="stat-card">
           <div class="stat-label">الدخل اليومي</div>
-          <div class="stat-value">2.50 USDT</div>
+          <div class="stat-value" id="dailyIncome">0 USDT</div>
           <div class="stat-sub">يتم تحديثه يومياً</div>
         </div>
 
@@ -510,40 +511,7 @@
 
       <div class="section-title">آخر العمليات</div>
 
-      <div class="activity-card">
-        <div class="activity-item">
-          <div class="activity-left">
-            <div class="activity-badge c3">⬇</div>
-            <div>
-              <div class="activity-title">آخر إيداع</div>
-              <div class="activity-sub">اليوم - 10:30 صباحاً</div>
-            </div>
-          </div>
-          <div class="activity-amount">+50 USDT</div>
-        </div>
-
-        <div class="activity-item">
-          <div class="activity-left">
-            <div class="activity-badge c4">⬆</div>
-            <div>
-              <div class="activity-title">آخر سحب</div>
-              <div class="activity-sub">أمس - 08:15 مساءً</div>
-            </div>
-          </div>
-          <div class="activity-amount">-20 USDT</div>
-        </div>
-
-        <div class="activity-item">
-          <div class="activity-left">
-            <div class="activity-badge c5">💰</div>
-            <div>
-              <div class="activity-title">ربح يومي</div>
-              <div class="activity-sub">تم إضافته تلقائياً</div>
-            </div>
-          </div>
-          <div class="activity-amount">+2.50 USDT</div>
-        </div>
-      </div>
+      <div class="activity-card" id="activityBox"></div>
     </div>
 
     <div class="bottom-nav">
@@ -573,5 +541,49 @@
       </a>
     </div>
   </div>
+
+<script>
+
+const API = "https://sudancryptomarket-api.onrender.com";
+
+const email = localStorage.getItem("userEmail");
+
+if(!email){
+window.location.href="login.html";
+}
+
+fetch(API + "/user-data",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({email})
+})
+.then(res=>res.json())
+.then(data=>{
+
+if(data.success===false){
+return;
+}
+
+document.getElementById("userName").innerText = data.name;
+document.getElementById("balance").innerText = data.balance + " USDT";
+document.getElementById("dailyIncome").innerText = data.dailyIncome + " USDT";
+
+const box = document.getElementById("activityBox");
+
+if(!data.operations || data.operations.length === 0){
+
+box.innerHTML = `
+<div style="text-align:center;padding:20px;color:#6b7280;font-size:13px;">
+لا توجد عمليات بعد
+</div>
+`;
+
+}
+
+});
+
+</script>
 </body>
-  </html>
+</html>
