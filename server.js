@@ -53,6 +53,18 @@ return {ok:false,message:"الكود غير صحيح"}
 return {ok:true}
 }
 
+// الدالة الجديدة لتوليد رمز الإحالة
+function generateReferralCode(name, email) {
+  const part1 = cleanText(name || email || "USR")
+    .replace(/\s+/g, "")
+    .toUpperCase()
+    .slice(0, 3);
+
+  const part2 = Math.floor(100 + Math.random() * 900).toString();
+
+  return part1 + part2;
+}
+
 app.get("/",(req,res)=>{
 res.json({success:true,message:"Sudan Crypto API running"})
 })
@@ -167,6 +179,7 @@ name,
 email,
 phone,
 referral,
+referralCode: generateReferralCode(name, email), // توليد الرمز هنا
 password,
 balance:0,
 operations:[],
@@ -229,7 +242,8 @@ email:user.email,
 phone:user.phone,
 balance:user.balance,
 dailyIncome:0,
-operations:user.operations
+operations:user.operations,
+referralCode:user.referralCode // عرض الرمز في بيانات المستخدم
 })
 
 })
