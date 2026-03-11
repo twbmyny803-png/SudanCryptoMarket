@@ -279,7 +279,6 @@ background:#d9f99d;
 
 </div>
 
-
 <div class="section-title">الخدمات الرئيسية</div>
 
 <div class="actions-grid">
@@ -301,7 +300,6 @@ background:#d9f99d;
 
 </div>
 
-
 <div class="stats-grid">
 
 <div class="stat-card">
@@ -313,19 +311,19 @@ background:#d9f99d;
 <div class="stat-card">
 <div class="stat-label">الدخل اليومي</div>
 <div class="stat-value" id="dailyIncome">0 USDT</div>
-<div class="stat-sub">يتم تحديثه يومياً</div>
+<div class="stat-sub">الأرباح الحالية</div>
 </div>
 
 <div class="stat-card">
 <div class="stat-label">الباقة الحالية</div>
-<div class="stat-value">0</div>
-<div class="stat-sub">لا توجد باقة</div>
+<div class="stat-value" id="packageName">لا توجد</div>
+<div class="stat-sub">الباقة النشطة</div>
 </div>
 
 <div class="stat-card">
-<div class="stat-label">أرباح الإحالة</div>
-<div class="stat-value">0 USDT</div>
-<div class="stat-sub">0 أعضاء</div>
+<div class="stat-label">عدد الإحالات</div>
+<div class="stat-value" id="refCount">0</div>
+<div class="stat-sub">أعضاء الفريق</div>
 </div>
 
 </div>
@@ -392,6 +390,8 @@ return
 document.getElementById("userName").innerText=data.name||"مستخدم"
 document.getElementById("balance").innerText=(data.balance||0)+" USDT"
 document.getElementById("dailyIncome").innerText=(data.dailyIncome||0)+" USDT"
+document.getElementById("packageName").innerText=data.packageName||"لا توجد"
+document.getElementById("refCount").innerText=data.referralCount||0
 
 })
 
