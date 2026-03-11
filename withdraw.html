@@ -61,6 +61,17 @@ font-size:16px;
 cursor:pointer;
 }
 
+.send{
+background:#2D6AF6;
+color:white;
+border:none;
+padding:12px;
+border-radius:8px;
+width:100%;
+margin-top:12px;
+cursor:pointer;
+}
+
 .save{
 background:#2D6AF6;
 color:white;
@@ -74,7 +85,7 @@ cursor:pointer;
 
 .status{
 text-align:center;
-font-size:20px;
+font-size:22px;
 font-weight:bold;
 color:#ff9800;
 margin-top:10px;
@@ -128,13 +139,9 @@ margin-top:8px;
 <div class="title">اختيار الشبكة</div>
 
 <select id="network">
-
 <option value="">اختر الشبكة</option>
-
 <option value="USDT TRC20">USDT TRC20</option>
-
 <option value="USDT BEP20">USDT BEP20</option>
-
 </select>
 
 </div>
@@ -142,7 +149,6 @@ margin-top:8px;
 <div class="card">
 
 <div class="title">المبلغ</div>
-
 <input type="number" id="amount" placeholder="أدخل مبلغ السحب">
 
 </div>
@@ -151,7 +157,11 @@ margin-top:8px;
 
 <div class="title">كود التحقق</div>
 
-<input type="text" id="code" placeholder="أدخل كود التحقق من البريد">
+<button class="send" onclick="sendCode()">
+إرسال كود التحقق
+</button>
+
+<input type="text" id="code" placeholder="أدخل الكود المرسل للبريد">
 
 </div>
 
@@ -161,9 +171,7 @@ margin-top:8px;
 إرسال طلب السحب
 </button>
 
-<div class="status" id="status">
-قيد المراجعة
-</div>
+<div class="status" id="status"></div>
 
 <div class="note">
 سيتم مراجعة الطلب خلال دقائق
@@ -175,6 +183,16 @@ margin-top:8px;
 
 <script>
 
+const API="https://sudancryptomarket-api.onrender.com"
+
+const email=localStorage.getItem("userEmail")
+
+if(!email){
+window.location.href="login.html"
+}
+
+/* حفظ العناوين */
+
 function saveWallets(){
 
 const trc=document.getElementById("trc20").value
@@ -185,15 +203,11 @@ if(!trc && !bep){
 alert("يرجى إدخال عنوان محفظة واحد على الأقل")
 
 return
-
 }
 
 const wallets={
-
 trc20:trc,
-
 bep20:bep
-
 }
 
 localStorage.setItem("userWallets",JSON.stringify(wallets))
@@ -203,6 +217,8 @@ alert("تم حفظ العناوين بنجاح")
 lockWalletInputs()
 
 }
+
+/* قفل التعديل */
 
 function lockWalletInputs(){
 
@@ -221,10 +237,44 @@ document.getElementById("bep20").disabled=true
 window.onload=lockWalletInputs
 
 
+/* إرسال الكود */
+
+function sendCode(){
+
+fetch(API+"/send-code",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+email:email,
+purpose:"withdraw"
+
+})
+
+})
+
+.then(res=>res.json())
+
+.then(data=>{
+
+alert(data.message)
+
+})
+
+}
+
+
+/* إرسال السحب */
+
 function submitWithdraw(){
 
 const network=document.getElementById("network").value
-const amount=document.getElementById("amount").value
+const amount=parseFloat(document.getElementById("amount").value)
 const code=document.getElementById("code").value
 
 const wallets=JSON.parse(localStorage.getItem("userWallets"))
@@ -232,84 +282,76 @@ const wallets=JSON.parse(localStorage.getItem("userWallets"))
 if(!wallets){
 
 alert("يرجى إدخال عناوين المحفظة أولاً")
-
 return
-
 }
 
 if(network===""){
-
 alert("اختر الشبكة")
-
 return
-
 }
 
-if(amount===""){
-
-alert("أدخل مبلغ السحب")
-
+if(!amount || amount<=0){
+alert("أدخل مبلغ صحيح")
 return
-
 }
 
 if(code===""){
-
 alert("أدخل كود التحقق")
-
 return
-
 }
 
-let walletAddress=""
+let wallet=""
 
 if(network==="USDT TRC20"){
-
-walletAddress=wallets.trc20
-
+wallet=wallets.trc20
 }
 
 if(network==="USDT BEP20"){
-
-walletAddress=wallets.bep20
-
+wallet=wallets.bep20
 }
 
-if(!walletAddress){
+if(!wallet){
 
 alert("لا يوجد عنوان محفوظ لهذه الشبكة")
-
 return
 
 }
 
-const withdraw={
+fetch(API+"/withdraw",{
 
-id:"WD"+Date.now(),
+method:"POST",
 
-type:"سحب",
+headers:{
+"Content-Type":"application/json"
+},
 
-network:network,
+body:JSON.stringify({
 
-wallet:walletAddress,
-
+email:email,
 amount:amount,
+network:network,
+wallet:wallet,
+code:code
 
-status:"قيد المراجعة",
+})
 
-date:new Date().toLocaleString()
+})
+
+.then(res=>res.json())
+
+.then(data=>{
+
+if(data.success){
+
+document.getElementById("status").innerText="تم إرسال طلب السحب"
+
+}else{
+
+alert(data.message)
 
 }
 
-let records=JSON.parse(localStorage.getItem("records")||"[]")
-
-records.push(withdraw)
-
-localStorage.setItem("records",JSON.stringify(records))
-
-document.getElementById("status").innerText="قيد المراجعة"
-
-alert("تم إرسال طلب السحب بنجاح")
+})
 
 }
 
