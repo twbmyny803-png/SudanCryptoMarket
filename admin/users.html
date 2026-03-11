@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>المستخدمين</title>
+
+<style>
+
+body{
+font-family:Tahoma;
+margin:0;
+background:#f2f5fa;
+}
+
+.header{
+background:#0b1f3a;
+color:white;
+padding:18px;
+text-align:center;
+font-size:22px;
+font-weight:bold;
+}
+
+.container{
+padding:20px;
+max-width:1000px;
+margin:auto;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+background:white;
+}
+
+th,td{
+padding:12px;
+border-bottom:1px solid #eee;
+text-align:center;
+}
+
+th{
+background:#f4f6fb;
+}
+
+button{
+padding:6px 10px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+.add{
+background:#2ecc71;
+color:white;
+}
+
+.block{
+background:#e74c3c;
+color:white;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+إدارة المستخدمين
+</div>
+
+<div class="container">
+
+<table>
+<thead>
+<tr>
+<th>البريد</th>
+<th>الرصيد</th>
+<th>إضافة رصيد</th>
+<th>حظر</th>
+</tr>
+</thead>
+
+<tbody id="usersTable"></tbody>
+
+</table>
+
+</div>
+
+<script>
+
+let users = JSON.parse(localStorage.getItem("users")) || []
+
+function loadUsers(){
+
+let table=""
+
+users.forEach((u,i)=>{
+
+table+=`
+<tr>
+<td>${u.email}</td>
+<td>${u.balance || 0}</td>
+
+<td>
+<button class="add" onclick="addBalance(${i})">
+إضافة
+</button>
+</td>
+
+<td>
+<button class="block" onclick="blockUser(${i})">
+حظر
+</button>
+</td>
+
+</tr>
+`
+
+})
+
+document.getElementById("usersTable").innerHTML=table
+
+}
+
+function addBalance(i){
+
+let amount = prompt("أدخل الرصيد")
+
+if(!amount) return
+
+users[i].balance = (users[i].balance||0) + Number(amount)
+
+localStorage.setItem("users",JSON.stringify(users))
+
+loadUsers()
+
+}
+
+function blockUser(i){
+
+if(confirm("حظر المستخدم؟")){
+
+users.splice(i,1)
+
+localStorage.setItem("users",JSON.stringify(users))
+
+loadUsers()
+
+}
+
+}
+
+loadUsers()
+
+</script>
+
+</body>
+</html>
