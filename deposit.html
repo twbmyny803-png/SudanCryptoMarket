@@ -79,7 +79,7 @@ margin-top:10px;
 
 .status{
 text-align:center;
-font-size:20px;
+font-size:22px;
 font-weight:bold;
 color:#ff9800;
 margin-top:10px;
@@ -174,17 +174,13 @@ margin-top:8px;
 
 <div class="title">إرسال الإيصال</div>
 
-<input type="file">
-
 <input type="text" id="txid" placeholder="رقم العملية TXID">
 
 <button class="submit" onclick="submitDeposit()">
 إرسال الطلب
 </button>
 
-<div class="status" id="status">
-قيد المراجعة
-</div>
+<div class="status" id="status"></div>
 
 <div class="note">
 الوقت المتوقع للمراجعة 1 - 10 دقائق
@@ -197,6 +193,14 @@ margin-top:8px;
 </div>
 
 <script>
+
+const API="https://sudancryptomarket-api.onrender.com"
+
+const email=localStorage.getItem("userEmail")
+
+if(!email){
+window.location.href="login.html"
+}
 
 const networks={
 
@@ -254,7 +258,6 @@ alert("تم نسخ العنوان")
 }
 
 let time=900
-
 let timer
 
 function startTimer(){
@@ -266,7 +269,6 @@ time=900
 timer=setInterval(()=>{
 
 let m=Math.floor(time/60)
-
 let s=time%60
 
 if(s<10) s="0"+s
@@ -290,42 +292,59 @@ document.getElementById("timer").innerText="انتهى الوقت"
 function submitDeposit(){
 
 const network=document.getElementById("network").value
-
 const txid=document.getElementById("txid").value
 
-if(!txid){
+if(!network){
 
-alert("ادخل رقم العملية")
-
+alert("اختر الشبكة")
 return
 
 }
 
-const deposit={
+if(!txid){
 
-id:"DEP"+Date.now(),
-
-network:network,
-
-txid:txid,
-
-status:"قيد المراجعة",
-
-date:new Date().toLocaleString()
+alert("ادخل رقم العملية TXID")
+return
 
 }
 
-let deposits=JSON.parse(localStorage.getItem("deposits")||"[]")
+fetch(API+"/deposit",{
 
-deposits.push(deposit)
+method:"POST",
 
-localStorage.setItem("deposits",JSON.stringify(deposits))
+headers:{
+"Content-Type":"application/json"
+},
 
-alert("تم إرسال الطلب بنجاح")
+body:JSON.stringify({
+
+email:email,
+network:network,
+txid:txid
+
+})
+
+})
+
+.then(res=>res.json())
+
+.then(data=>{
+
+if(data.success){
+
+document.getElementById("status").innerText="تم إرسال الطلب — قيد المراجعة"
+
+}else{
+
+alert(data.message)
+
+}
+
+})
 
 }
 
 </script>
 
 </body>
-  </html>
+</html>
