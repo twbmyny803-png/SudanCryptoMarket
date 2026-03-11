@@ -6,14 +6,11 @@
 <title>الأصول | سودان كربتو</title>
 
 <style>
-
-*{
-box-sizing:border-box;
-}
+*{box-sizing:border-box;}
 
 body{
 margin:0;
-font-family:Tahoma, Arial, sans-serif;
+font-family:Tahoma,Arial,sans-serif;
 background:#f3f6fb;
 }
 
@@ -31,8 +28,6 @@ padding:16px;
 max-width:600px;
 margin:auto;
 }
-
-/* بطاقة الرصيد */
 
 .balance-card{
 background:#fff;
@@ -53,8 +48,6 @@ font-size:26px;
 font-weight:700;
 color:#2D6AF6;
 }
-
-/* شبكة الأزرار */
 
 .actions{
 display:grid;
@@ -88,8 +81,6 @@ font-size:12px;
 color:#666;
 }
 
-/* النشاط */
-
 .activity{
 background:#fff;
 border-radius:12px;
@@ -103,13 +94,18 @@ font-size:15px;
 margin-bottom:10px;
 }
 
+.activity-item{
+font-size:13px;
+padding:8px 0;
+border-bottom:1px solid #eee;
+}
+
 .activity-empty{
 font-size:13px;
 color:#777;
 text-align:center;
 padding:10px;
 }
-
 </style>
 </head>
 
@@ -123,7 +119,7 @@ padding:10px;
 
 <div class="balance-card">
 <div class="balance-title">الرصيد الكلي</div>
-<div class="balance-amount">0 USDT</div>
+<div class="balance-amount" id="balance">0 USDT</div>
 </div>
 
 <div class="actions">
@@ -138,9 +134,9 @@ padding:10px;
 <div class="card-desc">سحب الأموال إلى محفظتك</div>
 </div>
 
-<div class="card" onclick="openPage('transfer.html')">
+<div class="card">
 <div class="card-title">تحويل</div>
-<div class="card-desc">تحويل الرصيد داخل المنصة</div>
+<div class="card-desc">سيتم إضافته لاحقاً</div>
 </div>
 
 <div class="card" onclick="openPage('transactions.html')">
@@ -156,8 +152,10 @@ padding:10px;
 آخر النشاط
 </div>
 
+<div id="activityBox">
 <div class="activity-empty">
-لا توجد عمليات حتى الآن
+جاري التحميل...
+</div>
 </div>
 
 </div>
@@ -166,11 +164,82 @@ padding:10px;
 
 <script>
 
+const API="https://sudancryptomarket-api.onrender.com";
+
+const email=localStorage.getItem("userEmail");
+
+if(!email){
+window.location.href="login.html";
+}
+
+fetch(API+"/user-data",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({email})
+})
+.then(res=>res.json())
+.then(data=>{
+
+if(!data.success){
+localStorage.removeItem("userEmail");
+window.location.href="login.html";
+return;
+}
+
+/* عرض الرصيد */
+
+document.getElementById("balance").innerText=(data.balance||0)+" USDT";
+
+/* عرض آخر النشاط */
+
+const box=document.getElementById("activityBox");
+
+if(!data.operations || data.operations.length===0){
+
+box.innerHTML=`<div class="activity-empty">
+لا توجد عمليات حتى الآن
+</div>`;
+
+}else{
+
+let html="";
+
+data.operations.slice(0,5).forEach(op=>{
+
+let text="";
+
+if(op.type==="deposit"){
+text="إيداع";
+}
+
+if(op.type==="withdraw"){
+text="سحب";
+}
+
+html+=`
+<div class="activity-item">
+${text} ${op.amount} USDT
+</div>
+`;
+
+});
+
+box.innerHTML=html;
+
+}
+
+})
+.catch(()=>{
+window.location.href="login.html";
+});
+
 function openPage(page){
-window.location.href = page;
+window.location.href=page;
 }
 
 </script>
 
 </body>
-  </html>
+</html>
