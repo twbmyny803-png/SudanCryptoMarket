@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الأصول | سودان كربتو</title>
+
+<style>
+
+*{
+box-sizing:border-box;
+}
+
+body{
+margin:0;
+font-family:Tahoma, Arial, sans-serif;
+background:#f3f6fb;
+}
+
+.header{
+background:#0b1f3a;
+color:#fff;
+padding:18px;
+text-align:center;
+font-size:20px;
+font-weight:700;
+}
+
+.container{
+padding:16px;
+max-width:600px;
+margin:auto;
+}
+
+/* بطاقة الرصيد */
+
+.balance-card{
+background:#fff;
+border-radius:14px;
+padding:20px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+margin-bottom:18px;
+}
+
+.balance-title{
+font-size:14px;
+color:#666;
+margin-bottom:8px;
+}
+
+.balance-amount{
+font-size:26px;
+font-weight:700;
+color:#2D6AF6;
+}
+
+/* شبكة الأزرار */
+
+.actions{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+margin-bottom:20px;
+}
+
+.card{
+background:#fff;
+border-radius:12px;
+padding:16px;
+box-shadow:0 6px 16px rgba(0,0,0,0.08);
+cursor:pointer;
+transition:0.2s;
+}
+
+.card:hover{
+transform:translateY(-2px);
+}
+
+.card-title{
+font-weight:700;
+font-size:15px;
+margin-bottom:6px;
+color:#1A1A1A;
+}
+
+.card-desc{
+font-size:12px;
+color:#666;
+}
+
+/* النشاط */
+
+.activity{
+background:#fff;
+border-radius:12px;
+padding:16px;
+box-shadow:0 6px 16px rgba(0,0,0,0.08);
+}
+
+.activity-title{
+font-weight:700;
+font-size:15px;
+margin-bottom:10px;
+}
+
+.activity-empty{
+font-size:13px;
+color:#777;
+text-align:center;
+padding:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+الأصول
+</div>
+
+<div class="container">
+
+<div class="balance-card">
+<div class="balance-title">الرصيد الكلي</div>
+<div class="balance-amount">0 USDT</div>
+</div>
+
+<div class="actions">
+
+<div class="card" onclick="openPage('deposit.html')">
+<div class="card-title">إيداع</div>
+<div class="card-desc">إضافة رصيد إلى حسابك</div>
+</div>
+
+<div class="card" onclick="openPage('withdraw.html')">
+<div class="card-title">سحب</div>
+<div class="card-desc">سحب الأموال إلى محفظتك</div>
+</div>
+
+<div class="card" onclick="openPage('transfer.html')">
+<div class="card-title">تحويل</div>
+<div class="card-desc">تحويل الرصيد داخل المنصة</div>
+</div>
+
+<div class="card" onclick="openPage('transactions.html')">
+<div class="card-title">سجل العمليات</div>
+<div class="card-desc">عرض الإيداع والسحب</div>
+</div>
+
+</div>
+
+<div class="activity">
+
+<div class="activity-title">
+آخر النشاط
+</div>
+
+<div class="activity-empty">
+لا توجد عمليات حتى الآن
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+function openPage(page){
+window.location.href = page;
+}
+
+</script>
+
+</body>
+  </html>
