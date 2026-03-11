@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>دخول الأدمن</title>
+<style>
+body{
+margin:0;
+font-family:Tahoma;
+background:#0b1f3a;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+.box{
+background:#fff;
+padding:30px;
+border-radius:12px;
+width:320px;
+box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+h2{
+text-align:center;
+margin-bottom:20px;
+}
+input{
+width:100%;
+padding:12px;
+margin-bottom:12px;
+border:1px solid #ccc;
+border-radius:6px;
+box-sizing:border-box;
+}
+button{
+width:100%;
+padding:12px;
+background:#2D6AF6;
+color:white;
+border:none;
+border-radius:6px;
+font-size:16px;
+cursor:pointer;
+}
+.error{
+color:red;
+text-align:center;
+margin-top:10px;
+}
+</style>
+</head>
+<body>
+
+<div class="box">
+<h2>لوحة تحكم الأدمن</h2>
+<input id="username" placeholder="اسم المستخدم">
+<input id="password" type="password" placeholder="كلمة السر">
+<button onclick="login()">دخول</button>
+<div id="error" class="error"></div>
+</div>
+
+<script>
+function login(){
+const u=document.getElementById("username").value
+const p=document.getElementById("password").value
+
+if(u==="admain" && p==="admin_2050"){
+localStorage.setItem("admin","true")
+window.location.href="dashboard.html"
+}else{
+document.getElementById("error").innerText="بيانات الدخول غير صحيحة"
+}
+}
+</script>
+
+</body>
+</html>
