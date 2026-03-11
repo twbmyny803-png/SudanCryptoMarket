@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الباقات | سودان كربتو</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Tahoma;
+background:#f3f6fb;
+}
+
+.header{
+background:#0b1f3a;
+color:white;
+padding:18px;
+text-align:center;
+font-size:20px;
+font-weight:bold;
+}
+
+.container{
+max-width:600px;
+margin:auto;
+padding:20px;
+}
+
+.card{
+background:white;
+border-radius:12px;
+padding:18px;
+margin-bottom:16px;
+box-shadow:0 6px 16px rgba(0,0,0,0.08);
+}
+
+.title{
+font-size:18px;
+font-weight:bold;
+margin-bottom:8px;
+}
+
+.price{
+font-size:22px;
+color:#2D6AF6;
+font-weight:bold;
+}
+
+.profit{
+color:#10B981;
+margin-top:6px;
+font-weight:bold;
+}
+
+.duration{
+font-size:13px;
+color:#666;
+margin-top:6px;
+}
+
+.btn{
+background:#2D6AF6;
+color:white;
+border:none;
+padding:12px;
+border-radius:8px;
+width:100%;
+margin-top:10px;
+cursor:pointer;
+font-size:15px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+الباقات الاستثمارية
+</div>
+
+<div class="container">
+
+<div class="card">
+
+<div class="title">Silver</div>
+
+<div class="price">
+100 USDT
+</div>
+
+<div class="profit">
+ربح يومي 2%
+</div>
+
+<div class="duration">
+مدة الباقة 280 يوم
+</div>
+
+<button class="btn" onclick="buyPackage('silver')">
+شراء الباقة
+</button>
+
+</div>
+
+<div class="card">
+
+<div class="title">Gold</div>
+
+<div class="price">
+500 USDT
+</div>
+
+<div class="profit">
+ربح يومي 3%
+</div>
+
+<div class="duration">
+مدة الباقة 280 يوم
+</div>
+
+<button class="btn" onclick="buyPackage('gold')">
+شراء الباقة
+</button>
+
+</div>
+
+<div class="card">
+
+<div class="title">Platinum</div>
+
+<div class="price">
+1000 USDT
+</div>
+
+<div class="profit">
+ربح يومي 4%
+</div>
+
+<div class="duration">
+مدة الباقة 280 يوم
+</div>
+
+<button class="btn" onclick="buyPackage('platinum')">
+شراء الباقة
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+const API="https://sudancryptomarket-api.onrender.com"
+
+function buyPackage(pack){
+
+const email=localStorage.getItem("userEmail")
+
+if(!email){
+
+alert("يجب تسجيل الدخول")
+
+return
+
+}
+
+fetch(API+"/buy-package",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+email:email,
+package:pack
+
+})
+
+})
+
+.then(res=>res.json())
+
+.then(data=>{
+
+if(data.success){
+
+alert("تم شراء الباقة بنجاح")
+
+window.location.href="dashboard.html"
+
+}else{
+
+alert(data.message)
+
+}
+
+})
+
+}
+
+</script>
+
+</body>
+  </html>
