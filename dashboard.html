@@ -171,7 +171,10 @@ padding:14px;
 border-radius:18px;
 }
 
-.action-item{text-align:center}
+.action-item{
+text-align:center;
+cursor:pointer;
+}
 
 .action-icon{
 width:56px;
@@ -229,7 +232,6 @@ font-size:18px;
 .nav-item.active .nav-icon{
 background:#d9f99d;
 }
-
 </style>
 </head>
 
@@ -308,12 +310,12 @@ background:#d9f99d;
 
 <div class="actions-grid">
 
-<div class="action-item">
+<div class="action-item" onclick="location.href='about.html'">
 <div class="action-icon c1">🏢</div>
 <div class="action-text">عن المنصة</div>
 </div>
 
-<div class="action-item">
+<div class="action-item" onclick="location.href='referrals.html'">
 <div class="action-icon c2">👥</div>
 <div class="action-text">فريقي</div>
 </div>
