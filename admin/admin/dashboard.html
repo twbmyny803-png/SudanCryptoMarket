@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>لوحة الأدمن</title>
+
+<style>
+body{
+margin:0;
+font-family:Tahoma;
+background:#f3f6fb;
+}
+
+.sidebar{
+width:220px;
+height:100vh;
+background:#0b1f3a;
+color:white;
+position:fixed;
+right:0;
+top:0;
+padding-top:20px;
+}
+
+.sidebar h2{
+text-align:center;
+}
+
+.sidebar a{
+display:block;
+color:white;
+padding:14px;
+text-decoration:none;
+}
+
+.sidebar a:hover{
+background:#1d3a63;
+}
+
+.main{
+margin-right:220px;
+padding:20px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:10px;
+margin-bottom:15px;
+box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
+</style>
+</head>
+
+<body>
+
+<script>
+if(localStorage.getItem("admin")!=="true"){
+window.location.href="login.html"
+}
+</script>
+
+<div class="sidebar">
+<h2>الأدمن</h2>
+
+<a href="dashboard.html">لوحة التحكم</a>
+<a href="users.html">المستخدمين</a>
+<a href="deposits.html">الإيداعات</a>
+<a href="withdraws.html">السحب</a>
+
+</div>
+
+<div class="main">
+
+<h1>لوحة التحكم</h1>
+
+<div class="card">
+لوحة تحكم الأدمن
+</div>
+
+<div class="card">
+هنا سنضيف إدارة المستخدمين والإيداعات والسحب
+</div>
+
+</div>
+
+</body>
+</html>
