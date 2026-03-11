@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الإحالات | سودان كربتو</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<style>
+
+body{
+margin:0;
+font-family:Tahoma;
+background:#f3f6fb;
+}
+
+.header{
+background:#0b1f3a;
+color:white;
+padding:18px;
+text-align:center;
+font-size:20px;
+font-weight:bold;
+}
+
+.container{
+max-width:600px;
+margin:auto;
+padding:20px;
+}
+
+.card{
+background:white;
+border-radius:12px;
+padding:18px;
+margin-bottom:16px;
+box-shadow:0 6px 16px rgba(0,0,0,0.08);
+}
+
+.title{
+font-weight:bold;
+margin-bottom:10px;
+font-size:16px;
+}
+
+.code{
+font-size:24px;
+font-weight:bold;
+color:#2D6AF6;
+margin-top:6px;
+text-align:center;
+}
+
+.link{
+font-size:13px;
+word-break:break-all;
+margin-top:8px;
+color:#333;
+text-align:center;
+}
+
+.btn{
+background:#2D6AF6;
+color:white;
+border:none;
+padding:12px;
+border-radius:8px;
+width:100%;
+margin-top:10px;
+cursor:pointer;
+font-size:14px;
+}
+
+.btn2{
+background:#25D366;
+}
+
+.qr{
+display:flex;
+justify-content:center;
+margin-top:10px;
+}
+
+.count{
+font-size:26px;
+font-weight:bold;
+color:#10B981;
+text-align:center;
+}
+
+.member{
+border-top:1px solid #eee;
+padding:10px 0;
+font-size:14px;
+}
+
+.empty{
+text-align:center;
+color:#777;
+font-size:13px;
+padding:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+الإحالات وفريقك
+</div>
+
+<div class="container">
+
+<div class="card">
+
+<div class="title">
+رمز الإحالة
+</div>
+
+<div class="code" id="refCode">
+...
+</div>
+
+<div class="link" id="refLink">
+...
+</div>
+
+<div class="qr" id="qrCode"></div>
+
+<button class="btn" onclick="copyLink()">
+نسخ رابط الإحالة
+</button>
+
+<button class="btn btn2" onclick="shareWhatsApp()">
+مشاركة عبر واتساب
+</button>
+
+</div>
+
+<div class="card">
+
+<div class="title">
+عدد أعضاء الفريق
+</div>
+
+<div class="count" id="teamCount">
+0
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="title">
+أعضاء الفريق
+</div>
+
+<div id="teamList">
+
+<div class="empty">
+لا يوجد أعضاء بعد
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const API="https://sudancryptomarket-api.onrender.com"
+
+const email=localStorage.getItem("userEmail")
+
+if(!email){
+window.location.href="login.html"
+}
+
+fetch(API+"/user-data",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({email})
+
+})
+
+.then(res=>res.json())
+
+.then(data=>{
+
+if(!data.success){
+
+localStorage.removeItem("userEmail")
+
+window.location.href="login.html"
+
+return
+
+}
+
+document.getElementById("refCode").innerText=data.referralCode
+
+const link=location.origin+"/index.html?ref="+data.referralCode
+
+document.getElementById("refLink").innerText=link
+
+document.getElementById("teamCount").innerText=data.referralCount
+
+new QRCode(document.getElementById("qrCode"),{
+text:link,
+width:150,
+height:150
+})
+
+const list=document.getElementById("teamList")
+
+list.innerHTML=""
+
+if(!data.teamMembers || data.teamMembers.length===0){
+
+list.innerHTML='<div class="empty">لا يوجد أعضاء بعد</div>'
+
+return
+
+}
+
+data.teamMembers.forEach(m=>{
+
+const div=document.createElement("div")
+
+div.className="member"
+
+div.innerHTML="👤 "+m.name+"<br>"+m.email
+
+list.appendChild(div)
+
+})
+
+})
+
+function copyLink(){
+
+const code=document.getElementById("refCode").innerText
+
+const link=location.origin+"/index.html?ref="+code
+
+navigator.clipboard.writeText(link)
+
+alert("تم نسخ رابط الإحالة")
+
+}
+
+function shareWhatsApp(){
+
+const code=document.getElementById("refCode").innerText
+
+const link=location.origin+"/index.html?ref="+code
+
+const text="انضم إلى منصة سودان كربتو عبر رابط الإحالة الخاص بي: "+link
+
+window.open("https://wa.me/?text="+encodeURIComponent(text))
+
+}
+
+</script>
+
+</body>
+  </html>
