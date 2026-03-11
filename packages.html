@@ -3,14 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>الباقات | سودان كربتو</title>
+
+<title>الباقات الاستثمارية</title>
 
 <style>
 
 body{
 margin:0;
 font-family:Tahoma;
-background:#f3f6fb;
+background:#f2f5fa;
 }
 
 .header{
@@ -28,48 +29,54 @@ margin:auto;
 padding:20px;
 }
 
-.card{
+.package{
+
 background:white;
-border-radius:12px;
-padding:18px;
+border-radius:14px;
+padding:20px;
 margin-bottom:16px;
 box-shadow:0 6px 16px rgba(0,0,0,0.08);
+text-align:center;
+
 }
 
-.title{
-font-size:18px;
+.package h2{
+margin:0 0 10px;
+}
+
+.price{
+font-size:26px;
+color:#2D6AF6;
 font-weight:bold;
 margin-bottom:8px;
 }
 
-.price{
-font-size:22px;
-color:#2D6AF6;
-font-weight:bold;
-}
-
 .profit{
 color:#10B981;
-margin-top:6px;
 font-weight:bold;
+margin-bottom:6px;
 }
 
 .duration{
-font-size:13px;
-color:#666;
-margin-top:6px;
+color:#777;
+margin-bottom:16px;
 }
 
-.btn{
+.buy-btn{
+
 background:#2D6AF6;
 color:white;
 border:none;
 padding:12px;
-border-radius:8px;
 width:100%;
-margin-top:10px;
+border-radius:8px;
+font-size:16px;
 cursor:pointer;
-font-size:15px;
+
+}
+
+.buy-btn:hover{
+opacity:0.9;
 }
 
 </style>
@@ -83,68 +90,126 @@ font-size:15px;
 
 <div class="container">
 
-<div class="card">
+<!-- Starter -->
 
-<div class="title">Silver</div>
+<div class="package">
+
+<h2>Starter</h2>
 
 <div class="price">
-100 USDT
+USDT 50
 </div>
 
 <div class="profit">
-ربح يومي 2%
+ربح يومي 2.5 USDT
 </div>
 
 <div class="duration">
 مدة الباقة 280 يوم
 </div>
 
-<button class="btn" onclick="buyPackage('silver')">
-شراء الباقة
+<button class="buy-btn" onclick="buyPackage('Starter',50)">
+انقر للشراء
 </button>
 
 </div>
 
-<div class="card">
 
-<div class="title">Gold</div>
+<!-- Silver -->
+
+<div class="package">
+
+<h2>Silver</h2>
 
 <div class="price">
-500 USDT
+USDT 100
 </div>
 
 <div class="profit">
-ربح يومي 3%
+ربح يومي 5 USDT
 </div>
 
 <div class="duration">
 مدة الباقة 280 يوم
 </div>
 
-<button class="btn" onclick="buyPackage('gold')">
-شراء الباقة
+<button class="buy-btn" onclick="buyPackage('Silver',100)">
+انقر للشراء
 </button>
 
 </div>
 
-<div class="card">
 
-<div class="title">Platinum</div>
+<!-- Gold -->
+
+<div class="package">
+
+<h2>Gold</h2>
 
 <div class="price">
-1000 USDT
+USDT 250
 </div>
 
 <div class="profit">
-ربح يومي 4%
+ربح يومي 8 USDT
 </div>
 
 <div class="duration">
 مدة الباقة 280 يوم
 </div>
 
-<button class="btn" onclick="buyPackage('platinum')">
-شراء الباقة
+<button class="buy-btn" onclick="buyPackage('Gold',250)">
+انقر للشراء
+</button>
+
+</div>
+
+
+<!-- Diamond -->
+
+<div class="package">
+
+<h2>Diamond</h2>
+
+<div class="price">
+USDT 500
+</div>
+
+<div class="profit">
+ربح يومي 12 USDT
+</div>
+
+<div class="duration">
+مدة الباقة 280 يوم
+</div>
+
+<button class="buy-btn" onclick="buyPackage('Diamond',500)">
+انقر للشراء
+</button>
+
+</div>
+
+
+<!-- Platinum -->
+
+<div class="package">
+
+<h2>Platinum</h2>
+
+<div class="price">
+USDT 1000
+</div>
+
+<div class="profit">
+ربح يومي 25 USDT
+</div>
+
+<div class="duration">
+مدة الباقة 280 يوم
+</div>
+
+<button class="buy-btn" onclick="buyPackage('Platinum',1000)">
+انقر للشراء
 </button>
 
 </div>
@@ -153,58 +218,18 @@ font-size:15px;
 
 <script>
 
-const API="https://sudancryptomarket-api.onrender.com"
+function buyPackage(name,price){
 
-function buyPackage(pack){
+// حفظ الباقة المختارة
+localStorage.setItem("selectedPackage",name)
+localStorage.setItem("selectedPrice",price)
 
-const email=localStorage.getItem("userEmail")
-
-if(!email){
-
-alert("يجب تسجيل الدخول")
-
-return
-
-}
-
-fetch(API+"/buy-package",{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-
-email:email,
-package:pack
-
-})
-
-})
-
-.then(res=>res.json())
-
-.then(data=>{
-
-if(data.success){
-
-alert("تم شراء الباقة بنجاح")
-
-window.location.href="dashboard.html"
-
-}else{
-
-alert(data.message)
-
-}
-
-})
+// لاحقاً سنربطها بصفحة الإيداع
+window.location.href="deposit.html"
 
 }
 
 </script>
 
 </body>
-  </html>
+</html>
