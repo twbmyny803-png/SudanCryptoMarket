@@ -6,7 +6,6 @@
 <title>إيداع | سودان كربتو</title>
 
 <style>
-
 body{
 margin:0;
 font-family:Tahoma;
@@ -109,6 +108,22 @@ font-size:13px;
 margin-top:8px;
 }
 
+.package-box{
+background:#eef5ff;
+border:1px solid #d7e7ff;
+border-radius:10px;
+padding:14px;
+line-height:1.9;
+}
+
+.package-row{
+font-size:14px;
+color:#1f2937;
+}
+
+.package-row b{
+color:#0b1f3a;
+}
 </style>
 </head>
 
@@ -120,24 +135,32 @@ margin-top:8px;
 
 <div class="container">
 
+<div class="card" id="selectedPackageCard" style="display:none;">
+<div class="title">تفاصيل الباقة المختارة</div>
+
+<div class="package-box">
+<div class="package-row">اسم الباقة: <b id="packageName">-</b></div>
+<div class="package-row">سعر الباقة: <b id="packagePrice">-</b></div>
+<div class="package-row">الربح اليومي: <b id="packageDailyProfit">-</b></div>
+<div class="package-row">مدة الباقة: <b id="packageDuration">-</b></div>
+</div>
+
+<div class="note">
+بعد إتمام الإيداع وإرسال الطلب، ستتم مراجعة العملية ثم اعتماد الباقة.
+</div>
+</div>
+
 <div class="card">
 
 <div class="title">اختيار الشبكة</div>
 
 <select id="network" onchange="showDeposit()">
-
 <option value="">اختر الشبكة</option>
-
 <option value="USDT TRC20">USDT TRC20</option>
-
 <option value="USDT BEP20">USDT BEP20</option>
-
 <option value="USDC BEP20">USDC BEP20</option>
-
 <option value="ETH ERC20">ETH ERC20</option>
-
 <option value="BTC">BTC</option>
-
 </select>
 
 </div>
@@ -156,6 +179,18 @@ margin-top:8px;
 
 <div class="warning">
 أرسل فقط العملة عبر الشبكة المحددة
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="title">المبلغ</div>
+
+<input type="number" id="amount" placeholder="أدخل مبلغ الإيداع">
+
+<div class="note">
+إذا دخلت من صفحة الباقات سيتم تحديد المبلغ تلقائياً.
 </div>
 
 </div>
@@ -193,13 +228,26 @@ margin-top:8px;
 </div>
 
 <script>
-
 const API="https://sudancryptomarket-api.onrender.com"
 
 const email=localStorage.getItem("userEmail")
 
 if(!email){
 window.location.href="login.html"
+}
+
+const selectedPackage=localStorage.getItem("selectedPackage")
+const selectedPrice=localStorage.getItem("selectedPrice")
+const selectedDailyProfit=localStorage.getItem("selectedDailyProfit")
+const selectedDuration=localStorage.getItem("selectedDuration")
+
+if(selectedPackage && selectedPrice){
+document.getElementById("selectedPackageCard").style.display="block"
+document.getElementById("packageName").innerText=selectedPackage
+document.getElementById("packagePrice").innerText=selectedPrice+" USDT"
+document.getElementById("packageDailyProfit").innerText=selectedDailyProfit+" USDT"
+document.getElementById("packageDuration").innerText=selectedDuration+" يوم"
+document.getElementById("amount").value=selectedPrice
 }
 
 const networks={
@@ -232,38 +280,28 @@ min:"الحد الأدنى 0.00009 BTC"
 }
 
 function showDeposit(){
-
 const net=document.getElementById("network").value
 
 if(!net) return
 
 document.getElementById("depositBox").style.display="block"
-
 document.getElementById("address").innerText=networks[net].address
-
 document.getElementById("min").innerText=networks[net].min
 
 startTimer()
-
 }
 
 function copyAddress(){
-
 const text=document.getElementById("address").innerText
-
 navigator.clipboard.writeText(text)
-
 alert("تم نسخ العنوان")
-
 }
 
 let time=900
 let timer
 
 function startTimer(){
-
 clearInterval(timer)
-
 time=900
 
 timer=setInterval(()=>{
@@ -278,72 +316,71 @@ document.getElementById("timer").innerText=m+":"+s
 time--
 
 if(time<=0){
-
 clearInterval(timer)
-
 document.getElementById("timer").innerText="انتهى الوقت"
-
 }
 
 },1000)
-
 }
 
 function submitDeposit(){
 
 const network=document.getElementById("network").value
-const txid=document.getElementById("txid").value
+const amount=Number(document.getElementById("amount").value)
+const txid=document.getElementById("txid").value.trim()
 
 if(!network){
-
 alert("اختر الشبكة")
 return
+}
 
+if(!amount || amount<=0){
+alert("أدخل مبلغ الإيداع")
+return
 }
 
 if(!txid){
-
 alert("ادخل رقم العملية TXID")
 return
-
 }
 
 fetch(API+"/deposit",{
-
 method:"POST",
-
 headers:{
 "Content-Type":"application/json"
 },
-
 body:JSON.stringify({
-
 email:email,
 network:network,
-txid:txid
-
+amount:amount,
+txid:txid,
+packageName:selectedPackage || "",
+dailyProfit:selectedDailyProfit || "",
+durationDays:selectedDuration || ""
 })
-
 })
-
 .then(res=>res.json())
-
 .then(data=>{
 
 if(data.success){
-
 document.getElementById("status").innerText="تم إرسال الطلب — قيد المراجعة"
 
+if(selectedPackage){
+localStorage.removeItem("selectedPackage")
+localStorage.removeItem("selectedPrice")
+localStorage.removeItem("selectedDailyProfit")
+localStorage.removeItem("selectedDuration")
+}
 }else{
-
-alert(data.message)
-
+alert(data.message || "فشل إرسال الطلب")
 }
 
 })
+.catch(()=>{
+alert("حدث خطأ أثناء إرسال الطلب")
+})
 
 }
-
 </script>
 
 </body>
