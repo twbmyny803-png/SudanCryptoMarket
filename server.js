@@ -89,7 +89,7 @@ if(purpose==="register" && users[email]){
 return res.json({success:false,message:"البريد مسجل"})
 }
 
-if((purpose==="login" || purpose==="reset" || purpose==="withdraw") && !users[email]){
+if((purpose==="login" || purpose==="reset") && !users[email]){
 return res.json({success:false,message:"الحساب غير موجود"})
 }
 
@@ -168,6 +168,10 @@ referralCode,
 password,
 balance:0,
 operations:[],
+package:null,
+packagePrice:0,
+dailyPercent:0,
+packageStart:null,
 createdAt:new Date().toISOString()
 
 }
@@ -208,11 +212,11 @@ res.json({success:true,user})
 
 })
 
-/* تغيير كلمة السر */
-app.post("/reset-password",(req,res)=>{
+/* شراء باقة */
+app.post("/buy-package",(req,res)=>{
 
 const email=normalizeEmail(req.body.email)
-const newPassword=cleanText(req.body.password)
+const pack=cleanText(req.body.package)
 
 const user=users[email]
 
@@ -220,19 +224,51 @@ if(!user){
 return res.json({success:false})
 }
 
-const saved=otpStore[email]
+let price=0
+let percent=0
 
-if(!saved || saved.purpose!=="reset" || saved.verified!==true){
-return res.json({success:false,message:"تحقق من الكود"})
+if(pack==="silver"){
+price=100
+percent=2
 }
 
-user.password=newPassword
+if(pack==="gold"){
+price=500
+percent=3
+}
 
-delete otpStore[email]
+if(pack==="platinum"){
+price=1000
+percent=4
+}
+
+if(user.balance<price){
+return res.json({success:false,message:"الرصيد غير كافي"})
+}
+
+user.balance-=price
+
+user.package=pack
+user.packagePrice=price
+user.dailyPercent=percent
+user.packageStart=Date.now()
 
 res.json({success:true})
 
 })
+
+/* حساب الأرباح */
+function calculateProfit(user){
+
+if(!user.package){
+return 0
+}
+
+const days=Math.floor((Date.now()-user.packageStart)/(1000*60*60*24))
+
+return user.packagePrice*(user.dailyPercent/100)*days
+
+}
 
 /* بيانات المستخدم */
 app.post("/user-data",(req,res)=>{
@@ -247,6 +283,8 @@ return res.json({success:false})
 const teamMembers=Object.values(users)
 .filter(u=>u.referredBy===user.referralCode)
 
+const dailyIncome=calculateProfit(user)
+
 res.json({
 
 success:true,
@@ -255,6 +293,8 @@ email:user.email,
 phone:user.phone,
 balance:user.balance,
 operations:user.operations,
+package:user.package,
+dailyIncome,
 referralCode:user.referralCode,
 referralCount:teamMembers.length
 
@@ -318,9 +358,7 @@ res.json({success:true})
 
 /* المستخدمين */
 app.get("/users",(req,res)=>{
-
 res.json({success:true,users})
-
 })
 
 const PORT=process.env.PORT||10000
