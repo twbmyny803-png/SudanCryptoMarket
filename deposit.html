@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إيداع | سودان كربتو</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Tahoma;
+background:#f2f5fa;
+}
+
+.header{
+background:#0b1f3a;
+color:white;
+padding:18px;
+text-align:center;
+font-size:20px;
+font-weight:bold;
+}
+
+.container{
+max-width:600px;
+margin:auto;
+padding:20px;
+}
+
+.card{
+background:white;
+border-radius:12px;
+padding:18px;
+margin-bottom:16px;
+box-shadow:0 6px 16px rgba(0,0,0,0.08);
+}
+
+.title{
+font-weight:bold;
+margin-bottom:10px;
+}
+
+select,input{
+width:100%;
+padding:12px;
+border-radius:8px;
+border:1px solid #ddd;
+margin-top:6px;
+}
+
+.address{
+background:#f7f9fc;
+padding:12px;
+border-radius:8px;
+word-break:break-all;
+margin-top:8px;
+font-size:14px;
+}
+
+.copy{
+background:#2D6AF6;
+color:white;
+border:none;
+padding:10px;
+margin-top:10px;
+border-radius:6px;
+cursor:pointer;
+width:100%;
+}
+
+.timer{
+text-align:center;
+font-size:34px;
+font-weight:bold;
+color:#e74c3c;
+margin-top:10px;
+}
+
+.status{
+text-align:center;
+font-size:20px;
+font-weight:bold;
+color:#ff9800;
+margin-top:10px;
+}
+
+.note{
+font-size:13px;
+color:#666;
+margin-top:6px;
+}
+
+.submit{
+background:#10B981;
+color:white;
+border:none;
+padding:12px;
+border-radius:8px;
+width:100%;
+margin-top:12px;
+font-size:16px;
+cursor:pointer;
+}
+
+.warning{
+color:#e74c3c;
+font-size:13px;
+margin-top:8px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+إيداع العملات
+</div>
+
+<div class="container">
+
+<div class="card">
+
+<div class="title">اختيار الشبكة</div>
+
+<select id="network" onchange="showDeposit()">
+
+<option value="">اختر الشبكة</option>
+
+<option value="USDT TRC20">USDT TRC20</option>
+
+<option value="USDT BEP20">USDT BEP20</option>
+
+<option value="USDC BEP20">USDC BEP20</option>
+
+<option value="ETH ERC20">ETH ERC20</option>
+
+<option value="BTC">BTC</option>
+
+</select>
+
+</div>
+
+<div id="depositBox" style="display:none">
+
+<div class="card">
+
+<div class="title">عنوان الإيداع</div>
+
+<div class="address" id="address"></div>
+
+<button class="copy" onclick="copyAddress()">نسخ العنوان</button>
+
+<div class="note" id="min"></div>
+
+<div class="warning">
+أرسل فقط العملة عبر الشبكة المحددة
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="title">الوقت المتبقي للدفع</div>
+
+<div class="timer" id="timer">
+15:00
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="title">إرسال الإيصال</div>
+
+<input type="file">
+
+<input type="text" id="txid" placeholder="رقم العملية TXID">
+
+<button class="submit" onclick="submitDeposit()">
+إرسال الطلب
+</button>
+
+<div class="status" id="status">
+قيد المراجعة
+</div>
+
+<div class="note">
+الوقت المتوقع للمراجعة 1 - 10 دقائق
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const networks={
+
+"USDT TRC20":{
+address:"TLPZEoW71BNe6mHPK8XRJ5PkN5Agqqpa5n",
+min:"الحد الأدنى 10 USDT"
+},
+
+"USDT BEP20":{
+address:"0x990635c24b47a3ebbc14efadf0355e26ec706385",
+min:"الحد الأدنى 10 USDT"
+},
+
+"USDC BEP20":{
+address:"0x990635c24b47a3ebbc14efadf0355e26ec706385",
+min:"الحد الأدنى 0.5 USDC"
+},
+
+"ETH ERC20":{
+address:"0x990635c24b47a3ebbc14efadf0355e26ec706385",
+min:"الحد الأدنى 0.0007 ETH"
+},
+
+"BTC":{
+address:"1J4rcHG7afaEEFQL9o7GDcNc9noAZE6DVf",
+min:"الحد الأدنى 0.00009 BTC"
+}
+
+}
+
+function showDeposit(){
+
+const net=document.getElementById("network").value
+
+if(!net) return
+
+document.getElementById("depositBox").style.display="block"
+
+document.getElementById("address").innerText=networks[net].address
+
+document.getElementById("min").innerText=networks[net].min
+
+startTimer()
+
+}
+
+function copyAddress(){
+
+const text=document.getElementById("address").innerText
+
+navigator.clipboard.writeText(text)
+
+alert("تم نسخ العنوان")
+
+}
+
+let time=900
+
+let timer
+
+function startTimer(){
+
+clearInterval(timer)
+
+time=900
+
+timer=setInterval(()=>{
+
+let m=Math.floor(time/60)
+
+let s=time%60
+
+if(s<10) s="0"+s
+
+document.getElementById("timer").innerText=m+":"+s
+
+time--
+
+if(time<=0){
+
+clearInterval(timer)
+
+document.getElementById("timer").innerText="انتهى الوقت"
+
+}
+
+},1000)
+
+}
+
+function submitDeposit(){
+
+const network=document.getElementById("network").value
+
+const txid=document.getElementById("txid").value
+
+if(!txid){
+
+alert("ادخل رقم العملية")
+
+return
+
+}
+
+const deposit={
+
+id:"DEP"+Date.now(),
+
+network:network,
+
+txid:txid,
+
+status:"قيد المراجعة",
+
+date:new Date().toLocaleString()
+
+}
+
+let deposits=JSON.parse(localStorage.getItem("deposits")||"[]")
+
+deposits.push(deposit)
+
+localStorage.setItem("deposits",JSON.stringify(deposits))
+
+alert("تم إرسال الطلب بنجاح")
+
+}
+
+</script>
+
+</body>
+  </html>
