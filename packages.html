@@ -3,20 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>الباقات الاستثمارية</title>
+<title>الباقات الاستثمارية | سودان كربتو</title>
 
 <style>
-
 body{
 margin:0;
-font-family:Tahoma;
+font-family:Tahoma, Arial, sans-serif;
 background:#f2f5fa;
 }
 
 .header{
 background:#0b1f3a;
-color:white;
+color:#fff;
 padding:18px;
 text-align:center;
 font-size:20px;
@@ -30,18 +28,18 @@ padding:20px;
 }
 
 .package{
-
-background:white;
+background:#fff;
 border-radius:14px;
 padding:20px;
 margin-bottom:16px;
 box-shadow:0 6px 16px rgba(0,0,0,0.08);
 text-align:center;
-
 }
 
 .package h2{
 margin:0 0 10px;
+font-size:28px;
+color:#111827;
 }
 
 .price{
@@ -55,30 +53,29 @@ margin-bottom:8px;
 color:#10B981;
 font-weight:bold;
 margin-bottom:6px;
+font-size:20px;
 }
 
 .duration{
 color:#777;
 margin-bottom:16px;
+font-size:15px;
 }
 
 .buy-btn{
-
 background:#2D6AF6;
-color:white;
+color:#fff;
 border:none;
 padding:12px;
 width:100%;
 border-radius:8px;
 font-size:16px;
 cursor:pointer;
-
 }
 
 .buy-btn:hover{
 opacity:0.9;
 }
-
 </style>
 </head>
 
@@ -90,145 +87,66 @@ opacity:0.9;
 
 <div class="container">
 
-<!-- Starter -->
-
 <div class="package">
-
 <h2>Starter</h2>
-
-<div class="price">
-USDT 50
-</div>
-
-<div class="profit">
-ربح يومي 2.5 USDT
-</div>
-
-<div class="duration">
-مدة الباقة 280 يوم
-</div>
-
-<button class="buy-btn" onclick="buyPackage('Starter',50)">
+<div class="price">USDT 50</div>
+<div class="profit">ربح يومي 2.5 USDT</div>
+<div class="duration">مدة الباقة 280 يوم</div>
+<button class="buy-btn" onclick="buyPackage('Starter',50,2.5,280)">
 انقر للشراء
 </button>
-
 </div>
 
-
-<!-- Silver -->
-
 <div class="package">
-
 <h2>Silver</h2>
-
-<div class="price">
-USDT 100
-</div>
-
-<div class="profit">
-ربح يومي 5 USDT
-</div>
-
-<div class="duration">
-مدة الباقة 280 يوم
-</div>
-
-<button class="buy-btn" onclick="buyPackage('Silver',100)">
+<div class="price">USDT 100</div>
+<div class="profit">ربح يومي 5 USDT</div>
+<div class="duration">مدة الباقة 280 يوم</div>
+<button class="buy-btn" onclick="buyPackage('Silver',100,5,280)">
 انقر للشراء
 </button>
-
 </div>
 
-
-<!-- Gold -->
-
 <div class="package">
-
 <h2>Gold</h2>
-
-<div class="price">
-USDT 250
-</div>
-
-<div class="profit">
-ربح يومي 8 USDT
-</div>
-
-<div class="duration">
-مدة الباقة 280 يوم
-</div>
-
-<button class="buy-btn" onclick="buyPackage('Gold',250)">
+<div class="price">USDT 250</div>
+<div class="profit">ربح يومي 8 USDT</div>
+<div class="duration">مدة الباقة 280 يوم</div>
+<button class="buy-btn" onclick="buyPackage('Gold',250,8,280)">
 انقر للشراء
 </button>
-
 </div>
 
-
-<!-- Diamond -->
-
 <div class="package">
-
 <h2>Diamond</h2>
-
-<div class="price">
-USDT 500
-</div>
-
-<div class="profit">
-ربح يومي 12 USDT
-</div>
-
-<div class="duration">
-مدة الباقة 280 يوم
-</div>
-
-<button class="buy-btn" onclick="buyPackage('Diamond',500)">
+<div class="price">USDT 500</div>
+<div class="profit">ربح يومي 12 USDT</div>
+<div class="duration">مدة الباقة 280 يوم</div>
+<button class="buy-btn" onclick="buyPackage('Diamond',500,12,280)">
 انقر للشراء
 </button>
-
 </div>
-
-
-<!-- Platinum -->
 
 <div class="package">
-
 <h2>Platinum</h2>
-
-<div class="price">
-USDT 1000
-</div>
-
-<div class="profit">
-ربح يومي 25 USDT
-</div>
-
-<div class="duration">
-مدة الباقة 280 يوم
-</div>
-
-<button class="buy-btn" onclick="buyPackage('Platinum',1000)">
+<div class="price">USDT 1000</div>
+<div class="profit">ربح يومي 25 USDT</div>
+<div class="duration">مدة الباقة 280 يوم</div>
+<button class="buy-btn" onclick="buyPackage('Platinum',1000,25,280)">
 انقر للشراء
 </button>
-
 </div>
 
 </div>
 
 <script>
-
-function buyPackage(name,price){
-
-// حفظ الباقة المختارة
-localStorage.setItem("selectedPackage",name)
-localStorage.setItem("selectedPrice",price)
-
-// لاحقاً سنربطها بصفحة الإيداع
-window.location.href="deposit.html"
-
+function buyPackage(name, price, dailyProfit, durationDays){
+localStorage.setItem("selectedPackage", name);
+localStorage.setItem("selectedPrice", price);
+localStorage.setItem("selectedDailyProfit", dailyProfit);
+localStorage.setItem("selectedDuration", durationDays);
+window.location.href = "deposit.html";
 }
-
 </script>
 
 </body>
