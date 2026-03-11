@@ -1,9 +1,11 @@
-<!DOCTYPE html><html lang="ar" dir="rtl">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>سجل العمليات | سودان كربتو</title><style>
+<title>سجل العمليات | سودان كربتو</title>
 
+<style>
 body{
 margin:0;
 font-family:Tahoma;
@@ -36,12 +38,15 @@ box-shadow:0 6px 16px rgba(0,0,0,0.08);
 .row{
 display:flex;
 justify-content:space-between;
-margin-bottom:6px;
+gap:10px;
+margin-bottom:8px;
 font-size:14px;
+flex-wrap:wrap;
 }
 
 .type{
 font-weight:bold;
+font-size:16px;
 }
 
 .deposit{
@@ -50,6 +55,10 @@ color:#10B981;
 
 .withdraw{
 color:#e74c3c;
+}
+
+.package{
+color:#2D6AF6;
 }
 
 .status{
@@ -75,12 +84,37 @@ padding:20px;
 font-size:14px;
 }
 
-</style></head><body><div class="header">
-سجل العمليات
-</div><div class="container" id="transactionsBox"><div class="empty">
-جاري تحميل العمليات...
-</div></div><script>
+.label{
+color:#6b7280;
+font-size:13px;
+}
 
+.value{
+color:#111827;
+font-weight:bold;
+}
+
+.line{
+height:1px;
+background:#eef2f7;
+margin:10px 0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+سجل العمليات
+</div>
+
+<div class="container" id="transactionsBox">
+<div class="empty">
+جاري تحميل العمليات...
+</div>
+</div>
+
+<script>
 const API="https://sudancryptomarket-api.onrender.com"
 
 const email=localStorage.getItem("userEmail")
@@ -90,25 +124,25 @@ window.location.href="login.html"
 }
 
 fetch(API+"/user-data",{
-
 method:"POST",
-
 headers:{
 "Content-Type":"application/json"
 },
-
 body:JSON.stringify({email})
-
 })
 .then(res=>res.json())
 .then(data=>{
 
 const box=document.getElementById("transactionsBox")
 
+if(!data.success){
+localStorage.removeItem("userEmail")
+window.location.href="login.html"
+return
+}
+
 if(!data.operations || data.operations.length===0){
-
 box.innerHTML=`<div class="empty">لا توجد عمليات</div>`
-
 return
 }
 
@@ -129,6 +163,16 @@ typeClass="withdraw"
 typeText="سحب"
 }
 
+if(op.type==="package_deposit"){
+typeClass="package"
+typeText="إيداع باقة"
+}
+
+if(op.type==="package"){
+typeClass="package"
+typeText="شراء باقة"
+}
+
 let statusClass="pending"
 let statusText="قيد المراجعة"
 
@@ -142,8 +186,27 @@ statusClass="rejected"
 statusText="مرفوض"
 }
 
-html+=`
+if(op.status==="approved" || op.status==="success"){
+statusClass="success"
+statusText="مكتمل"
+}
 
+let extraInfo=""
+
+if(op.type==="package_deposit" || op.type==="package"){
+extraInfo += `
+<div class="row">
+<div><span class="label">اسم الباقة:</span> <span class="value">${op.packageName || "-"}</span></div>
+</div>
+
+<div class="row">
+<div><span class="label">الربح اليومي:</span> <span class="value">${op.dailyProfit || 0} USDT</span></div>
+<div><span class="label">مدة الباقة:</span> <span class="value">${op.durationDays || 0} يوم</span></div>
+</div>
+`
+}
+
+html += `
 <div class="card">
 
 <div class="row">
@@ -151,36 +214,35 @@ html+=`
 ${typeText}
 </div>
 
-<div>
-${op.amount || ""} 
-</div>
-</div>
-
-<div class="row">
-<div>
-${op.network || ""}
-</div>
-
 <div class="status ${statusClass}">
 ${statusText}
 </div>
 </div>
 
+<div class="line"></div>
+
 <div class="row">
-<div>
-${op.date || ""}
+<div><span class="label">المبلغ:</span> <span class="value">${op.amount || 0} USDT</span></div>
+<div><span class="label">الشبكة:</span> <span class="value">${op.network || "-"}</span></div>
 </div>
+
+${extraInfo}
+
+<div class="row">
+<div><span class="label">التاريخ:</span> <span class="value">${op.date || "-"}</span></div>
 </div>
 
 </div>
-
 `
-
 })
 
 box.innerHTML=html
 
 })
+.catch(()=>{
+document.getElementById("transactionsBox").innerHTML=`<div class="empty">تعذر تحميل العمليات</div>`
+})
+</script>
 
-</script></body>
+</body>
 </html>
