@@ -1,341 +1,674 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>حسابي | سودان كربتو</title>
-
-<style>
-
-*{
-box-sizing:border-box;
-}
-
-body{
-margin:0;
-font-family:Tahoma, Arial, sans-serif;
-background:linear-gradient(135deg,#07162b,#0b1f3a,#12345c);
-min-height:100vh;
-}
-
-.app{
-max-width:420px;
-margin:0 auto;
-background:#f4f8ff;
-min-height:100vh;
-}
-
-.header{
-background:linear-gradient(135deg,#0d6efd,#17a2b8);
-padding:20px;
-color:#fff;
-border-bottom-left-radius:22px;
-border-bottom-right-radius:22px;
-}
-
-.header h2{
-margin:0;
-font-size:20px;
-}
-
-.content{
-padding:16px;
-}
-
-.card{
-background:#fff;
-border-radius:16px;
-padding:14px;
-margin-bottom:12px;
-box-shadow:0 8px 20px rgba(0,0,0,.06);
-}
-
-.item{
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:12px 6px;
-border-bottom:1px solid #eef2f7;
-}
-
-.item:last-child{
-border-bottom:none;
-}
-
-.item-left{
-display:flex;
-align-items:center;
-gap:10px;
-}
-
-.icon{
-width:38px;
-height:38px;
-border-radius:10px;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:18px;
-color:#fff;
-}
-
-.i1{background:#3b82f6;}
-.i2{background:#10b981;}
-.i3{background:#8b5cf6;}
-.i4{background:#f59e0b;}
-.i5{background:#0ea5e9;}
-.i6{background:#ef4444;}
-
-.text{
-font-size:14px;
-font-weight:700;
-color:#111827;
-}
-
-.value{
-font-size:13px;
-color:#374151;
-}
-
-.button{
-cursor:pointer;
-}
-
-.bottom-nav{
-position:fixed;
-bottom:0;
-left:50%;
-transform:translateX(-50%);
-width:100%;
-max-width:420px;
-background:#fff;
-border-top:1px solid #e5e7eb;
-display:grid;
-grid-template-columns:repeat(5,1fr);
-padding:10px 6px;
-}
-
-.nav-item{
-text-align:center;
-font-size:11px;
-color:#555;
-text-decoration:none;
-font-weight:700;
-}
-
-.nav-icon{
-width:40px;
-height:40px;
-margin:0 auto 4px;
-border-radius:50%;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:18px;
-background:#eef2ff;
-}
-
-.active .nav-icon{
-background:#d9f99d;
-}
-
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>حسابي | سودان كربتو</title>
+  <style>
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Tahoma,Arial,sans-serif;
+      background:#eef3fb;
+      color:#111827;
+    }
+    .app{
+      max-width:420px;
+      margin:0 auto;
+      min-height:100vh;
+      background:#eef3fb;
+      padding:14px 14px 95px;
+    }
+    .page-title{
+      font-size:22px;
+      font-weight:700;
+      text-align:center;
+      margin:6px 0 14px;
+      color:#1f2937;
+    }
+    .card{
+      background:#fff;
+      border-radius:24px;
+      padding:16px;
+      margin-bottom:16px;
+      box-shadow:0 8px 20px rgba(15,78,168,0.06);
+      border:1px solid #e7eef9;
+    }
+    .row-item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:14px 0;
+      border-bottom:1px solid #eef2f7;
+    }
+    .row-item:last-child{
+      border-bottom:none;
+    }
+    .row-right{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:120px;
+    }
+    .icon-box{
+      width:54px;
+      height:54px;
+      border-radius:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#fff;
+      font-size:24px;
+      box-shadow:0 8px 18px rgba(0,0,0,0.08);
+      flex-shrink:0;
+    }
+    .blue{background:#3b82f6}
+    .green{background:#10b981}
+    .purple{background:#8b5cf6}
+    .orange{background:#f59e0b}
+    .sky{background:#0ea5e9}
+    .red{background:#ef4444}
+    .row-label{
+      font-size:15px;
+      font-weight:700;
+      color:#111827;
+    }
+    .row-value{
+      font-size:14px;
+      color:#4b5563;
+      text-align:left;
+      word-break:break-word;
+      flex:1;
+    }
+    .btn{
+      width:100%;
+      height:46px;
+      border:none;
+      border-radius:12px;
+      font-size:15px;
+      font-weight:700;
+      cursor:pointer;
+      margin-top:10px;
+    }
+    .btn-primary{
+      background:#2D6AF6;
+      color:#fff;
+    }
+    .btn-success{
+      background:#10B981;
+      color:#fff;
+    }
+    .btn-secondary{
+      background:#e5eefc;
+      color:#1d4ed8;
+    }
+    .btn-danger{
+      background:#ef4444;
+      color:#fff;
+    }
+    .hidden{display:none}
+    .section-title{
+      font-size:16px;
+      font-weight:700;
+      margin-bottom:12px;
+      color:#1f2937;
+    }
+    label{
+      display:block;
+      margin:10px 0 5px;
+      font-size:13px;
+      font-weight:700;
+      color:#1f2937;
+    }
+    input, select, textarea{
+      width:100%;
+      min-height:44px;
+      border:1px solid #d8e2f0;
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:14px;
+      background:#f8fbff;
+      outline:none;
+    }
+    textarea{
+      min-height:88px;
+      resize:vertical;
+    }
+    input:focus, select:focus, textarea:focus{
+      border-color:#2D6AF6;
+      box-shadow:0 0 0 3px rgba(45,106,246,0.10);
+      background:#fff;
+    }
+    .help{
+      font-size:12px;
+      color:#6b7280;
+      line-height:1.8;
+      margin-top:8px;
+    }
+    .alert{
+      margin-top:12px;
+      padding:12px;
+      border-radius:12px;
+      font-size:13px;
+      line-height:1.8;
+    }
+    .alert-info{
+      background:#eef6ff;
+      color:#1d4ed8;
+      border:1px solid #dbeafe;
+    }
+    .alert-warn{
+      background:#fff7ed;
+      color:#c2410c;
+      border:1px solid #fed7aa;
+    }
+    .alert-success{
+      background:#ecfdf5;
+      color:#047857;
+      border:1px solid #a7f3d0;
+    }
+    .alert-danger{
+      background:#fef2f2;
+      color:#b91c1c;
+      border:1px solid #fecaca;
+    }
+    .status-badge{
+      display:inline-block;
+      padding:7px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      margin-top:8px;
+    }
+    .pending{background:#fff7ed;color:#c2410c}
+    .approved{background:#ecfdf5;color:#047857}
+    .rejected{background:#fef2f2;color:#b91c1c}
+    .bottom-nav{
+      position:fixed;
+      bottom:0;
+      left:50%;
+      transform:translateX(-50%);
+      width:100%;
+      max-width:420px;
+      background:rgba(255,255,255,0.97);
+      border-top:1px solid #e5e7eb;
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      padding:10px 6px 12px;
+      backdrop-filter:blur(10px);
+    }
+    .nav-item{
+      text-align:center;
+      font-size:11px;
+      color:#4b5563;
+      text-decoration:none;
+      font-weight:700;
+    }
+    .nav-icon{
+      width:42px;
+      height:42px;
+      margin:0 auto 4px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:19px;
+      background:#eef2ff;
+      color:#2563eb;
+    }
+    .nav-item.active .nav-icon{
+      background:#d9f99d;
+      color:#3f6212;
+    }
+    .nav-item.active{
+      color:#111827;
+    }
+  </style>
 </head>
-
 <body>
+  <div class="app">
+    <div class="page-title">حسابي</div>
 
-<div class="app">
+    <div class="card">
+      <div class="row-item">
+        <div class="row-right">
+          <div class="icon-box blue">👤</div>
+          <div class="row-label">الاسم</div>
+        </div>
+        <div class="row-value" id="userName">...</div>
+      </div>
 
-<div class="header">
-<h2>حسابي</h2>
-</div>
+      <div class="row-item">
+        <div class="row-right">
+          <div class="icon-box blue">📧</div>
+          <div class="row-label">البريد</div>
+        </div>
+        <div class="row-value" id="userEmail">...</div>
+      </div>
 
-<div class="content">
+      <div class="row-item">
+        <div class="row-right">
+          <div class="icon-box blue">📱</div>
+          <div class="row-label">رقم الهاتف</div>
+        </div>
+        <div class="row-value" id="userPhone">...</div>
+      </div>
+    </div>
 
-<!-- بيانات المستخدم -->
+    <div class="card">
+      <div class="row-item">
+        <div class="row-right">
+          <div class="icon-box green">🔒</div>
+          <div class="row-label">تغيير كلمة المرور</div>
+        </div>
+        <div class="row-value">عبر التحقق بالبريد الإلكتروني</div>
+      </div>
 
-<div class="card">
+      <button class="btn btn-primary" onclick="togglePasswordBox()">فتح تغيير كلمة المرور</button>
 
-<div class="item">
-<div class="item-left">
-<div class="icon i1">👤</div>
-<div class="text">الاسم</div>
-</div>
-<div id="userName" class="value">...</div>
-</div>
+      <div id="passwordBox" class="hidden">
+        <label>البريد الإلكتروني</label>
+        <input type="email" id="passEmail" placeholder="اكتب البريد الإلكتروني">
 
-<div class="item">
-<div class="item-left">
-<div class="icon i1">📧</div>
-<div class="text">البريد</div>
-</div>
-<div id="userEmail" class="value">...</div>
-</div>
+        <button class="btn btn-secondary" onclick="sendResetCodeFromAccount()">إرسال كود التحقق</button>
 
-<div class="item">
-<div class="item-left">
-<div class="icon i1">📱</div>
-<div class="text">رقم الهاتف</div>
-</div>
-<div id="userPhone" class="value">...</div>
-</div>
+        <label>كود التحقق</label>
+        <input type="text" id="passCode" placeholder="اكتب كود التحقق">
 
-</div>
+        <label>كلمة المرور الجديدة</label>
+        <input type="password" id="newPass1" placeholder="اكتب كلمة المرور الجديدة">
 
-<!-- الحساب -->
+        <label>تأكيد كلمة المرور الجديدة</label>
+        <input type="password" id="newPass2" placeholder="أعد كتابة كلمة المرور الجديدة">
 
-<div class="card">
+        <button class="btn btn-success" onclick="changePasswordNow()">حفظ كلمة المرور الجديدة</button>
 
-<div class="item button">
-<div class="item-left">
-<div class="icon i2">🔒</div>
-<div class="text">تغيير كلمة المرور</div>
-</div>
-</div>
+        <div id="passwordMsg"></div>
+      </div>
+    </div>
 
-<div class="item button">
-<div class="item-left">
-<div class="icon i3">✔</div>
-<div class="text">توثيق الحساب</div>
-</div>
-</div>
+    <div class="card">
+      <div class="row-item">
+        <div class="row-right">
+          <div class="icon-box purple">✔</div>
+          <div class="row-label">توثيق الحساب</div>
+        </div>
+        <div class="row-value">
+          <div>حالة التوثيق</div>
+          <div id="verifyStatusBadge" class="status-badge pending">غير مرسل</div>
+        </div>
+      </div>
 
-</div>
+      <button class="btn btn-primary" onclick="toggleVerifyBox()">فتح التوثيق</button>
 
-<!-- الدعم -->
+      <div id="verifyBox" class="hidden">
+        <div class="alert alert-info">
+          يرجى رفع مستند توثيق واضح. المستند المقبول هو:
+          بطاقة قومية أو جواز سفر، سواء كان ساريًا أو منتهيًا.
+          يجب أن يكون الاسم الحقيقي في المستند مطابقًا للاسم المسجل به الحساب.
+        </div>
 
-<div class="card">
+        <label>الاسم الحقيقي كما في المستند</label>
+        <input type="text" id="verifyFullName" placeholder="اكتب الاسم الحقيقي بالكامل">
 
-<div class="item button" onclick="openWhatsapp()">
-<div class="item-left">
-<div class="icon i4">📱</div>
-<div class="text">واتساب الدعم</div>
-</div>
-</div>
+        <label>نوع المستند</label>
+        <select id="verifyDocType">
+          <option value="">اختر نوع المستند</option>
+          <option value="بطاقة قومية">بطاقة قومية</option>
+          <option value="جواز سفر">جواز سفر</option>
+        </select>
 
-<div class="item button" onclick="openTelegram()">
-<div class="item-left">
-<div class="icon i5">✈</div>
-<div class="text">تليجرام الدعم</div>
-</div>
-</div>
+        <label>رقم المستند</label>
+        <input type="text" id="verifyDocNumber" placeholder="اكتب رقم المستند">
 
-<div class="item button" onclick="openChannel()">
-<div class="item-left">
-<div class="icon i5">📢</div>
-<div class="text">قناة المجتمع</div>
-</div>
-</div>
+        <label>رفع صورة المستند</label>
+        <input type="file" id="verifyFile" accept="image/*,.pdf">
 
-</div>
+        <label>ملاحظات إضافية</label>
+        <textarea id="verifyNote" placeholder="اختياري"></textarea>
 
-<!-- خروج -->
+        <button class="btn btn-success" id="verifySubmitBtn" onclick="submitVerification()">إرسال طلب التوثيق</button>
 
-<div class="card">
+        <div class="help">
+          بعد إرسال البيانات ستصبح الحالة: <b>قيد المراجعة</b>.
+          أثناء قيد المراجعة لا يمكن تعديل البيانات أو رفع بيانات جديدة.
+          إذا تمت الموافقة ينتهي الطلب نهائيًا.
+          إذا تم الرفض فقط وقتها يمكنك تعديل البيانات وإرسالها مرة أخرى.
+        </div>
 
-<div class="item button" onclick="logout()">
-<div class="item-left">
-<div class="icon i6">⎋</div>
-<div class="text">تسجيل الخروج</div>
-</div>
-</div>
+        <div id="verifyMsg"></div>
+      </div>
+    </div>
 
-</div>
+    <div class="card">
+      <div class="row-item">
+        <div class="row-right">
+          <div class="icon-box orange">📱</div>
+          <div class="row-label">واتساب الدعم</div>
+        </div>
+        <div class="row-value">
+          <a href="https://wa.me/16727123329" target="_blank" style="color:#2563eb;text-decoration:none">+16727123329</a>
+        </div>
+      </div>
 
-</div>
+      <div class="row-item">
+        <div class="row-right">
+          <div class="icon-box sky">✈</div>
+          <div class="row-label">تيليجرام الدعم</div>
+        </div>
+        <div class="row-value">
+          <a href="https://t.me/lool0002" target="_blank" style="color:#2563eb;text-decoration:none">@lool0002</a>
+        </div>
+      </div>
 
-<!-- القائمة السفلية -->
+      <div class="row-item">
+        <div class="row-right">
+          <div class="icon-box sky">📢</div>
+          <div class="row-label">قناة المجتمع</div>
+        </div>
+        <div class="row-value">
+          <a href="https://t.me/crypto_sudanees" target="_blank" style="color:#2563eb;text-decoration:none">فتح القناة</a>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<div class="bottom-nav">
+  <div class="bottom-nav">
+    <a href="dashboard.html" class="nav-item">
+      <div class="nav-icon">⌂</div>
+      الرئيسية
+    </a>
 
-<a href="dashboard.html" class="nav-item">
-<div class="nav-icon">⌂</div>
-الرئيسية
-</a>
+    <a href="daily.html" class="nav-item">
+      <div class="nav-icon">📈</div>
+      الدخل
+    </a>
 
-<a href="daily.html" class="nav-item">
-<div class="nav-icon">📈</div>
-الدخل
-</a>
+    <a href="referrals.html" class="nav-item">
+      <div class="nav-icon">👥</div>
+      الإحالات
+    </a>
 
-<a href="referrals.html" class="nav-item">
-<div class="nav-icon">👥</div>
-الإحالات
-</a>
+    <a href="assets.html" class="nav-item">
+      <div class="nav-icon">💼</div>
+      الأصول
+    </a>
 
-<a href="assets.html" class="nav-item">
-<div class="nav-icon">💼</div>
-الأصول
-</a>
-
-<a href="account.html" class="nav-item active">
-<div class="nav-icon">👤</div>
-حسابي
-</a>
-
-</div>
-
-</div>
+    <a href="account.html" class="nav-item active">
+      <div class="nav-icon">👤</div>
+      حسابي
+    </a>
+  </div>
 
 <script>
-
 const API = "https://sudancryptomarket-api.onrender.com";
+const savedEmail = localStorage.getItem("userEmail");
 
-const email = localStorage.getItem("userEmail");
-
-if(!email){
-window.location.href="login.html";
+if(!savedEmail){
+  window.location.href = "login.html";
 }
 
-fetch(API + "/user-data",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({email})
+function showBoxMessage(id, type, text){
+  const el = document.getElementById(id);
+  el.className = "";
+  if(type === "success"){
+    el.className = "alert alert-success";
+  }else if(type === "danger"){
+    el.className = "alert alert-danger";
+  }else if(type === "warn"){
+    el.className = "alert alert-warn";
+  }else{
+    el.className = "alert alert-info";
+  }
+  el.innerText = text;
+}
+
+function clearBoxMessage(id){
+  const el = document.getElementById(id);
+  el.className = "";
+  el.innerText = "";
+}
+
+fetch(API + "/user-data", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({ email: savedEmail })
 })
-.then(res=>res.json())
-.then(data=>{
+.then(res => res.json())
+.then(data => {
+  if(!data.success){
+    localStorage.removeItem("userEmail");
+    window.location.href = "login.html";
+    return;
+  }
 
-if(!data.success){
-localStorage.removeItem("userEmail");
-window.location.href="login.html";
-return;
-}
+  document.getElementById("userName").innerText = data.name || "-";
+  document.getElementById("userEmail").innerText = data.email || "-";
+  document.getElementById("userPhone").innerText = data.phone || "-";
+  document.getElementById("passEmail").value = data.email || savedEmail;
 
-document.getElementById("userName").innerText = data.name || "";
-document.getElementById("userEmail").innerText = data.email || "";
-document.getElementById("userPhone").innerText = data.phone || "";
-
+  loadVerificationState(data.name || "");
+})
+.catch(() => {
+  window.location.href = "login.html";
 });
 
-function logout(){
-
-localStorage.removeItem("userEmail");
-window.location.href="login.html";
-
+function togglePasswordBox(){
+  document.getElementById("passwordBox").classList.toggle("hidden");
 }
 
-function openWhatsapp(){
+function sendResetCodeFromAccount(){
+  clearBoxMessage("passwordMsg");
 
-window.open("https://wa.me/16727123329","_blank");
+  const email = document.getElementById("passEmail").value.trim();
 
+  if(email === ""){
+    showBoxMessage("passwordMsg", "danger", "اكتب البريد الإلكتروني أولاً");
+    return;
+  }
+
+  fetch(`${API}/forgot-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ email })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if(!data.success){
+      showBoxMessage("passwordMsg", "danger", data.message || "فشل إرسال الكود");
+      return;
+    }
+
+    showBoxMessage("passwordMsg", "success", "تم إرسال كود التحقق إلى البريد الإلكتروني");
+  })
+  .catch(() => {
+    showBoxMessage("passwordMsg", "danger", "فشل الاتصال بالخادم");
+  });
 }
 
-function openTelegram(){
+function changePasswordNow(){
+  clearBoxMessage("passwordMsg");
 
-window.open("https://t.me/lool0002","_blank");
+  const email = document.getElementById("passEmail").value.trim();
+  const code = document.getElementById("passCode").value.trim();
+  const newPass1 = document.getElementById("newPass1").value.trim();
+  const newPass2 = document.getElementById("newPass2").value.trim();
 
+  if(email === ""){
+    showBoxMessage("passwordMsg", "danger", "اكتب البريد الإلكتروني");
+    return;
+  }
+
+  if(code === ""){
+    showBoxMessage("passwordMsg", "danger", "اكتب كود التحقق");
+    return;
+  }
+
+  if(newPass1 === "" || newPass2 === ""){
+    showBoxMessage("passwordMsg", "danger", "اكتب كلمة المرور الجديدة كاملة");
+    return;
+  }
+
+  if(newPass1.length < 8){
+    showBoxMessage("passwordMsg", "danger", "كلمة المرور يجب أن تكون 8 أحرف أو أكثر");
+    return;
+  }
+
+  if(newPass1 !== newPass2){
+    showBoxMessage("passwordMsg", "danger", "كلمتا المرور غير متطابقتين");
+    return;
+  }
+
+  fetch(`${API}/reset-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      email,
+      code,
+      password: newPass1
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if(!data.success){
+      showBoxMessage("passwordMsg", "danger", data.message || "فشل تغيير كلمة المرور");
+      return;
+    }
+
+    document.getElementById("passCode").value = "";
+    document.getElementById("newPass1").value = "";
+    document.getElementById("newPass2").value = "";
+    showBoxMessage("passwordMsg", "success", "تم تغيير كلمة المرور بنجاح");
+  })
+  .catch(() => {
+    showBoxMessage("passwordMsg", "danger", "فشل الاتصال بالخادم");
+  });
 }
 
-function openChannel(){
+function toggleVerifyBox(){
+  document.getElementById("verifyBox").classList.toggle("hidden");
+}
 
-window.open("https://t.me/crypto_sudanees","_blank");
+function loadVerificationState(realName){
+  const key = "verification_" + savedEmail;
+  const state = JSON.parse(localStorage.getItem(key) || "null");
 
+  if(!state){
+    document.getElementById("verifyStatusBadge").innerText = "غير مرسل";
+    document.getElementById("verifyStatusBadge").className = "status-badge pending";
+    document.getElementById("verifyFullName").value = realName || "";
+    unlockVerificationForm();
+    return;
+  }
+
+  document.getElementById("verifyFullName").value = state.fullName || "";
+  document.getElementById("verifyDocType").value = state.docType || "";
+  document.getElementById("verifyDocNumber").value = state.docNumber || "";
+  document.getElementById("verifyNote").value = state.note || "";
+
+  const badge = document.getElementById("verifyStatusBadge");
+
+  if(state.status === "pending"){
+    badge.innerText = "قيد المراجعة";
+    badge.className = "status-badge pending";
+    lockVerificationForm();
+    showBoxMessage("verifyMsg", "warn", "تم إرسال طلب التوثيق وهو الآن قيد المراجعة. لا يمكنك تعديل البيانات أو رفع بيانات جديدة حتى يتم اتخاذ قرار بشأن الطلب.");
+  }else if(state.status === "approved"){
+    badge.innerText = "تمت الموافقة";
+    badge.className = "status-badge approved";
+    lockVerificationForm();
+    showBoxMessage("verifyMsg", "success", "تمت الموافقة على التوثيق بنجاح. لا يمكن تعديل البيانات بعد اعتماد التوثيق.");
+  }else if(state.status === "rejected"){
+    badge.innerText = "مرفوض";
+    badge.className = "status-badge rejected";
+    unlockVerificationForm();
+    showBoxMessage("verifyMsg", "danger", "تم رفض الطلب. يمكنك الآن تعديل البيانات وإعادة رفع المستندات من جديد.");
+  }
+}
+
+function lockVerificationForm(){
+  document.getElementById("verifyFullName").disabled = true;
+  document.getElementById("verifyDocType").disabled = true;
+  document.getElementById("verifyDocNumber").disabled = true;
+  document.getElementById("verifyFile").disabled = true;
+  document.getElementById("verifyNote").disabled = true;
+  document.getElementById("verifySubmitBtn").disabled = true;
+  document.getElementById("verifySubmitBtn").style.opacity = "0.6";
+  document.getElementById("verifySubmitBtn").style.cursor = "not-allowed";
+}
+
+function unlockVerificationForm(){
+  document.getElementById("verifyFullName").disabled = false;
+  document.getElementById("verifyDocType").disabled = false;
+  document.getElementById("verifyDocNumber").disabled = false;
+  document.getElementById("verifyFile").disabled = false;
+  document.getElementById("verifyNote").disabled = false;
+  document.getElementById("verifySubmitBtn").disabled = false;
+  document.getElementById("verifySubmitBtn").style.opacity = "1";
+  document.getElementById("verifySubmitBtn").style.cursor = "pointer";
+}
+
+function submitVerification(){
+  clearBoxMessage("verifyMsg");
+
+  const key = "verification_" + savedEmail;
+  const oldState = JSON.parse(localStorage.getItem(key) || "null");
+
+  if(oldState && (oldState.status === "pending" || oldState.status === "approved")){
+    showBoxMessage("verifyMsg", "warn", "لا يمكن تعديل أو إرسال بيانات جديدة في هذه الحالة.");
+    return;
+  }
+
+  const fullName = document.getElementById("verifyFullName").value.trim();
+  const docType = document.getElementById("verifyDocType").value.trim();
+  const docNumber = document.getElementById("verifyDocNumber").value.trim();
+  const note = document.getElementById("verifyNote").value.trim();
+  const fileInput = document.getElementById("verifyFile");
+
+  if(fullName === ""){
+    showBoxMessage("verifyMsg", "danger", "يرجى إدخال الاسم الحقيقي كما في المستند");
+    return;
+  }
+
+  if(docType === ""){
+    showBoxMessage("verifyMsg", "danger", "يرجى اختيار نوع المستند");
+    return;
+  }
+
+  if(docNumber === ""){
+    showBoxMessage("verifyMsg", "danger", "يرجى إدخال رقم المستند");
+    return;
+  }
+
+  if(!fileInput.files || !fileInput.files[0]){
+    showBoxMessage("verifyMsg", "danger", "يرجى رفع صورة واضحة للمستند");
+    return;
+  }
+
+  const fileName = fileInput.files[0].name;
+
+  const payload = {
+    email: savedEmail,
+    fullName,
+    docType,
+    docNumber,
+    note,
+    fileName,
+    status: "pending",
+    createdAt: new Date().toISOString()
+  };
+
+  localStorage.setItem(key, JSON.stringify(payload));
+  loadVerificationState(fullName);
 }
 
 </script>
-
 </body>
-  </html>
+          </html>
