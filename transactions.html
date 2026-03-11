@@ -1,0 +1,186 @@
+<!DOCTYPE html><html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سجل العمليات | سودان كربتو</title><style>
+
+body{
+margin:0;
+font-family:Tahoma;
+background:#f2f5fa;
+}
+
+.header{
+background:#0b1f3a;
+color:white;
+padding:18px;
+text-align:center;
+font-size:20px;
+font-weight:bold;
+}
+
+.container{
+max-width:700px;
+margin:auto;
+padding:20px;
+}
+
+.card{
+background:white;
+border-radius:12px;
+padding:16px;
+margin-bottom:12px;
+box-shadow:0 6px 16px rgba(0,0,0,0.08);
+}
+
+.row{
+display:flex;
+justify-content:space-between;
+margin-bottom:6px;
+font-size:14px;
+}
+
+.type{
+font-weight:bold;
+}
+
+.deposit{
+color:#10B981;
+}
+
+.withdraw{
+color:#e74c3c;
+}
+
+.status{
+font-weight:bold;
+}
+
+.pending{
+color:#ff9800;
+}
+
+.success{
+color:#10B981;
+}
+
+.rejected{
+color:#e74c3c;
+}
+
+.empty{
+text-align:center;
+color:#777;
+padding:20px;
+font-size:14px;
+}
+
+</style></head><body><div class="header">
+سجل العمليات
+</div><div class="container" id="transactionsBox"><div class="empty">
+جاري تحميل العمليات...
+</div></div><script>
+
+const API="https://sudancryptomarket-api.onrender.com"
+
+const email=localStorage.getItem("userEmail")
+
+if(!email){
+window.location.href="login.html"
+}
+
+fetch(API+"/user-data",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({email})
+
+})
+.then(res=>res.json())
+.then(data=>{
+
+const box=document.getElementById("transactionsBox")
+
+if(!data.operations || data.operations.length===0){
+
+box.innerHTML=`<div class="empty">لا توجد عمليات</div>`
+
+return
+}
+
+let html=""
+
+data.operations.forEach(op=>{
+
+let typeClass=""
+let typeText=""
+
+if(op.type==="deposit"){
+typeClass="deposit"
+typeText="إيداع"
+}
+
+if(op.type==="withdraw"){
+typeClass="withdraw"
+typeText="سحب"
+}
+
+let statusClass="pending"
+let statusText="قيد المراجعة"
+
+if(op.status==="approved"){
+statusClass="success"
+statusText="تمت الموافقة"
+}
+
+if(op.status==="rejected"){
+statusClass="rejected"
+statusText="مرفوض"
+}
+
+html+=`
+
+<div class="card">
+
+<div class="row">
+<div class="type ${typeClass}">
+${typeText}
+</div>
+
+<div>
+${op.amount || ""} 
+</div>
+</div>
+
+<div class="row">
+<div>
+${op.network || ""}
+</div>
+
+<div class="status ${statusClass}">
+${statusText}
+</div>
+</div>
+
+<div class="row">
+<div>
+${op.date || ""}
+</div>
+</div>
+
+</div>
+
+`
+
+})
+
+box.innerHTML=html
+
+})
+
+</script></body>
+</html>
