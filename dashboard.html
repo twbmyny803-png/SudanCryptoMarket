@@ -1,540 +1,393 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>سودان كربتو | الرئيسية</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سودان كربتو | الرئيسية</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<style>
+*{box-sizing:border-box}
 
-    body {
-      margin: 0;
-      font-family: Tahoma, Arial, sans-serif;
-      background: linear-gradient(135deg, #07162b, #0b1f3a, #12345c);
-      min-height: 100vh;
-      color: #111827;
-    }
+body{
+margin:0;
+font-family:Tahoma,Arial,sans-serif;
+background:linear-gradient(135deg,#07162b,#0b1f3a,#12345c);
+min-height:100vh;
+}
 
-    .app {
-      max-width: 420px;
-      margin: 0 auto;
-      min-height: 100vh;
-      background: #f4f8ff;
-      position: relative;
-      overflow: hidden;
-    }
+.app{
+max-width:420px;
+margin:auto;
+min-height:100vh;
+background:#f4f8ff;
+}
 
-    .topbar {
-      background: linear-gradient(135deg, #0f4ea8, #0d6efd, #17a2b8);
-      color: #fff;
-      padding: 16px 16px 18px;
-      border-bottom-left-radius: 24px;
-      border-bottom-right-radius: 24px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
-    }
+.topbar{
+background:linear-gradient(135deg,#0f4ea8,#0d6efd,#17a2b8);
+color:#fff;
+padding:16px;
+border-bottom-left-radius:24px;
+border-bottom-right-radius:24px;
+}
 
-    .topbar-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
+.topbar-row{
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+.brand{
+display:flex;
+gap:10px;
+align-items:center;
+}
 
-    .brand-logo {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.18);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      backdrop-filter: blur(4px);
-    }
+.brand-logo{
+width:42px;
+height:42px;
+border-radius:12px;
+background:rgba(255,255,255,.2);
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:22px;
+}
 
-    .brand-text h1 {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 700;
-    }
+.brand-text h1{
+margin:0;
+font-size:18px;
+}
 
-    .brand-text p {
-      margin: 3px 0 0;
-      font-size: 12px;
-      opacity: 0.9;
-    }
+.brand-text p{
+margin:2px 0 0;
+font-size:12px;
+}
 
-    .top-icons {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+.top-icons{
+display:flex;
+gap:8px;
+}
 
-    .icon-btn {
-      width: 38px;
-      height: 38px;
-      border: none;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.16);
-      color: #fff;
-      font-size: 18px;
-      cursor: pointer;
-    }
+.icon-btn{
+width:38px;
+height:38px;
+border:none;
+border-radius:50%;
+background:rgba(255,255,255,.18);
+color:#fff;
+font-size:18px;
+cursor:pointer;
+}
 
-    .welcome-box {
-      margin-top: 16px;
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      border-radius: 18px;
-      padding: 14px;
-      backdrop-filter: blur(6px);
-    }
+.welcome-box{
+margin-top:14px;
+background:rgba(255,255,255,.15);
+padding:12px;
+border-radius:16px;
+}
 
-    .welcome-box h2 {
-      margin: 0 0 6px;
-      font-size: 18px;
-    }
+.content{
+padding:14px 14px 90px;
+}
 
-    .welcome-box p {
-      margin: 0;
-      font-size: 13px;
-      line-height: 1.7;
-      opacity: 0.95;
-    }
+.banner{
+background:#fff;
+border-radius:20px;
+padding:14px;
+display:flex;
+gap:10px;
+align-items:center;
+}
 
-    .content {
-      padding: 14px 14px 90px;
-    }
+.banner-art{
+width:110px;
+height:110px;
+border-radius:16px;
+background:linear-gradient(135deg,#e0f2fe,#bae6fd);
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:48px;
+}
 
-    .banner {
-      background: linear-gradient(135deg, #ffffff, #eef6ff);
-      border-radius: 22px;
-      padding: 14px;
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      box-shadow: 0 8px 20px rgba(23, 75, 140, 0.08);
-      border: 1px solid #e2ebf8;
-    }
+.banner-text h3{
+margin:0 0 6px;
+}
 
-    .banner-art {
-      width: 120px;
-      min-width: 120px;
-      height: 120px;
-      border-radius: 18px;
-      background: linear-gradient(135deg, #d8f3dc, #b7e4c7, #95d5b2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 46px;
-    }
+.banner-text p{
+margin:0 0 8px;
+font-size:13px;
+color:#555;
+}
 
-    .banner-text h3 {
-      margin: 0 0 8px;
-      font-size: 24px;
-      line-height: 1.3;
-      color: #1f2937;
-    }
+.banner-badge{
+background:#22c55e;
+color:#fff;
+padding:6px 10px;
+border-radius:8px;
+font-size:12px;
+}
 
-    .banner-text p {
-      margin: 0 0 10px;
-      font-size: 13px;
-      color: #4b5563;
-      line-height: 1.8;
-    }
+.stats-grid{
+margin-top:14px;
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
+}
 
-    .banner-badge {
-      display: inline-block;
-      background: #22c55e;
-      color: #fff;
-      padding: 7px 10px;
-      border-radius: 10px;
-      font-size: 12px;
-      font-weight: 700;
-    }
+.stat-card{
+background:#fff;
+border-radius:16px;
+padding:14px;
+}
 
-    .stats-grid {
-      margin-top: 14px;
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-    }
+.stat-label{
+font-size:12px;
+color:#666;
+}
 
-    .stat-card {
-      background: #fff;
-      border-radius: 18px;
-      padding: 14px 12px;
-      box-shadow: 0 8px 20px rgba(15, 78, 168, 0.06);
-      border: 1px solid #e7eef9;
-    }
+.stat-value{
+font-size:20px;
+font-weight:bold;
+margin:6px 0;
+}
 
-    .stat-label {
-      font-size: 12px;
-      color: #6b7280;
-      margin-bottom: 8px;
-    }
+.stat-sub{
+font-size:12px;
+color:#2563eb;
+}
 
-    .stat-value {
-      font-size: 21px;
-      font-weight: 700;
-      color: #111827;
-      margin-bottom: 6px;
-    }
+.section-title{
+margin:18px 0 10px;
+font-weight:bold;
+}
 
-    .stat-sub {
-      font-size: 12px;
-      color: #2563eb;
-      font-weight: 700;
-    }
+.actions-grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:12px;
+background:#fff;
+padding:14px;
+border-radius:18px;
+}
 
-    .section-title {
-      margin: 18px 0 10px;
-      font-size: 16px;
-      font-weight: 700;
-      color: #1f2937;
-    }
+.action-item{text-align:center}
 
-    .actions-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px 10px;
-      background: #fff;
-      border-radius: 20px;
-      padding: 16px 10px;
-      box-shadow: 0 8px 20px rgba(15, 78, 168, 0.06);
-      border: 1px solid #e7eef9;
-    }
+.action-icon{
+width:56px;
+height:56px;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:24px;
+color:#fff;
+margin:auto auto 6px;
+}
 
-    .action-item {
-      text-align: center;
-      cursor: pointer;
-    }
+.c1{background:#a855f7}
+.c2{background:#f59e0b}
 
-    .action-icon {
-      width: 58px;
-      height: 58px;
-      margin: 0 auto 8px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      color: #fff;
-      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
-    }
+.action-text{
+font-size:13px;
+font-weight:bold;
+}
 
-    .c1 { background: linear-gradient(135deg, #a855f7, #c084fc); }
-    .c2 { background: linear-gradient(135deg, #f59e0b, #fb923c); }
-    .c3 { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
-    .c4 { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
-    .c5 { background: linear-gradient(135deg, #10b981, #34d399); }
-    .c6 { background: linear-gradient(135deg, #06b6d4, #38bdf8); }
+.bottom-nav{
+position:fixed;
+bottom:0;
+left:50%;
+transform:translateX(-50%);
+width:100%;
+max-width:420px;
+background:#fff;
+border-top:1px solid #eee;
+display:grid;
+grid-template-columns:repeat(5,1fr);
+padding:10px 6px;
+}
 
-    .action-text {
-      font-size: 13px;
-      font-weight: 700;
-      color: #374151;
-      line-height: 1.5;
-    }
+.nav-item{
+text-align:center;
+font-size:11px;
+text-decoration:none;
+color:#444;
+}
 
-    .promo-grid {
-      margin-top: 16px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
+.nav-icon{
+width:40px;
+height:40px;
+margin:auto auto 4px;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+background:#eef2ff;
+font-size:18px;
+}
 
-    .promo-card {
-      border-radius: 18px;
-      padding: 14px;
-      color: #1f2937;
-      min-height: 122px;
-      position: relative;
-      overflow: hidden;
-    }
+.nav-item.active .nav-icon{
+background:#d9f99d;
+}
 
-    .promo-card h4 {
-      margin: 0 0 8px;
-      font-size: 15px;
-    }
-
-    .promo-card p {
-      margin: 0;
-      font-size: 12px;
-      line-height: 1.8;
-    }
-
-    .promo-card .arrow {
-      position: absolute;
-      bottom: 12px;
-      left: 14px;
-      font-size: 22px;
-      font-weight: 700;
-    }
-
-    .promo-green {
-      background: linear-gradient(135deg, #d9f99d, #a3e635);
-    }
-
-    .promo-blue {
-      background: linear-gradient(135deg, #bfdbfe, #60a5fa);
-    }
-
-    .activity-card {
-      margin-top: 16px;
-      background: #fff;
-      border-radius: 20px;
-      padding: 14px;
-      box-shadow: 0 8px 20px rgba(15, 78, 168, 0.06);
-      border: 1px solid #e7eef9;
-      min-height: 80px;
-    }
-
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 420px;
-      background: rgba(255, 255, 255, 0.96);
-      border-top: 1px solid #e5e7eb;
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      padding: 10px 6px 12px;
-      backdrop-filter: blur(10px);
-    }
-
-    .nav-item {
-      text-align: center;
-      font-size: 11px;
-      color: #4b5563;
-      text-decoration: none;
-      font-weight: 700;
-    }
-
-    .nav-icon {
-      width: 42px;
-      height: 42px;
-      margin: 0 auto 4px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 19px;
-      background: #eef2ff;
-      color: #2563eb;
-    }
-
-    .nav-item.active .nav-icon {
-      background: #d9f99d;
-      color: #3f6212;
-    }
-
-    .nav-item.active {
-      color: #111827;
-    }
-  </style>
+</style>
 </head>
+
 <body>
-  <div class="app">
-    <div class="topbar">
-      <div class="topbar-row">
-        <div class="brand">
-          <div class="brand-logo">₿</div>
-          <div class="brand-text">
-            <h1>سودان كربتو</h1>
-            <p>لوحة المستخدم</p>
-          </div>
-        </div>
 
-        <div class="top-icons">
-          <button class="icon-btn" title="الدعم">🎧</button>
-          <button class="icon-btn" title="اللغة">🌐</button>
-          <button class="icon-btn" title="الإشعارات">🔔</button>
-        </div>
-      </div>
+<div class="app">
 
-      <div class="welcome-box">
-        <h2>مرحباً، <span id="userName">...</span></h2>
-        <p>
-          أهلاً بك في منصة سودان كربتو. تابع رصيدك، أرباحك اليومية،
-          والباقات النشطة من مكان واحد.
-        </p>
-      </div>
-    </div>
+<div class="topbar">
 
-    <div class="content">
-      <div class="banner">
-        <div class="banner-art">📈</div>
-        <div class="banner-text">
-          <h3>منصة سودان كربتو</h3>
-          <p>
-            منصة تداول واستثمار رقمية تساعدك على متابعة الأرباح
-            وإدارة الإيداع والسحب بسهولة.
-          </p>
-          <span class="banner-badge">منصة موثوقة للنمو المستمر</span>
-        </div>
-      </div>
+<div class="topbar-row">
 
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-label">الرصيد الكلي</div>
-          <div class="stat-value" id="balance">0 USDT</div>
-          <div class="stat-sub">الأصول الحالية</div>
-        </div>
+<div class="brand">
+<div class="brand-logo">₿</div>
+<div class="brand-text">
+<h1>سودان كربتو</h1>
+<p>لوحة المستخدم</p>
+</div>
+</div>
 
-        <div class="stat-card">
-          <div class="stat-label">الدخل اليومي</div>
-          <div class="stat-value" id="dailyIncome">0 USDT</div>
-          <div class="stat-sub">يتم تحديثه يومياً</div>
-        </div>
+<div class="top-icons">
+<button class="icon-btn" onclick="window.open('https://t.me/lool0002')">✈️</button>
+<button class="icon-btn" onclick="window.open('https://wa.me/16727123329')">🟢</button>
+</div>
 
-        <div class="stat-card">
-          <div class="stat-label">الباقة الحالية</div>
-          <div class="stat-value">Silver</div>
-          <div class="stat-sub">2% يومي</div>
-        </div>
+</div>
 
-        <div class="stat-card">
-          <div class="stat-label">أرباح الإحالة</div>
-          <div class="stat-value">12.00 USDT</div>
-          <div class="stat-sub">3 أعضاء</div>
-        </div>
-      </div>
+<div class="welcome-box">
+مرحباً، <span id="userName">...</span>
+</div>
 
-      <div class="section-title">الخدمات الرئيسية</div>
+</div>
 
-      <div class="actions-grid">
-        <div class="action-item">
-          <div class="action-icon c1">🏢</div>
-          <div class="action-text">عن المنصة</div>
-        </div>
+<div class="content">
 
-        <div class="action-item">
-          <div class="action-icon c2">👥</div>
-          <div class="action-text">فريقي</div>
-        </div>
+<div class="banner">
 
-        <div class="action-item">
-          <div class="action-icon c3">💳</div>
-          <div class="action-text">إيداع</div>
-        </div>
+<div class="banner-art">₿</div>
 
-        <div class="action-item">
-          <div class="action-icon c4">💸</div>
-          <div class="action-text">سحب</div>
-        </div>
+<div class="banner-text">
+<h3>منصة سودان كربتو</h3>
+<p>منصة تداول واستثمار رقمية تساعدك على متابعة الأرباح وإدارة استثماراتك.</p>
+<span class="banner-badge">منصة موثوقة</span>
+</div>
 
-        <div class="action-item">
-          <div class="action-icon c5">📄</div>
-          <div class="action-text">سجل العمليات</div>
-        </div>
+</div>
 
-        <div class="action-item">
-          <div class="action-icon c6">🛟</div>
-          <div class="action-text">مركز المساعدة</div>
-        </div>
-      </div>
+<div class="stats-grid">
 
-      <div class="promo-grid">
-        <div class="promo-card promo-green">
-          <h4>دعوة الأصدقاء</h4>
-          <p>شارك رابط الإحالة الخاص بك واحصل على أرباح إضافية من فريقك.</p>
-          <div class="arrow">←</div>
-        </div>
+<div class="stat-card">
+<div class="stat-label">الرصيد الكلي</div>
+<div class="stat-value" id="balance">0 USDT</div>
+<div class="stat-sub">الأصول الحالية</div>
+</div>
 
-        <div class="promo-card promo-blue">
-          <h4>شراء باقة</h4>
-          <p>اختر الباقة المناسبة وابدأ في تحقيق دخل يومي مستمر.</p>
-          <div class="arrow">←</div>
-        </div>
-      </div>
+<div class="stat-card">
+<div class="stat-label">الدخل اليومي</div>
+<div class="stat-value" id="dailyIncome">0 USDT</div>
+<div class="stat-sub">يتم تحديثه يومياً</div>
+</div>
 
-      <div class="section-title">آخر العمليات</div>
+<div class="stat-card">
+<div class="stat-label">الباقة الحالية</div>
+<div class="stat-value">0</div>
+<div class="stat-sub">لا توجد باقة</div>
+</div>
 
-      <div class="activity-card" id="activityBox"></div>
-    </div>
+<div class="stat-card">
+<div class="stat-label">أرباح الإحالة</div>
+<div class="stat-value">0 USDT</div>
+<div class="stat-sub">0 أعضاء</div>
+</div>
 
-    <div class="bottom-nav">
-      <a href="dashboard.html" class="nav-item active">
-        <div class="nav-icon">⌂</div>
-        الرئيسية
-      </a>
+</div>
 
-      <a href="daily.html" class="nav-item">
-        <div class="nav-icon">📈</div>
-        الدخل اليومي
-      </a>
+<div class="section-title">الخدمات الرئيسية</div>
 
-      <a href="referrals.html" class="nav-item">
-        <div class="nav-icon">👥</div>
-        الإحالات
-      </a>
+<div class="actions-grid">
 
-      <a href="assets.html" class="nav-item">
-        <div class="nav-icon">💼</div>
-        الأصول
-      </a>
+<div class="action-item">
+<div class="action-icon c1">🏢</div>
+<div class="action-text">عن المنصة</div>
+</div>
 
-      <a href="account.html" class="nav-item">
-        <div class="nav-icon">👤</div>
-        حسابي
-      </a>
-    </div>
-  </div>
+<div class="action-item">
+<div class="action-icon c2">👥</div>
+<div class="action-text">فريقي</div>
+</div>
+
+</div>
+
+</div>
+
+<div class="bottom-nav">
+
+<a href="dashboard.html" class="nav-item active">
+<div class="nav-icon">⌂</div>
+الرئيسية
+</a>
+
+<a href="daily.html" class="nav-item">
+<div class="nav-icon">📈</div>
+الدخل اليومي
+</a>
+
+<a href="referrals.html" class="nav-item">
+<div class="nav-icon">👥</div>
+الإحالات
+</a>
+
+<a href="assets.html" class="nav-item">
+<div class="nav-icon">💼</div>
+الأصول
+</a>
+
+<a href="account.html" class="nav-item">
+<div class="nav-icon">👤</div>
+حسابي
+</a>
+
+</div>
+
+</div>
 
 <script>
-const API = "https://sudancryptomarket-api.onrender.com";
 
-const email = localStorage.getItem("userEmail");
+const API="https://sudancryptomarket-api.onrender.com"
 
-if (!email) {
-  window.location.href = "login.html";
-} else {
-  fetch(API + "/user-data", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ email })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (!data.success) {
-      localStorage.removeItem("userEmail");
-      window.location.href = "login.html";
-      return;
-    }
+const email=localStorage.getItem("userEmail")
 
-    document.getElementById("userName").innerText = data.name || "مستخدم";
-    document.getElementById("balance").innerText = (data.balance || 0) + " USDT";
-    document.getElementById("dailyIncome").innerText = (data.dailyIncome || 0) + " USDT";
+if(!email){
+location.href="login.html"
+}else{
 
-    const box = document.getElementById("activityBox");
+fetch(API+"/user-data",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({email})
+})
 
-    if (!data.operations || data.operations.length === 0) {
-      box.innerHTML = `
-        <div style="text-align:center;padding:20px;color:#6b7280;font-size:13px;">
-          لا توجد عمليات بعد
-        </div>
-      `;
-    }
-  })
-  .catch(() => {
-    localStorage.removeItem("userEmail");
-    window.location.href = "login.html";
-  });
+.then(r=>r.json())
+
+.then(data=>{
+
+if(!data.success){
+localStorage.removeItem("userEmail")
+location.href="login.html"
+return
 }
+
+document.getElementById("userName").innerText=data.name||"مستخدم"
+document.getElementById("balance").innerText=(data.balance||0)+" USDT"
+document.getElementById("dailyIncome").innerText=(data.dailyIncome||0)+" USDT"
+
+})
+
+}
+
 </script>
+
 </body>
 </html>
