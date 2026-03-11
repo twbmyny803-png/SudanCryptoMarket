@@ -9,7 +9,6 @@ app.use(express.json());
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// تخزين مؤقت
 const otpStore = {};
 const users = {};
 
@@ -17,312 +16,293 @@ const RATE_LIMIT_MS = 60 * 1000;
 const OTP_EXPIRES_MS = 5 * 60 * 1000;
 const PASSWORD_MIN_LENGTH = 8;
 
-// تنظيف البريد
-function normalizeEmail(email) {
-  return String(email || "").trim().toLowerCase();
+function normalizeEmail(email){
+return String(email||"").trim().toLowerCase()
 }
 
-// تنظيف النص
-function cleanText(value) {
-  return String(value || "").trim();
+function cleanText(v){
+return String(v||"").trim()
 }
 
-// توليد كود
-function generateOTP() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+function generateOTP(){
+return Math.floor(100000 + Math.random()*900000).toString()
 }
 
-// فحص الإيميل
-function isValidEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+function isValidEmail(email){
+return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 }
 
-// فحص الهاتف
-function isValidPhone(phone) {
-  return /^[0-9]{9,15}$/.test(phone);
+function isOtpValid(saved,code,purpose){
+
+if(!saved){
+return {ok:false,message:"لم يتم طلب كود"}
 }
 
-// فحص كلمة المرور
-function isValidPassword(password) {
-  return String(password || "").length >= PASSWORD_MIN_LENGTH;
+if(saved.purpose!==purpose){
+return {ok:false,message:"نوع الكود غير صحيح"}
 }
 
-// التحقق من الكود
-function isOtpValid(saved, code, purpose) {
-
-  if (!saved) {
-    return { ok: false, message: "لم يتم طلب كود" };
-  }
-
-  if (saved.purpose !== purpose) {
-    return { ok: false, message: "نوع الكود غير صحيح" };
-  }
-
-  if (Date.now() > saved.expiresAt) {
-    return { ok: false, message: "انتهت صلاحية الكود" };
-  }
-
-  if (saved.code !== code) {
-    return { ok: false, message: "الكود غير صحيح" };
-  }
-
-  return { ok: true };
+if(Date.now()>saved.expiresAt){
+return {ok:false,message:"انتهت صلاحية الكود"}
 }
 
-// الصفحة الرئيسية
-app.get("/", (req, res) => {
-  res.json({
-    success: true,
-    message: "Sudan Crypto API running"
-  });
-});
-
-/* ================= إرسال كود ================= */
-
-app.post("/send-code", async (req, res) => {
-
-  try {
-
-    const email = normalizeEmail(req.body.email);
-    const purpose = cleanText(req.body.purpose || "register");
-    const now = Date.now();
-
-    if (!email) {
-      return res.json({
-        success: false,
-        message: "البريد الإلكتروني مطلوب"
-      });
-    }
-
-    if (!isValidEmail(email)) {
-      return res.json({
-        success: false,
-        message: "صيغة البريد الإلكتروني غير صحيحة"
-      });
-    }
+if(saved.code!==code){
+return {ok:false,message:"الكود غير صحيح"}
+}
 
-    if (purpose === "register" && users[email]) {
-      return res.json({
-        success: false,
-        message: "هذا البريد مسجل مسبقاً"
-      });
-    }
+return {ok:true}
+}
 
-    if ((purpose === "login" || purpose === "reset") && !users[email]) {
-      return res.json({
-        success: false,
-        message: "الحساب غير موجود"
-      });
-    }
+app.get("/",(req,res)=>{
+res.json({success:true,message:"Sudan Crypto API running"})
+})
 
-    const existing = otpStore[email];
+/* ارسال كود */
 
-    if (existing && existing.lastSentAt && now - existing.lastSentAt < RATE_LIMIT_MS) {
+app.post("/send-code",async(req,res)=>{
 
-      const secondsLeft =
-        Math.ceil((RATE_LIMIT_MS - (now - existing.lastSentAt)) / 1000);
+try{
 
-      return res.json({
-        success: false,
-        message: `انتظر ${secondsLeft} ثانية قبل طلب كود جديد`
-      });
-
-    }
+const email=normalizeEmail(req.body.email)
+const purpose=cleanText(req.body.purpose||"register")
+const now=Date.now()
 
-    const code = generateOTP();
-
-    otpStore[email] = {
-      code,
-      purpose,
-      expiresAt: now + OTP_EXPIRES_MS,
-      lastSentAt: now,
-      verified: false
-    };
+if(!email){
+return res.json({success:false,message:"البريد مطلوب"})
+}
 
-    await resend.emails.send({
-      from: "Sudan Crypto <noreply@sudancrypto.com>",
-      to: email,
-      subject: "رمز التحقق - سودان كربتو",
-      html: `
-      <h2>رمز التحقق</h2>
-      <h1>${code}</h1>
-      `
-    });
+if(!isValidEmail(email)){
+return res.json({success:false,message:"بريد غير صحيح"})
+}
 
-    res.json({
-      success: true,
-      message: "تم إرسال الكود"
-    });
+if(purpose==="register" && users[email]){
+return res.json({success:false,message:"البريد مسجل"})
+}
 
-  } catch (error) {
+if((purpose==="login" || purpose==="reset") && !users[email]){
+return res.json({success:false,message:"الحساب غير موجود"})
+}
 
-    console.log(error);
+const existing=otpStore[email]
 
-    res.json({
-      success: false,
-      message: "فشل إرسال الكود"
-    });
+if(existing && existing.lastSentAt && now-existing.lastSentAt<RATE_LIMIT_MS){
 
-  }
+const secondsLeft=Math.ceil((RATE_LIMIT_MS-(now-existing.lastSentAt))/1000)
 
-});
-
-/* ================= تحقق من الكود ================= */
+return res.json({
+success:false,
+message:`انتظر ${secondsLeft} ثانية`
+})
 
-app.post("/verify-code", (req, res) => {
+}
 
-  const email = normalizeEmail(req.body.email);
-  const code = cleanText(req.body.code);
-  const purpose = cleanText(req.body.purpose || "register");
+const code=generateOTP()
 
-  const saved = otpStore[email];
-  const check = isOtpValid(saved, code, purpose);
+otpStore[email]={
+code,
+purpose,
+expiresAt:now+OTP_EXPIRES_MS,
+lastSentAt:now,
+verified:false
+}
 
-  if (!check.ok) {
-    return res.json({
-      success: false,
-      message: check.message
-    });
-  }
+await resend.emails.send({
+from:"Sudan Crypto <noreply@sudancrypto.com>",
+to:email,
+subject:"رمز التحقق",
+html:`<h2>${code}</h2>`
+})
 
-  otpStore[email].verified = true;
+res.json({success:true})
 
-  res.json({
-    success: true,
-    message: "تم التحقق"
-  });
+}catch(e){
 
-});
+console.log(e)
 
-/* ================= تسجيل حساب ================= */
+res.json({success:false,message:"فشل ارسال الكود"})
+}
 
-app.post("/register", (req, res) => {
+})
 
-  const name = cleanText(req.body.name);
-  const email = normalizeEmail(req.body.email);
-  const phone = cleanText(req.body.phone);
-  const referral = cleanText(req.body.referral);
-  const password = cleanText(req.body.password);
+/* تحقق كود */
 
-  const saved = otpStore[email];
+app.post("/verify-code",(req,res)=>{
 
-  if (!saved || saved.purpose !== "register" || saved.verified !== true) {
+const email=normalizeEmail(req.body.email)
+const code=cleanText(req.body.code)
+const purpose=cleanText(req.body.purpose||"register")
 
-    return res.json({
-      success: false,
-      message: "يجب التحقق من البريد الإلكتروني أولاً"
-    });
+const saved=otpStore[email]
+const check=isOtpValid(saved,code,purpose)
 
-  }
+if(!check.ok){
+return res.json({success:false,message:check.message})
+}
 
-  users[email] = {
-    id: Date.now().toString(),
-    name,
-    email,
-    phone,
-    referral,
-    password,
-    createdAt: new Date().toISOString()
-  };
+otpStore[email].verified=true
 
-  delete otpStore[email];
+res.json({success:true})
 
-  res.json({
-    success: true,
-    message: "تم إنشاء الحساب بنجاح"
-  });
+})
 
-});
+/* تسجيل */
 
-/* ================= تسجيل الدخول ================= */
+app.post("/register",(req,res)=>{
 
-app.post("/login", (req, res) => {
+const name=cleanText(req.body.name)
+const email=normalizeEmail(req.body.email)
+const phone=cleanText(req.body.phone)
+const referral=cleanText(req.body.referral)
+const password=cleanText(req.body.password)
 
-  const email = normalizeEmail(req.body.email);
-  const password = cleanText(req.body.password);
-  const code = cleanText(req.body.code);
+const saved=otpStore[email]
 
-  const user = users[email];
+if(!saved || saved.purpose!=="register" || saved.verified!==true){
+return res.json({success:false,message:"تحقق من البريد"})
+}
 
-  if (!user) {
-    return res.json({
-      success: false,
-      message: "الحساب غير موجود"
-    });
-  }
+users[email]={
+id:Date.now().toString(),
+name,
+email,
+phone,
+referral,
+password,
+balance:0,
+operations:[],
+createdAt:new Date().toISOString()
+}
 
-  if (user.password !== password) {
-    return res.json({
-      success: false,
-      message: "كلمة السر غير صحيحة"
-    });
-  }
+delete otpStore[email]
 
-  const saved = otpStore[email];
-  const check = isOtpValid(saved, code, "login");
+res.json({success:true})
 
-  if (!check.ok) {
-    return res.json({
-      success: false,
-      message: check.message
-    });
-  }
+})
 
-  delete otpStore[email];
+/* تسجيل دخول */
 
-  res.json({
-    success: true,
-    message: "تم تسجيل الدخول بنجاح",
-    user
-  });
+app.post("/login",(req,res)=>{
 
-});
+const email=normalizeEmail(req.body.email)
+const password=cleanText(req.body.password)
+const code=cleanText(req.body.code)
 
-/* ================= بيانات المستخدم للداشبورد ================= */
+const user=users[email]
 
-app.post("/user-data", (req, res) => {
+if(!user){
+return res.json({success:false,message:"الحساب غير موجود"})
+}
 
-  const email = normalizeEmail(req.body.email);
+if(user.password!==password){
+return res.json({success:false,message:"كلمة السر خطأ"})
+}
 
-  if (!email) {
-    return res.json({
-      success: false
-    });
-  }
+const saved=otpStore[email]
+const check=isOtpValid(saved,code,"login")
 
-  const user = users[email];
+if(!check.ok){
+return res.json({success:false,message:check.message})
+}
 
-  if (!user) {
-    return res.json({
-      success: false
-    });
-  }
+delete otpStore[email]
 
-  res.json({
-    success: true,
-    name: user.name,
-    email: user.email,
-    phone: user.phone,
-    balance: 0,
-    dailyIncome: 0,
-    operations: []
-  });
+res.json({success:true,user})
 
-});
+})
 
-/* ================= عرض المستخدمين ================= */
+/* بيانات المستخدم */
 
-app.get("/users", (req, res) => {
+app.post("/user-data",(req,res)=>{
 
-  res.json({
-    success: true,
-    users
-  });
+const email=normalizeEmail(req.body.email)
 
-});
+const user=users[email]
 
-const PORT = process.env.PORT || 10000;
+if(!user){
+return res.json({success:false})
+}
 
-app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
-});
+res.json({
+success:true,
+name:user.name,
+email:user.email,
+phone:user.phone,
+balance:user.balance,
+dailyIncome:0,
+operations:user.operations
+})
+
+})
+
+/* طلب ايداع */
+
+app.post("/deposit",(req,res)=>{
+
+const email=normalizeEmail(req.body.email)
+const amount=Number(req.body.amount)
+
+const user=users[email]
+
+if(!user){
+return res.json({success:false})
+}
+
+const op={
+type:"deposit",
+amount,
+status:"pending",
+date:new Date().toISOString()
+}
+
+user.operations.unshift(op)
+
+res.json({success:true})
+
+})
+
+/* طلب سحب */
+
+app.post("/withdraw",(req,res)=>{
+
+const email=normalizeEmail(req.body.email)
+const amount=Number(req.body.amount)
+
+const user=users[email]
+
+if(!user){
+return res.json({success:false})
+}
+
+if(user.balance<amount){
+return res.json({
+success:false,
+message:"الرصيد غير كافي"
+})
+}
+
+user.balance-=amount
+
+const op={
+type:"withdraw",
+amount,
+status:"pending",
+date:new Date().toISOString()
+}
+
+user.operations.unshift(op)
+
+res.json({success:true})
+
+})
+
+/* المستخدمين */
+
+app.get("/users",(req,res)=>{
+res.json({success:true,users})
+})
+
+const PORT=process.env.PORT||10000
+
+app.listen(PORT,()=>{
+console.log("Server running on port "+PORT)
+})
