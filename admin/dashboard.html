@@ -4,15 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>لوحة الأدمن</title>
-
 <style>
-
 body{
 margin:0;
 font-family:Tahoma;
 background:#f2f5fa;
 }
-
 .header{
 background:#0b1f3a;
 color:white;
@@ -21,19 +18,16 @@ text-align:center;
 font-size:22px;
 font-weight:bold;
 }
-
 .container{
 max-width:900px;
 margin:auto;
 padding:20px;
 }
-
 .grid{
 display:grid;
 grid-template-columns:repeat(2,1fr);
 gap:16px;
 }
-
 .card{
 background:white;
 padding:20px;
@@ -43,7 +37,6 @@ box-shadow:0 6px 16px rgba(0,0,0,0.1);
 cursor:pointer;
 font-size:18px;
 }
-
 .logout{
 margin-top:20px;
 background:#e74c3c;
@@ -55,57 +48,32 @@ width:100%;
 font-size:16px;
 cursor:pointer;
 }
-
 </style>
 </head>
-
 <body>
 
-<script>
-if(localStorage.getItem("admin")!=="true"){
-window.location.href="login.html"
-}
-</script>
-
-<div class="header">
-لوحة تحكم الأدمن
-</div>
+<div class="header">لوحة تحكم الأدمن</div>
 
 <div class="container">
-
 <div class="grid">
-
-<div class="card" onclick="location.href='users.html'">
-المستخدمين
+<div class="card" onclick="location.href='users.html'">المستخدمين</div>
+<div class="card" onclick="location.href='deposits.html'">طلبات الإيداع</div>
+<div class="card" onclick="location.href='withdraws.html'">طلبات السحب</div>
+<div class="card" onclick="location.href='../dashboard.html'">دخول الموقع</div>
 </div>
 
-<div class="card" onclick="location.href='deposits.html'">
-طلبات الإيداع
-</div>
-
-<div class="card" onclick="location.href='withdraws.html'">
-طلبات السحب
-</div>
-
-<div class="card" onclick="location.href='../dashboard.html'">
-دخول الموقع
-</div>
-
-</div>
-
-<button class="logout" onclick="logout()">
-تسجيل الخروج
-</button>
-
+<button class="logout" onclick="logout()">تسجيل الخروج</button>
 </div>
 
 <script>
-
-function logout(){
-localStorage.removeItem("admin")
-window.location.href="login.html"
+if(!localStorage.getItem("adminToken")){
+window.location.href="login.html";
 }
 
+function logout(){
+localStorage.removeItem("adminToken");
+window.location.href="login.html";
+}
 </script>
 
 </body>
