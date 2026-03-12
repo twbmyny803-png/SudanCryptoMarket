@@ -61,16 +61,29 @@ margin-top:10px;
 </div>
 
 <script>
-function login(){
-const u=document.getElementById("username").value
-const p=document.getElementById("password").value
+const API="https://sudancryptomarket.onrender.com";
 
-if(u==="admain" && p==="admin_2050"){
-localStorage.setItem("admin","true")
-window.location.href="dashboard.html"
+function login(){
+const username=document.getElementById("username").value.trim();
+const password=document.getElementById("password").value.trim();
+
+fetch(API+"/admin-login",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({username,password})
+})
+.then(res=>res.json())
+.then(data=>{
+if(data.success){
+localStorage.setItem("adminToken",data.token);
+window.location.href="dashboard.html";
 }else{
-document.getElementById("error").innerText="بيانات الدخول غير صحيحة"
+document.getElementById("error").innerText=data.message||"فشل تسجيل الدخول";
 }
+})
+.catch(()=>{
+document.getElementById("error").innerText="تعذر الاتصال بالسيرفر";
+});
 }
 </script>
 
