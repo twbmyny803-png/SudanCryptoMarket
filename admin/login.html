@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>دخول الأدمن</title>
+
 <style>
 body{
 margin:0;
@@ -14,6 +15,7 @@ display:flex;
 justify-content:center;
 align-items:center;
 }
+
 .box{
 background:#fff;
 padding:30px;
@@ -21,10 +23,12 @@ border-radius:12px;
 width:320px;
 box-shadow:0 10px 25px rgba(0,0,0,0.2);
 }
+
 h2{
 text-align:center;
 margin-bottom:20px;
 }
+
 input{
 width:100%;
 padding:12px;
@@ -33,6 +37,7 @@ border:1px solid #ccc;
 border-radius:6px;
 box-sizing:border-box;
 }
+
 button{
 width:100%;
 padding:12px;
@@ -43,6 +48,7 @@ border-radius:6px;
 font-size:16px;
 cursor:pointer;
 }
+
 .error{
 color:red;
 text-align:center;
@@ -50,41 +56,66 @@ margin-top:10px;
 }
 </style>
 </head>
+
 <body>
 
 <div class="box">
+
 <h2>لوحة تحكم الأدمن</h2>
+
 <input id="username" placeholder="اسم المستخدم">
+
 <input id="password" type="password" placeholder="كلمة السر">
+
 <button onclick="login()">دخول</button>
+
 <div id="error" class="error"></div>
+
 </div>
 
 <script>
-const API="https://sudancryptomarket.onrender.com";
 
-function login(){
+const API = "https://sudancryptomarket.onrender.com";
+
+async function login(){
+
 const username=document.getElementById("username").value.trim();
 const password=document.getElementById("password").value.trim();
 
-fetch(API+"/admin-login",{
+document.getElementById("error").innerText="";
+
+try{
+
+const res = await fetch(API + "/admin-login",{
 method:"POST",
-headers:{"Content-Type":"application/json"},
+headers:{
+"Content-Type":"application/json"
+},
 body:JSON.stringify({username,password})
-})
-.then(res=>res.json())
-.then(data=>{
-if(data.success){
-localStorage.setItem("adminToken",data.token);
-window.location.href="dashboard.html";
-}else{
-document.getElementById("error").innerText=data.message||"فشل تسجيل الدخول";
-}
-})
-.catch(()=>{
-document.getElementById("error").innerText="تعذر الاتصال بالسيرفر";
 });
+
+const data = await res.json();
+
+if(data.success){
+
+localStorage.setItem("adminToken",data.token);
+
+window.location.href="dashboard.html";
+
+}else{
+
+document.getElementById("error").innerText=data.message || "فشل تسجيل الدخول";
+
 }
+
+}catch(err){
+
+document.getElementById("error").innerText="السيرفر غير متاح حالياً";
+
+}
+
+}
+
 </script>
 
 </body>
