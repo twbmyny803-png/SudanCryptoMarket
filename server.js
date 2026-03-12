@@ -41,95 +41,27 @@ function isValidEmail(email){
 return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 }
 
-function isOtpValid(saved,code,purpose){
+function ensureUserCanUseAccount(user){
 
-if(!saved){
-return {ok:false,message:"لم يتم طلب كود"}
-}
-
-if(saved.purpose!==purpose){
-return {ok:false,message:"نوع الكود غير صحيح"}
-}
-
-if(Date.now()>saved.expiresAt){
-return {ok:false,message:"انتهت صلاحية الكود"}
-}
-
-if(saved.code!==code){
-return {ok:false,message:"الكود غير صحيح"}
-}
+if(!user) return {ok:false,message:"الحساب غير موجود"}
+if(user.isDeleted) return {ok:false,message:"الحساب محذوف"}
+if(user.isBanned) return {ok:false,message:"الحساب محظور"}
+if(user.isFrozen) return {ok:false,message:"الحساب مجمد"}
 
 return {ok:true}
-}
 
-function generateReferralCode(name,email){
-
-const part1=cleanText(name||email||"USR")
-.replace(/\s+/g,"")
-.replace(/[^a-zA-Z0-9]/g,"")
-.toUpperCase()
-.slice(0,3)||"USR"
-
-const part2=Math.floor(100+Math.random()*900).toString()
-
-return part1+part2
-}
-
-function getPackageInfo(pack){
-
-const p=cleanText(pack).toLowerCase()
-
-if(p==="starter"){
-return {key:"starter",name:"Starter",price:50,dailyProfit:2.5,durationDays:PACKAGE_DURATION_DAYS}
-}
-
-if(p==="silver"){
-return {key:"silver",name:"Silver",price:100,dailyProfit:5,durationDays:PACKAGE_DURATION_DAYS}
-}
-
-if(p==="gold"){
-return {key:"gold",name:"Gold",price:250,dailyProfit:8,durationDays:PACKAGE_DURATION_DAYS}
-}
-
-if(p==="diamond"){
-return {key:"diamond",name:"Diamond",price:500,dailyProfit:12,durationDays:PACKAGE_DURATION_DAYS}
-}
-
-if(p==="platinum"){
-return {key:"platinum",name:"Platinum",price:1000,dailyProfit:25,durationDays:PACKAGE_DURATION_DAYS}
-}
-
-return null
-}
-
-function calculateProfit(user){
-
-if(!user.packageName||!user.packageStart){
-return 0
-}
-
-const daysPassed=Math.floor((Date.now()-user.packageStart)/(1000*60*60*24))
-const payableDays=Math.min(daysPassed,user.packageDurationDays)
-
-return payableDays*(user.dailyProfit||0)
 }
 
 function isAdminAuthorized(req){
 
 const token=req.headers["x-admin-token"]
 
-if(token&&adminSessions[token]){
-return true
-}
-
-const username=cleanText(req.body.adminUsername)
-const password=cleanText(req.body.adminPassword)
-
-if(username===ADMIN_USERNAME&&password===ADMIN_PASSWORD){
+if(token && adminSessions[token]){
 return true
 }
 
 return false
+
 }
 
 function requireAdmin(req,res){
@@ -140,34 +72,11 @@ return false
 }
 
 return true
+
 }
 
-function ensureUserCanUseAccount(user){
+/* ================= ADMIN LOGIN ================= */
 
-if(!user){
-return {ok:false,message:"الحساب غير موجود"}
-}
-
-if(user.isDeleted){
-return {ok:false,message:"الحساب محذوف"}
-}
-
-if(user.isBanned){
-return {ok:false,message:"الحساب محظور"}
-}
-
-if(user.isFrozen){
-return {ok:false,message:"الحساب مجمد"}
-}
-
-return {ok:true}
-}
-
-app.get("/",(req,res)=>{
-res.json({success:true,message:"Sudan Crypto API running"})
-})
-
-/* admin login */
 app.post("/admin-login",(req,res)=>{
 
 const username=cleanText(req.body.username)
@@ -179,98 +88,23 @@ return res.json({success:false,message:"بيانات الأدمن غير صحي�
 
 const token=generateToken()
 
-adminSessions[token]={username,createdAt:Date.now()}
+adminSessions[token]={createdAt:Date.now()}
 
 res.json({success:true,token})
 
 })
 
-/* send code */
-app.post("/send-code",async(req,res)=>{
+/* ================= USER REGISTER ================= */
 
-try{
-
-const email=normalizeEmail(req.body.email)
-const purpose=cleanText(req.body.purpose||"register")
-
-if(!email){
-return res.json({success:false,message:"البريد مطلوب"})
-}
-
-if(!isValidEmail(email)){
-return res.json({success:false,message:"بريد غير صحيح"})
-}
-
-if(purpose==="register"&&users[email]){
-return res.json({success:false,message:"البريد مسجل"})
-}
-
-const code=generateOTP()
-
-otpStore[email]={
-code,
-purpose,
-expiresAt:Date.now()+OTP_EXPIRES_MS,
-verified:false
-}
-
-await resend.emails.send({
-from:"Sudan Crypto <noreply@sudancrypto.com>",
-to:email,
-subject:"رمز التحقق",
-html:`<h2>${code}</h2>`
-})
-
-res.json({success:true})
-
-}catch(e){
-
-console.log(e)
-res.json({success:false,message:"فشل ارسال الكود"})
-
-}
-
-})
-
-/* verify code */
-app.post("/verify-code",(req,res)=>{
-
-const email=normalizeEmail(req.body.email)
-const code=cleanText(req.body.code)
-const purpose=cleanText(req.body.purpose||"register")
-
-const saved=otpStore[email]
-const check=isOtpValid(saved,code,purpose)
-
-if(!check.ok){
-return res.json({success:false,message:check.message})
-}
-
-otpStore[email].verified=true
-
-res.json({success:true})
-
-})
-
-/* register */
 app.post("/register",(req,res)=>{
 
 const name=cleanText(req.body.name)
 const email=normalizeEmail(req.body.email)
 const phone=cleanText(req.body.phone)
-const referral=cleanText(req.body.referral)
 const password=cleanText(req.body.password)
 
-const saved=otpStore[email]
-
-if(!saved||saved.purpose!=="register"||saved.verified!==true){
-return res.json({success:false,message:"يجب التحقق من البريد"})
-}
-
-let referralCode=generateReferralCode(name,email)
-
-while(Object.values(users).some(u=>u.referralCode===referralCode)){
-referralCode=generateReferralCode(name,email)
+if(users[email]){
+return res.json({success:false,message:"البريد مسجل"})
 }
 
 users[email]={
@@ -278,9 +112,6 @@ id:Date.now().toString(),
 name,
 email,
 phone,
-referral,
-referredBy:referral||"",
-referralCode,
 password,
 balance:0,
 operations:[],
@@ -295,18 +126,16 @@ isDeleted:false,
 createdAt:new Date().toISOString()
 }
 
-delete otpStore[email]
-
 res.json({success:true})
 
 })
 
-/* login */
+/* ================= LOGIN ================= */
+
 app.post("/login",(req,res)=>{
 
 const email=normalizeEmail(req.body.email)
 const password=cleanText(req.body.password)
-const code=cleanText(req.body.code)
 
 const user=users[email]
 
@@ -320,77 +149,48 @@ if(user.password!==password){
 return res.json({success:false,message:"كلمة السر خطأ"})
 }
 
-const saved=otpStore[email]
-const check=isOtpValid(saved,code,"login")
-
-if(!check.ok){
-return res.json({success:false,message:check.message})
-}
-
-delete otpStore[email]
-
 res.json({success:true,user})
 
 })
 
-/* user data */
+/* ================= USER DATA ================= */
+
 app.post("/user-data",(req,res)=>{
 
 const email=normalizeEmail(req.body.email)
+
 const user=users[email]
 
-const canUse=ensureUserCanUseAccount(user)
-
-if(!canUse.ok){
-return res.json({success:false,message:canUse.message})
+if(!user){
+return res.json({success:false})
 }
-
-const teamMembers=Object.values(users).filter(
-u=>!u.isDeleted&&u.referredBy===user.referralCode
-)
-
-const dailyIncome=calculateProfit(user)
 
 res.json({
 success:true,
 name:user.name,
 balance:user.balance,
 operations:user.operations,
-packageName:user.packageName,
-dailyIncome,
-referralCode:user.referralCode,
-referralCount:teamMembers.length
+packageName:user.packageName
 })
 
 })
 
-/* deposit */
+/* ================= DEPOSIT ================= */
+
 app.post("/deposit",(req,res)=>{
 
 const email=normalizeEmail(req.body.email)
 const amount=Number(req.body.amount)
-const network=cleanText(req.body.network)
-const txid=cleanText(req.body.txid)
-const packageName=cleanText(req.body.packageName)
-const dailyProfit=Number(req.body.dailyProfit||0)
-const durationDays=Number(req.body.durationDays||0)
 
 const user=users[email]
 
-const canUse=ensureUserCanUseAccount(user)
-
-if(!canUse.ok){
-return res.json({success:false,message:canUse.message})
+if(!user){
+return res.json({success:false})
 }
 
 user.operations.unshift({
-type:packageName?"package_deposit":"deposit",
-packageName,
+type:"deposit",
 amount,
-network,
-txid,
-dailyProfit,
-durationDays,
 status:"pending",
 date:new Date().toISOString()
 })
@@ -399,17 +199,17 @@ res.json({success:true})
 
 })
 
-/* withdraw */
+/* ================= WITHDRAW ================= */
+
 app.post("/withdraw",(req,res)=>{
 
 const email=normalizeEmail(req.body.email)
 const amount=Number(req.body.amount)
+
 const user=users[email]
 
-const canUse=ensureUserCanUseAccount(user)
-
-if(!canUse.ok){
-return res.json({success:false,message:canUse.message})
+if(!user){
+return res.json({success:false})
 }
 
 if(user.balance<amount){
@@ -427,80 +227,11 @@ res.json({success:true})
 
 })
 
-/* approve operation */
-app.post("/approve-operation",(req,res)=>{
+/* ================= ADMIN USERS ================= */
 
-if(!requireAdmin(req,res))return
-
-const email=normalizeEmail(req.body.email)
-const index=req.body.index
-
-const user=users[email]
-
-if(!user){
-return res.json({success:false})
-}
-
-const op=user.operations[index]
-
-if(!op){
-return res.json({success:false})
-}
-
-op.status="approved"
-
-if(op.type==="deposit"){
-user.balance+=op.amount
-}
-
-if(op.type==="package_deposit"){
-
-user.packageName=op.packageName
-user.packagePrice=op.amount
-user.dailyProfit=op.dailyProfit
-user.packageStart=Date.now()
-user.packageDurationDays=op.durationDays
-
-}
-
-if(op.type==="withdraw"){
-user.balance-=op.amount
-}
-
-res.json({success:true})
-
-})
-
-/* reject operation */
-app.post("/reject-operation",(req,res)=>{
-
-if(!requireAdmin(req,res))return
-
-const email=req.body.email
-const index=req.body.index
-
-const user=users[email]
-
-if(!user){
-return res.json({success:false})
-}
-
-const op=user.operations[index]
-
-if(!op){
-return res.json({success:false})
-}
-
-op.status="rejected"
-
-res.json({success:true})
-
-})
-
-/* admin users */
 app.get("/admin-users",(req,res)=>{
 
-if(!requireAdmin(req,res))return
+if(!requireAdmin(req,res)) return
 
 const list=Object.values(users).filter(u=>!u.isDeleted)
 
@@ -508,161 +239,178 @@ res.json({success:true,users:list})
 
 })
 
-/* add balance */
-app.post("/admin-add-balance",(req,res)=>{
+/* ================= ADMIN DEPOSITS ================= */
 
-if(!requireAdmin(req,res))return
+app.get("/admin-deposits",(req,res)=>{
 
-const email=normalizeEmail(req.body.email)
-const amount=Number(req.body.amount)
+if(!requireAdmin(req,res)) return
+
+let deposits=[]
+
+Object.values(users).forEach(user=>{
+
+user.operations.forEach((op,index)=>{
+
+if(op.type==="deposit"){
+deposits.push({
+id:user.email+"_"+index,
+email:user.email,
+name:user.name,
+amount:op.amount,
+status:op.status,
+index
+})
+}
+
+})
+
+})
+
+res.json({success:true,deposits})
+
+})
+
+/* ================= ADMIN WITHDRAWS ================= */
+
+app.get("/admin-withdraws",(req,res)=>{
+
+if(!requireAdmin(req,res)) return
+
+let list=[]
+
+Object.values(users).forEach(user=>{
+
+user.operations.forEach((op,index)=>{
+
+if(op.type==="withdraw"){
+list.push({
+id:user.email+"_"+index,
+email:user.email,
+name:user.name,
+amount:op.amount,
+status:op.status,
+index
+})
+}
+
+})
+
+})
+
+res.json({success:true,withdraws:list})
+
+})
+
+/* ================= APPROVE DEPOSIT ================= */
+
+app.post("/admin-approve-deposit",(req,res)=>{
+
+if(!requireAdmin(req,res)) return
+
+const email=req.body.email
+const index=req.body.index
 
 const user=users[email]
 
-if(!user){
-return res.json({success:false})
-}
+if(!user) return res.json({success:false})
 
-user.balance+=amount
+const op=user.operations[index]
+
+if(!op) return res.json({success:false})
+
+op.status="approved"
+
+user.balance+=op.amount
 
 res.json({success:true})
 
 })
 
-/* remove balance */
-app.post("/admin-remove-balance",(req,res)=>{
+/* ================= REJECT DEPOSIT ================= */
 
-if(!requireAdmin(req,res))return
+app.post("/admin-reject-deposit",(req,res)=>{
 
-const email=normalizeEmail(req.body.email)
-const amount=Number(req.body.amount)
+if(!requireAdmin(req,res)) return
+
+const email=req.body.email
+const index=req.body.index
 
 const user=users[email]
 
-if(!user){
-return res.json({success:false})
-}
+if(!user) return res.json({success:false})
 
-user.balance-=amount
+const op=user.operations[index]
+
+if(!op) return res.json({success:false})
+
+op.status="rejected"
 
 res.json({success:true})
 
 })
 
-/* ban user */
-app.post("/admin-ban-user",(req,res)=>{
+/* ================= APPROVE WITHDRAW ================= */
 
-if(!requireAdmin(req,res))return
+app.post("/admin-approve-withdraw",(req,res)=>{
 
-const email=normalizeEmail(req.body.email)
+if(!requireAdmin(req,res)) return
+
+const email=req.body.email
+const index=req.body.index
+
 const user=users[email]
 
-if(!user){
-return res.json({success:false})
-}
+if(!user) return res.json({success:false})
 
-user.isBanned=true
+const op=user.operations[index]
+
+if(!op) return res.json({success:false})
+
+op.status="approved"
+
+user.balance-=op.amount
 
 res.json({success:true})
 
 })
 
-/* unban */
-app.post("/admin-unban-user",(req,res)=>{
+/* ================= REJECT WITHDRAW ================= */
 
-if(!requireAdmin(req,res))return
+app.post("/admin-reject-withdraw",(req,res)=>{
 
-const email=normalizeEmail(req.body.email)
+if(!requireAdmin(req,res)) return
+
+const email=req.body.email
+const index=req.body.index
+
 const user=users[email]
 
-if(!user){
-return res.json({success:false})
-}
+if(!user) return res.json({success:false})
 
-user.isBanned=false
+const op=user.operations[index]
+
+if(!op) return res.json({success:false})
+
+op.status="rejected"
 
 res.json({success:true})
 
 })
 
-/* freeze */
-app.post("/admin-freeze-user",(req,res)=>{
+/* ================= ADMIN CHANGE PASSWORD ================= */
 
-if(!requireAdmin(req,res))return
+app.post("/admin-change-password",(req,res)=>{
 
-const email=normalizeEmail(req.body.email)
-const user=users[email]
-
-if(!user){
-return res.json({success:false})
-}
-
-user.isFrozen=true
-
-res.json({success:true})
-
-})
-
-/* unfreeze */
-app.post("/admin-unfreeze-user",(req,res)=>{
-
-if(!requireAdmin(req,res))return
+if(!requireAdmin(req,res)) return
 
 const email=normalizeEmail(req.body.email)
-const user=users[email]
-
-if(!user){
-return res.json({success:false})
-}
-
-user.isFrozen=false
-
-res.json({success:true})
-
-})
-
-/* delete user */
-app.post("/admin-delete-user",(req,res)=>{
-
-if(!requireAdmin(req,res))return
-
-const email=normalizeEmail(req.body.email)
-const user=users[email]
-
-if(!user){
-return res.json({success:false})
-}
-
-user.isDeleted=true
-
-res.json({success:true})
-
-})
-
-/* admin set package */
-app.post("/admin-set-package",(req,res)=>{
-
-if(!requireAdmin(req,res))return
-
-const email=normalizeEmail(req.body.email)
-const pack=cleanText(req.body.package)
+const newPassword=cleanText(req.body.newPassword)
 
 const user=users[email]
 
-if(!user){
-return res.json({success:false})
-}
+if(!user) return res.json({success:false})
 
-const info=getPackageInfo(pack)
-
-if(!info){
-return res.json({success:false})
-}
-
-user.packageName=info.name
-user.packagePrice=info.price
-user.dailyProfit=info.dailyProfit
-user.packageStart=Date.now()
-user.packageDurationDays=info.durationDays
+user.password=newPassword
 
 res.json({success:true})
 
