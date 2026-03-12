@@ -2,13 +2,16 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>طلبات الإيداع</title>
+
 <style>
 body{
 font-family:Tahoma;
 margin:0;
 background:#f2f5fa;
 }
+
 .header{
 background:#0b1f3a;
 color:white;
@@ -17,11 +20,13 @@ text-align:center;
 font-size:22px;
 font-weight:bold;
 }
+
 .container{
 padding:20px;
 max-width:1100px;
 margin:auto;
 }
+
 table{
 width:100%;
 border-collapse:collapse;
@@ -30,161 +35,190 @@ box-shadow:0 6px 16px rgba(0,0,0,0.08);
 border-radius:12px;
 overflow:hidden;
 }
+
 th,td{
 padding:12px;
 border-bottom:1px solid #eee;
 text-align:center;
-font-size:14px;
+font-size:13px;
 }
+
 th{
 background:#f4f6fb;
 }
+
 button{
 padding:8px 12px;
 border:none;
 border-radius:6px;
 cursor:pointer;
-font-size:13px;
+font-size:12px;
 margin:2px;
 }
+
 .approve{
-background:#2ecc71;
+background:#27ae60;
 color:white;
 }
+
 .reject{
-background:#e74c3c;
+background:#c0392b;
 color:white;
 }
-.pending{
-color:#f39c12;
-font-weight:bold;
+
+.refresh{
+background:#2D6AF6;
+color:white;
+margin-bottom:15px;
+padding:10px 16px;
+border-radius:8px;
 }
-.approved{
-color:#27ae60;
-font-weight:bold;
-}
-.rejected{
-color:#e74c3c;
-font-weight:bold;
+
+.empty{
+padding:25px;
+color:#777;
 }
 </style>
 </head>
+
 <body>
 
 <div class="header">طلبات الإيداع</div>
 
 <div class="container">
+
+<button class="refresh" onclick="loadDeposits()">تحديث</button>
+
 <table>
+
 <thead>
 <tr>
+<th>المستخدم</th>
 <th>البريد</th>
-<th>النوع</th>
 <th>المبلغ</th>
-<th>الشبكة</th>
-<th>الباقة</th>
+<th>العملة</th>
 <th>الحالة</th>
 <th>التحكم</th>
 </tr>
 </thead>
-<tbody id="depositsTable"></tbody>
+
+<tbody id="depositTable"></tbody>
+
 </table>
+
 </div>
 
 <script>
-const API="https://sudancryptomarket.onrender.com";
+
+const API="https://sudancryptomarket-api.onrender.com";
 const adminToken=localStorage.getItem("adminToken");
 
 if(!adminToken){
 window.location.href="login.html";
 }
 
-function getStatusClass(status){
-if(status==="approved") return "approved";
-if(status==="rejected") return "rejected";
-return "pending";
-}
+async function loadDeposits(){
 
-function getStatusText(status){
-if(status==="approved") return "تمت الموافقة";
-if(status==="rejected") return "مرفوض";
-return "قيد المراجعة";
-}
+document.getElementById("depositTable").innerHTML="<tr><td colspan='6'>جاري التحميل...</td></tr>";
 
-function loadDeposits(){
-fetch(API+"/users")
-.then(res=>res.json())
-.then(data=>{
-let table="";
+try{
+
+const res=await fetch(API+"/admin-deposits",{
+headers:{
+"x-admin-token":adminToken
+}
+});
+
+const data=await res.json();
+
 if(!data.success){
-document.getElementById("depositsTable").innerHTML="";
+alert(data.message||"فشل تحميل الطلبات");
 return;
 }
-const users=data.users||{};
-Object.values(users).forEach(user=>{
-(user.operations||[]).forEach((op,index)=>{
-if(op.type==="deposit" || op.type==="package_deposit"){
-table+=`
+
+let html="";
+
+(data.deposits||[]).forEach(dep=>{
+
+html+=`
 <tr>
-<td>${user.email||""}</td>
-<td>${op.type==="package_deposit" ? "إيداع باقة" : "إيداع عادي"}</td>
-<td>${op.amount||0} USDT</td>
-<td>${op.network||"-"}</td>
-<td>${op.packageName||"-"}</td>
-<td class="${getStatusClass(op.status)}">${getStatusText(op.status)}</td>
+
+<td>${dep.name||"-"}</td>
+
+<td>${dep.email||"-"}</td>
+
+<td>${dep.amount||0}</td>
+
+<td>${dep.currency||"USDT"}</td>
+
+<td>${dep.status||"pending"}</td>
+
 <td>
-<button class="approve" onclick="approveDeposit('${user.email}',${index})">موافقة</button>
-<button class="reject" onclick="rejectDeposit('${user.email}',${index})">رفض</button>
+
+<button class="approve" onclick="approveDeposit('${dep.id}')">قبول</button>
+
+<button class="reject" onclick="rejectDeposit('${dep.id}')">رفض</button>
+
 </td>
+
 </tr>
 `;
-}
+
 });
-});
-document.getElementById("depositsTable").innerHTML=table || `<tr><td colspan="7">لا توجد طلبات إيداع</td></tr>`;
-});
+
+document.getElementById("depositTable").innerHTML=
+html || "<tr><td colspan='6' class='empty'>لا توجد طلبات</td></tr>";
+
+}catch(err){
+
+document.getElementById("depositTable").innerHTML="<tr><td colspan='6'>تعذر الاتصال بالسيرفر</td></tr>";
+
 }
 
-function approveDeposit(email,index){
-fetch(API+"/approve-operation",{
+}
+
+
+function postAdmin(url,body){
+
+return fetch(API+url,{
 method:"POST",
 headers:{
 "Content-Type":"application/json",
 "x-admin-token":adminToken
 },
-body:JSON.stringify({email,index})
-})
-.then(res=>res.json())
-.then(data=>{
-if(data.success){
-alert("تمت الموافقة على الطلب");
-loadDeposits();
-}else{
-alert(data.message||"فشلت العملية");
-}
-});
+body:JSON.stringify(body)
+}).then(res=>res.json());
+
 }
 
-function rejectDeposit(email,index){
-fetch(API+"/reject-operation",{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-"x-admin-token":adminToken
-},
-body:JSON.stringify({email,index})
-})
-.then(res=>res.json())
-.then(data=>{
-if(data.success){
-alert("تم رفض الطلب");
+
+function approveDeposit(id){
+
+postAdmin("/admin-approve-deposit",{id}).then(data=>{
+
+alert(data.success ? "تم قبول الإيداع" : (data.message||"فشلت العملية"));
+
 loadDeposits();
-}else{
-alert(data.message||"فشلت العملية");
-}
+
 });
+
+}
+
+
+function rejectDeposit(id){
+
+postAdmin("/admin-reject-deposit",{id}).then(data=>{
+
+alert(data.success ? "تم رفض الإيداع" : (data.message||"فشلت العملية"));
+
+loadDeposits();
+
+});
+
 }
 
 loadDeposits();
+
 </script>
 
 </body>
