@@ -3,14 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <title>طلبات السحب</title>
-
 <style>
 body{
 font-family:Tahoma;
 margin:0;
 background:#f2f5fa;
 }
-
 .header{
 background:#0b1f3a;
 color:white;
@@ -19,13 +17,11 @@ text-align:center;
 font-size:22px;
 font-weight:bold;
 }
-
 .container{
 padding:20px;
 max-width:1100px;
 margin:auto;
 }
-
 table{
 width:100%;
 border-collapse:collapse;
@@ -34,18 +30,15 @@ box-shadow:0 6px 16px rgba(0,0,0,0.08);
 border-radius:12px;
 overflow:hidden;
 }
-
 th,td{
 padding:12px;
 border-bottom:1px solid #eee;
 text-align:center;
 font-size:14px;
 }
-
 th{
 background:#f4f6fb;
 }
-
 button{
 padding:8px 12px;
 border:none;
@@ -54,42 +47,33 @@ cursor:pointer;
 font-size:13px;
 margin:2px;
 }
-
 .approve{
 background:#2ecc71;
 color:white;
 }
-
 .reject{
 background:#e74c3c;
 color:white;
 }
-
 .pending{
 color:#f39c12;
 font-weight:bold;
 }
-
 .approved{
 color:#27ae60;
 font-weight:bold;
 }
-
 .rejected{
 color:#e74c3c;
 font-weight:bold;
 }
 </style>
 </head>
-
 <body>
 
-<div class="header">
-طلبات السحب
-</div>
+<div class="header">طلبات السحب</div>
 
 <div class="container">
-
 <table>
 <thead>
 <tr>
@@ -100,119 +84,103 @@ font-weight:bold;
 <th>التحكم</th>
 </tr>
 </thead>
-
 <tbody id="withdrawsTable"></tbody>
-
 </table>
-
 </div>
 
 <script>
-const API="https://sudancryptomarket-api.onrender.com"
+const API="https://sudancryptomarket.onrender.com";
+const adminToken=localStorage.getItem("adminToken");
+
+if(!adminToken){
+window.location.href="login.html";
+}
 
 function getStatusClass(status){
-if(status==="approved") return "approved"
-if(status==="rejected") return "rejected"
-return "pending"
+if(status==="approved") return "approved";
+if(status==="rejected") return "rejected";
+return "pending";
 }
 
 function getStatusText(status){
-if(status==="approved") return "تمت الموافقة"
-if(status==="rejected") return "مرفوض"
-return "قيد المراجعة"
+if(status==="approved") return "تمت الموافقة";
+if(status==="rejected") return "مرفوض";
+return "قيد المراجعة";
 }
 
 function loadWithdraws(){
-
 fetch(API+"/users")
 .then(res=>res.json())
 .then(data=>{
-
-let table=""
-
+let table="";
 if(!data.success){
-document.getElementById("withdrawsTable").innerHTML=""
-return
+document.getElementById("withdrawsTable").innerHTML="";
+return;
 }
-
-const users=data.users || {}
-
+const users=data.users||{};
 Object.values(users).forEach(user=>{
-
-(user.operations || []).forEach((op,index)=>{
-
+(user.operations||[]).forEach((op,index)=>{
 if(op.type==="withdraw"){
-
 table+=`
 <tr>
-<td>${user.email || ""}</td>
-<td>${op.amount || 0} USDT</td>
+<td>${user.email||""}</td>
+<td>${op.amount||0} USDT</td>
 <td class="${getStatusClass(op.status)}">${getStatusText(op.status)}</td>
-<td>${op.date || "-"}</td>
+<td>${op.date||"-"}</td>
 <td>
 <button class="approve" onclick="approveWithdraw('${user.email}',${index})">موافقة</button>
 <button class="reject" onclick="rejectWithdraw('${user.email}',${index})">رفض</button>
 </td>
 </tr>
-`
+`;
 }
-
-})
-
-})
-
-document.getElementById("withdrawsTable").innerHTML=table || `
-<tr>
-<td colspan="5">لا توجد طلبات سحب</td>
-</tr>
-`
-
-})
+});
+});
+document.getElementById("withdrawsTable").innerHTML=table || `<tr><td colspan="5">لا توجد طلبات سحب</td></tr>`;
+});
 }
 
 function approveWithdraw(email,index){
-
 fetch(API+"/approve-operation",{
 method:"POST",
 headers:{
-"Content-Type":"application/json"
+"Content-Type":"application/json",
+"x-admin-token":adminToken
 },
 body:JSON.stringify({email,index})
 })
 .then(res=>res.json())
 .then(data=>{
 if(data.success){
-alert("تمت الموافقة على السحب")
-loadWithdraws()
+alert("تمت الموافقة على السحب");
+loadWithdraws();
 }else{
-alert("فشلت العملية")
+alert(data.message||"فشلت العملية");
 }
-})
-
+});
 }
 
 function rejectWithdraw(email,index){
-
 fetch(API+"/reject-operation",{
 method:"POST",
 headers:{
-"Content-Type":"application/json"
+"Content-Type":"application/json",
+"x-admin-token":adminToken
 },
 body:JSON.stringify({email,index})
 })
 .then(res=>res.json())
 .then(data=>{
 if(data.success){
-alert("تم رفض السحب")
-loadWithdraws()
+alert("تم رفض السحب");
+loadWithdraws();
 }else{
-alert("فشلت العملية")
+alert(data.message||"فشلت العملية");
 }
-})
-
+});
 }
 
-loadWithdraws()
+loadWithdraws();
 </script>
 
 </body>
