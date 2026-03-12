@@ -140,6 +140,8 @@ let html="";
 
 (data.deposits||[]).forEach(dep=>{
 
+// إظهار الطلبات التي حالتها pending فقط
+if(dep.status === "pending") {
 html+=`
 <tr>
 
@@ -155,19 +157,20 @@ html+=`
 
 <td>
 
-<button class="approve" onclick="approveDeposit('${dep.id}')">قبول</button>
+<button class="approve" onclick="approveDeposit('${dep.email}',${dep.index})">قبول</button>
 
-<button class="reject" onclick="rejectDeposit('${dep.id}')">رفض</button>
+<button class="reject" onclick="rejectDeposit('${dep.email}',${dep.index})">رفض</button>
 
 </td>
 
 </tr>
 `;
+}
 
 });
 
 document.getElementById("depositTable").innerHTML=
-html || "<tr><td colspan='6' class='empty'>لا توجد طلبات</td></tr>";
+html || "<tr><td colspan='6' class='empty'>لا توجد طلبات معلقة</td></tr>";
 
 }catch(err){
 
@@ -192,9 +195,9 @@ body:JSON.stringify(body)
 }
 
 
-function approveDeposit(id){
+function approveDeposit(email,index){
 
-postAdmin("/admin-approve-deposit",{id}).then(data=>{
+postAdmin("/admin-approve-deposit",{email,index}).then(data=>{
 
 alert(data.success ? "تم قبول الإيداع" : (data.message||"فشلت العملية"));
 
@@ -205,9 +208,9 @@ loadDeposits();
 }
 
 
-function rejectDeposit(id){
+function rejectDeposit(email,index){
 
-postAdmin("/admin-reject-deposit",{id}).then(data=>{
+postAdmin("/admin-reject-deposit",{email,index}).then(data=>{
 
 alert(data.success ? "تم رفض الإيداع" : (data.message||"فشلت العملية"));
 
