@@ -18,8 +18,8 @@ const ADMIN_USERNAME = "admain";
 const ADMIN_PASSWORD = "admin_2050";
 
 const OTP_EXPIRES_MS = 5 * 60 * 1000;
-const PASSWORD_MIN_LENGTH = 8;
-const PACKAGE_DURATION_DAYS = 280;
+
+/* ---------------- FUNCTIONS ---------------- */
 
 function normalizeEmail(email){
 return String(email||"").trim().toLowerCase()
@@ -41,48 +41,32 @@ function isValidEmail(email){
 return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 }
 
-function ensureUserCanUseAccount(user){
-
-if(!user) return {ok:false,message:"الحساب غير موجود"}
-if(user.isDeleted) return {ok:false,message:"الحساب محذوف"}
-if(user.isBanned) return {ok:false,message:"الحساب محظور"}
-if(user.isFrozen) return {ok:false,message:"الحساب مجمد"}
-
-return {ok:true}
-
-}
-
-function isAdminAuthorized(req){
+function requireAdmin(req,res){
 
 const token=req.headers["x-admin-token"]
 
-if(token && adminSessions[token]){
-return true
-}
-
-return false
-
-}
-
-function requireAdmin(req,res){
-
-if(!isAdminAuthorized(req)){
+if(!token || !adminSessions[token]){
 res.json({success:false,message:"غير مصرح"})
 return false
 }
 
 return true
-
 }
 
-/* ================= ADMIN LOGIN ================= */
+/* ---------------- ROOT ---------------- */
+
+app.get("/",(req,res)=>{
+res.json({success:true,message:"Sudan Crypto API running"})
+})
+
+/* ---------------- ADMIN LOGIN ---------------- */
 
 app.post("/admin-login",(req,res)=>{
 
 const username=cleanText(req.body.username)
 const password=cleanText(req.body.password)
 
-if(username!==ADMIN_USERNAME||password!==ADMIN_PASSWORD){
+if(username!==ADMIN_USERNAME || password!==ADMIN_PASSWORD){
 return res.json({success:false,message:"بيانات الأدمن غير صحيحة"})
 }
 
@@ -94,43 +78,98 @@ res.json({success:true,token})
 
 })
 
-/* ================= USER REGISTER ================= */
+/* ---------------- SEND OTP ---------------- */
+
+app.post("/send-code", async (req,res)=>{
+
+try{
+
+const email=normalizeEmail(req.body.email)
+
+if(!email) return res.json({success:false,message:"البريد مطلوب"})
+
+if(!isValidEmail(email)) return res.json({success:false,message:"بريد غير صحيح"})
+
+const code=generateOTP()
+
+otpStore[email]={
+code,
+expiresAt:Date.now()+OTP_EXPIRES_MS,
+verified:false
+}
+
+await resend.emails.send({
+from:"Sudan Crypto <noreply@sudancrypto.com>",
+to:email,
+subject:"رمز التحقق",
+html:`<h2>${code}</h2>`
+})
+
+res.json({success:true})
+
+}catch(e){
+
+console.log(e)
+
+res.json({success:false,message:"فشل ارسال الكود"})
+
+}
+
+})
+
+/* ---------------- VERIFY OTP ---------------- */
+
+app.post("/verify-code",(req,res)=>{
+
+const email=normalizeEmail(req.body.email)
+const code=cleanText(req.body.code)
+
+const saved=otpStore[email]
+
+if(!saved) return res.json({success:false,message:"لم يتم طلب كود"})
+
+if(saved.code!==code) return res.json({success:false,message:"الكود غير صحيح"})
+
+if(Date.now()>saved.expiresAt) return res.json({success:false,message:"انتهت صلاحية الكود"})
+
+otpStore[email].verified=true
+
+res.json({success:true})
+
+})
+
+/* ---------------- REGISTER ---------------- */
 
 app.post("/register",(req,res)=>{
 
 const name=cleanText(req.body.name)
 const email=normalizeEmail(req.body.email)
-const phone=cleanText(req.body.phone)
 const password=cleanText(req.body.password)
+
+const saved=otpStore[email]
+
+if(!saved || saved.verified!==true){
+return res.json({success:false,message:"يجب التحقق من البريد"})
+}
 
 if(users[email]){
 return res.json({success:false,message:"البريد مسجل"})
 }
 
 users[email]={
-id:Date.now().toString(),
 name,
 email,
-phone,
 password,
 balance:0,
 operations:[],
-packageName:"",
-packagePrice:0,
-dailyProfit:0,
-packageStart:null,
-packageDurationDays:0,
-isBanned:false,
-isFrozen:false,
-isDeleted:false,
-createdAt:new Date().toISOString()
+isDeleted:false
 }
 
 res.json({success:true})
 
 })
 
-/* ================= LOGIN ================= */
+/* ---------------- LOGIN ---------------- */
 
 app.post("/login",(req,res)=>{
 
@@ -139,10 +178,8 @@ const password=cleanText(req.body.password)
 
 const user=users[email]
 
-const canUse=ensureUserCanUseAccount(user)
-
-if(!canUse.ok){
-return res.json({success:false,message:canUse.message})
+if(!user){
+return res.json({success:false,message:"الحساب غير موجود"})
 }
 
 if(user.password!==password){
@@ -153,7 +190,7 @@ res.json({success:true,user})
 
 })
 
-/* ================= USER DATA ================= */
+/* ---------------- USER DATA ---------------- */
 
 app.post("/user-data",(req,res)=>{
 
@@ -161,21 +198,17 @@ const email=normalizeEmail(req.body.email)
 
 const user=users[email]
 
-if(!user){
-return res.json({success:false})
-}
+if(!user) return res.json({success:false})
 
 res.json({
 success:true,
-name:user.name,
 balance:user.balance,
-operations:user.operations,
-packageName:user.packageName
+operations:user.operations
 })
 
 })
 
-/* ================= DEPOSIT ================= */
+/* ---------------- DEPOSIT ---------------- */
 
 app.post("/deposit",(req,res)=>{
 
@@ -184,9 +217,7 @@ const amount=Number(req.body.amount)
 
 const user=users[email]
 
-if(!user){
-return res.json({success:false})
-}
+if(!user) return res.json({success:false})
 
 user.operations.unshift({
 type:"deposit",
@@ -199,7 +230,7 @@ res.json({success:true})
 
 })
 
-/* ================= WITHDRAW ================= */
+/* ---------------- WITHDRAW ---------------- */
 
 app.post("/withdraw",(req,res)=>{
 
@@ -208,9 +239,7 @@ const amount=Number(req.body.amount)
 
 const user=users[email]
 
-if(!user){
-return res.json({success:false})
-}
+if(!user) return res.json({success:false})
 
 if(user.balance<amount){
 return res.json({success:false,message:"الرصيد غير كافي"})
@@ -227,7 +256,7 @@ res.json({success:true})
 
 })
 
-/* ================= ADMIN USERS ================= */
+/* ---------------- ADMIN USERS ---------------- */
 
 app.get("/admin-users",(req,res)=>{
 
@@ -239,7 +268,7 @@ res.json({success:true,users:list})
 
 })
 
-/* ================= ADMIN DEPOSITS ================= */
+/* ---------------- ADMIN DEPOSITS ---------------- */
 
 app.get("/admin-deposits",(req,res)=>{
 
@@ -252,14 +281,15 @@ Object.values(users).forEach(user=>{
 user.operations.forEach((op,index)=>{
 
 if(op.type==="deposit"){
+
 deposits.push({
-id:user.email+"_"+index,
 email:user.email,
 name:user.name,
 amount:op.amount,
 status:op.status,
 index
 })
+
 }
 
 })
@@ -270,7 +300,7 @@ res.json({success:true,deposits})
 
 })
 
-/* ================= ADMIN WITHDRAWS ================= */
+/* ---------------- ADMIN WITHDRAWS ---------------- */
 
 app.get("/admin-withdraws",(req,res)=>{
 
@@ -283,14 +313,15 @@ Object.values(users).forEach(user=>{
 user.operations.forEach((op,index)=>{
 
 if(op.type==="withdraw"){
+
 list.push({
-id:user.email+"_"+index,
 email:user.email,
 name:user.name,
 amount:op.amount,
 status:op.status,
 index
 })
+
 }
 
 })
@@ -301,7 +332,7 @@ res.json({success:true,withdraws:list})
 
 })
 
-/* ================= APPROVE DEPOSIT ================= */
+/* ---------------- APPROVE DEPOSIT ---------------- */
 
 app.post("/admin-approve-deposit",(req,res)=>{
 
@@ -316,17 +347,15 @@ if(!user) return res.json({success:false})
 
 const op=user.operations[index]
 
-if(!op) return res.json({success:false})
-
 op.status="approved"
 
-user.balance+=op.amount
+user.balance+=Number(op.amount)
 
 res.json({success:true})
 
 })
 
-/* ================= REJECT DEPOSIT ================= */
+/* ---------------- REJECT DEPOSIT ---------------- */
 
 app.post("/admin-reject-deposit",(req,res)=>{
 
@@ -339,17 +368,13 @@ const user=users[email]
 
 if(!user) return res.json({success:false})
 
-const op=user.operations[index]
-
-if(!op) return res.json({success:false})
-
-op.status="rejected"
+user.operations[index].status="rejected"
 
 res.json({success:true})
 
 })
 
-/* ================= APPROVE WITHDRAW ================= */
+/* ---------------- APPROVE WITHDRAW ---------------- */
 
 app.post("/admin-approve-withdraw",(req,res)=>{
 
@@ -364,17 +389,15 @@ if(!user) return res.json({success:false})
 
 const op=user.operations[index]
 
-if(!op) return res.json({success:false})
-
 op.status="approved"
 
-user.balance-=op.amount
+user.balance-=Number(op.amount)
 
 res.json({success:true})
 
 })
 
-/* ================= REJECT WITHDRAW ================= */
+/* ---------------- REJECT WITHDRAW ---------------- */
 
 app.post("/admin-reject-withdraw",(req,res)=>{
 
@@ -387,36 +410,13 @@ const user=users[email]
 
 if(!user) return res.json({success:false})
 
-const op=user.operations[index]
-
-if(!op) return res.json({success:false})
-
-op.status="rejected"
+user.operations[index].status="rejected"
 
 res.json({success:true})
 
 })
 
-/* ================= ADMIN CHANGE PASSWORD ================= */
-
-app.post("/admin-change-password",(req,res)=>{
-
-if(!requireAdmin(req,res)) return
-
-const email=normalizeEmail(req.body.email)
-const newPassword=cleanText(req.body.newPassword)
-
-const user=users[email]
-
-if(!user) return res.json({success:false})
-
-user.password=newPassword
-
-res.json({success:true})
-
-})
-
-const PORT=process.env.PORT||10000
+const PORT = process.env.PORT || 10000
 
 app.listen(PORT,()=>{
 console.log("Server running on port "+PORT)
