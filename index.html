@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>سودان كربتو</title>
-
 <style>
 *{
   box-sizing:border-box;
@@ -165,7 +164,7 @@ input[readonly]{
 }
 
 .code-section{
-  display:none;
+  /* display:none; */ /* Removed display:none */
   text-align:center;
   margin-top:14px;
   padding:14px 10px 6px;
@@ -224,7 +223,7 @@ input[readonly]{
   margin-top:10px;
   font-size:13px;
   font-weight:700;
-  display:none;
+  /* display:none; */ /* Will be controlled by JS */
   text-align:center;
 }
 
@@ -284,13 +283,11 @@ footer{
 </style>
 </head>
 <body>
-
 <div class="container">
   <div class="logo">سودان كربتو</div>
   <div class="subtitle">منصة العملات الرقمية في السودان</div>
 
   <h2>إنشاء حساب</h2>
-
   <label>الاسم الحقيقي</label>
   <input type="text" id="fullName" placeholder="اكتب الاسم الحقيقي">
 
@@ -299,9 +296,11 @@ footer{
 
   <button class="verify-btn" onclick="sendCode()">تحقق من البريد الإلكتروني</button>
 
+  <div class="status-message status-success" id="verifySuccess"></div>
+  <div class="status-message status-error" id="verifyError"></div>
+
   <div class="code-section" id="codeSection">
     <p class="code-title">أدخل كود التحقق</p>
-
     <div class="code-box">
       <input type="text" maxlength="1" inputmode="numeric">
       <input type="text" maxlength="1" inputmode="numeric">
@@ -311,7 +310,7 @@ footer{
       <input type="text" maxlength="1" inputmode="numeric">
     </div>
 
-    <button class="code-confirm-btn" onclick="verifyCode()">تأكيد الكود</button>
+    <!-- <button class="code-confirm-btn" onclick="verifyCode()">تأكيد الكود</button> --> <!-- Removed -->
 
     <div class="timer">
       إعادة إرسال الكود خلال <span id="count">60</span> ثانية
@@ -320,9 +319,6 @@ footer{
     <div class="resend" id="resend" onclick="sendCode()">
       إرسال كود جديد
     </div>
-
-    <div class="status-message status-success" id="verifySuccess"></div>
-    <div class="status-message status-error" id="verifyError"></div>
   </div>
 
   <label>الدولة</label>
@@ -339,7 +335,6 @@ footer{
     <input type="password" id="password" placeholder="كلمة المرور">
     <button type="button" class="toggle-password" onclick="togglePassword('password', this)">إظهار</button>
   </div>
-
   <div class="password-note">
     يجب أن تتكون كلمة المرور من 8 أحرف أو أرقام على الأقل
   </div>
@@ -350,7 +345,7 @@ footer{
     <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword', this)">إظهار</button>
   </div>
 
-  <button class="create-btn" id="createBtn" onclick="createAccount()" disabled>
+  <button class="create-btn" id="createBtn" onclick="createAccount()">
     إنشاء الحساب
   </button>
 
@@ -368,7 +363,7 @@ footer{
 const API_BASE = "https://sudancryptomarket-api.onrender.com";
 
 let timerInterval = null;
-let emailVerified = false;
+let emailSent = false; // New flag to track if code was sent
 
 function togglePassword(inputId, button){
   const input = document.getElementById(inputId);
@@ -424,38 +419,45 @@ function resetRegisterMessages(){
   document.getElementById("registerSuccess").style.display = "none";
 }
 
-function sendCode(){
+async function sendCode(){
   const email = document.getElementById("email").value.trim();
 
   resetVerifyMessages();
   resetRegisterMessages();
 
   if(email === ""){
-    alert("اكتب البريد الإلكتروني أولاً");
+    showVerifyError("الرجاء إدخال البريد الإلكتروني أولاً.");
     return;
   }
 
-  fetch(`${API_BASE}/send-code`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ email })
-  })
-  .then(async (res) => {
+  // Basic email format validation
+  const emailRegex = /^[^\[\]@\s]+@[^\[\]@\s]+\.[^\[\]@\s]+$/;
+  if (!emailRegex.test(email)) {
+    showVerifyError("صيغة البريد الإلكتروني غير صحيحة.");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/send-code`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email })
+    });
     const data = await res.json();
 
     if(!res.ok || data.success === false){
       throw new Error(data.message || "فشل إرسال الكود");
     }
 
-    document.getElementById("codeSection").style.display = "block";
+    // document.getElementById("codeSection").style.display = "block"; // Already visible
     startTimer();
-    alert("تم إرسال كود التحقق إلى بريدك الإلكتروني");
-  })
-  .catch((err) => {
+    showVerifySuccess("تم إرسال كود التحقق إلى بريدك الإلكتروني."); // Display as normal text
+    emailSent = true; // Set flag
+  } catch (err) {
     showVerifyError(err.message || "حدث خطأ أثناء إرسال الكود");
-  });
+  }
 }
 
 function startTimer(){
@@ -501,126 +503,121 @@ inputs.forEach((input, index) => {
   });
 });
 
-function verifyCode(){
-  const email = document.getElementById("email").value.trim();
-  const code = Array.from(inputs).map(input => input.value).join("");
+// Removed verifyCode function as it will be integrated into createAccount
 
-  resetVerifyMessages();
-  resetRegisterMessages();
-
-  if(email === ""){
-    showVerifyError("اكتب البريد الإلكتروني");
-    return;
-  }
-
-  if(code.length !== 6){
-    showVerifyError("اكتب كود التحقق كاملاً");
-    return;
-  }
-
-  fetch(`${API_BASE}/verify-code`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ email, code })
-  })
-  .then(async (res) => {
-    const data = await res.json();
-
-    if(!res.ok || data.success === false){
-      throw new Error(data.message || "فشل التحقق من الكود");
-    }
-
-    emailVerified = true;
-    document.getElementById("createBtn").disabled = false;
-    showVerifySuccess("تم التحقق من البريد بنجاح");
-  })
-  .catch((err) => {
-    showVerifyError(err.message || "حدث خطأ أثناء التحقق");
-  });
-}
-
-function createAccount(){
+async function createAccount(){
   const fullName = document.getElementById("fullName").value.trim();
   const email = document.getElementById("email").value.trim();
   const phone = document.getElementById("phone").value.trim();
   const referralCode = document.getElementById("referralCode").value.trim();
   const password = document.getElementById("password").value.trim();
   const confirmPassword = document.getElementById("confirmPassword").value.trim();
+  const code = Array.from(inputs).map(input => input.value).join("");
 
   resetRegisterMessages();
+  resetVerifyMessages(); // Also reset verify messages for a clean slate
 
-  if(!emailVerified){
-    showRegisterError("يجب التحقق من البريد الإلكتروني أولاً");
+  if(!emailSent){ // Check if code was sent first
+    showRegisterError("الرجاء التحقق من البريد الإلكتروني أولاً بإرسال الكود.");
     return;
   }
 
   if(fullName === ""){
-    showRegisterError("اكتب الاسم الحقيقي");
+    showRegisterError("الرجاء إدخال الاسم الحقيقي.");
     return;
   }
 
   if(email === ""){
-    showRegisterError("اكتب البريد الإلكتروني");
+    showRegisterError("الرجاء إدخال البريد الإلكتروني.");
+    return;
+  }
+
+  const emailRegex = /^[^\[\]@\s]+@[^\[\]@\s]+\.[^\[\]@\s]+$/;
+  if (!emailRegex.test(email)) {
+    showRegisterError("صيغة البريد الإلكتروني غير صحيحة.");
+    return;
+  }
+
+  if(code.length !== 6){
+    showRegisterError("الرجاء إدخال كود التحقق كاملاً.");
     return;
   }
 
   if(phone === ""){
-    showRegisterError("اكتب رقم الهاتف");
+    showRegisterError("الرجاء إدخال رقم الهاتف.");
     return;
   }
 
   if(password === ""){
-    showRegisterError("اكتب كلمة المرور");
+    showRegisterError("الرجاء إدخال كلمة المرور.");
     return;
   }
 
   if(password.length < 8){
-    showRegisterError("كلمة المرور يجب أن تكون 8 أحرف أو أكثر");
+    showRegisterError("كلمة المرور يجب أن تتكون من 8 أحرف أو أكثر.");
     return;
   }
 
   if(confirmPassword === ""){
-    showRegisterError("اكتب تأكيد كلمة المرور");
+    showRegisterError("الرجاء تأكيد كلمة المرور.");
     return;
   }
 
   if(password !== confirmPassword){
-    showRegisterError("كلمتا المرور غير متطابقتين");
+    showRegisterError("كلمتا المرور غير متطابقتين.");
     return;
   }
 
-  fetch(`${API_BASE}/register`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      name: fullName,
-      email: email,
-      phone: phone,
-      password: password,
-      referral: referralCode
-    })
-  })
-  .then(async (res) => {
+  // --- Start Code Verification (integrated) ---
+  try {
+    const verifyRes = await fetch(`${API_BASE}/verify-code`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, code })
+    });
+    const verifyData = await verifyRes.json();
+
+    if(!verifyRes.ok || verifyData.success === false){
+      throw new Error(verifyData.message || "فشل التحقق من الكود.");
+    }
+    showVerifySuccess("تم التحقق من البريد بنجاح.");
+  } catch (err) {
+    showRegisterError(err.message || "حدث خطأ أثناء التحقق من الكود.");
+    return; // Stop account creation if code verification fails
+  }
+  // --- End Code Verification ---
+
+  // If code verification passes, proceed with account creation
+  try {
+    const res = await fetch(`${API_BASE}/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name: fullName,
+        email: email,
+        phone: phone,
+        password: password,
+        referral: referralCode
+      })
+    });
     const data = await res.json();
 
     if(!res.ok || data.success === false){
-      throw new Error(data.message || "فشل إنشاء الحساب");
+      throw new Error(data.message || "فشل إنشاء الحساب.");
     }
 
-    showRegisterSuccess("تم إنشاء الحساب بنجاح");
+    showRegisterSuccess("تم إنشاء الحساب بنجاح.");
     setTimeout(() => {
       window.location.href = "login.html";
     }, 1200);
-  })
-  .catch((err) => {
-    showRegisterError(err.message || "حدث خطأ أثناء إنشاء الحساب");
-  });
+  } catch (err) {
+    showRegisterError(err.message || "حدث خطأ أثناء إنشاء الحساب.");
+  }
 }
 </script>
-
 </body>
 </html>
