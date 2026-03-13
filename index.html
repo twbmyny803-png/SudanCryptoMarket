@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>سودان كربتو</title>
+
 <style>
 *{
   box-sizing:border-box;
@@ -120,13 +121,8 @@ input[readonly]{
   line-height:28px;
 }
 
-.toggle-password:hover{
-  opacity:0.92;
-}
-
 .verify-btn,
-.create-btn,
-.code-confirm-btn{
+.create-btn{
   width:100%;
   height:44px;
   border:none;
@@ -139,13 +135,11 @@ input[readonly]{
 }
 
 .verify-btn:hover,
-.create-btn:hover,
-.code-confirm-btn:hover{
+.create-btn:hover{
   transform:translateY(-1px);
 }
 
-.verify-btn,
-.code-confirm-btn{
+.verify-btn{
   background:#2D6AF6;
   color:#ffffff;
   box-shadow:0 10px 20px rgba(45,106,246,0.2);
@@ -157,17 +151,10 @@ input[readonly]{
   box-shadow:0 10px 20px rgba(16,185,129,0.2);
 }
 
-.create-btn:disabled{
-  opacity:0.5;
-  cursor:not-allowed;
-  transform:none;
-}
-
 .code-section{
-  /* display:none; */ /* Removed display:none */
   text-align:center;
   margin-top:14px;
-  padding:14px 10px 6px;
+  padding:14px 10px 10px;
   background:#eef5ff;
   border:1px solid #cfe0fb;
   border-radius:12px;
@@ -184,7 +171,7 @@ input[readonly]{
   display:flex;
   justify-content:center;
   gap:8px;
-  margin:14px 0;
+  margin:14px 0 10px;
   direction:ltr;
 }
 
@@ -223,8 +210,9 @@ input[readonly]{
   margin-top:10px;
   font-size:13px;
   font-weight:700;
-  /* display:none; */ /* Will be controlled by JS */
+  display:none;
   text-align:center;
+  line-height:1.7;
 }
 
 .status-success{
@@ -283,11 +271,13 @@ footer{
 </style>
 </head>
 <body>
+
 <div class="container">
   <div class="logo">سودان كربتو</div>
   <div class="subtitle">منصة العملات الرقمية في السودان</div>
 
   <h2>إنشاء حساب</h2>
+
   <label>الاسم الحقيقي</label>
   <input type="text" id="fullName" placeholder="اكتب الاسم الحقيقي">
 
@@ -295,12 +285,12 @@ footer{
   <input type="email" id="email" placeholder="اكتب البريد الإلكتروني">
 
   <button class="verify-btn" onclick="sendCode()">تحقق من البريد الإلكتروني</button>
-
-  <div class="status-message status-success" id="verifySuccess"></div>
-  <div class="status-message status-error" id="verifyError"></div>
+  <div class="status-message status-success" id="sendSuccess"></div>
+  <div class="status-message status-error" id="sendError"></div>
 
   <div class="code-section" id="codeSection">
     <p class="code-title">أدخل كود التحقق</p>
+
     <div class="code-box">
       <input type="text" maxlength="1" inputmode="numeric">
       <input type="text" maxlength="1" inputmode="numeric">
@@ -310,8 +300,6 @@ footer{
       <input type="text" maxlength="1" inputmode="numeric">
     </div>
 
-    <!-- <button class="code-confirm-btn" onclick="verifyCode()">تأكيد الكود</button> --> <!-- Removed -->
-
     <div class="timer">
       إعادة إرسال الكود خلال <span id="count">60</span> ثانية
     </div>
@@ -319,6 +307,8 @@ footer{
     <div class="resend" id="resend" onclick="sendCode()">
       إرسال كود جديد
     </div>
+
+    <div class="status-message status-error" id="verifyError"></div>
   </div>
 
   <label>الدولة</label>
@@ -335,6 +325,7 @@ footer{
     <input type="password" id="password" placeholder="كلمة المرور">
     <button type="button" class="toggle-password" onclick="togglePassword('password', this)">إظهار</button>
   </div>
+
   <div class="password-note">
     يجب أن تتكون كلمة المرور من 8 أحرف أو أرقام على الأقل
   </div>
@@ -363,7 +354,6 @@ footer{
 const API_BASE = "https://sudancryptomarket-api.onrender.com";
 
 let timerInterval = null;
-let emailSent = false; // New flag to track if code was sent
 
 function togglePassword(inputId, button){
   const input = document.getElementById(inputId);
@@ -377,87 +367,89 @@ function togglePassword(inputId, button){
   }
 }
 
-function showVerifyError(message){
-  const errorBox = document.getElementById("verifyError");
-  const successBox = document.getElementById("verifySuccess");
-  successBox.style.display = "none";
-  errorBox.textContent = message;
-  errorBox.style.display = "block";
+function isValidEmail(email){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-function showVerifySuccess(message){
-  const errorBox = document.getElementById("verifyError");
-  const successBox = document.getElementById("verifySuccess");
-  errorBox.style.display = "none";
-  successBox.textContent = message;
-  successBox.style.display = "block";
+function showBox(id, message){
+  const box = document.getElementById(id);
+  box.textContent = message;
+  box.style.display = "block";
+}
+
+function hideBox(id){
+  document.getElementById(id).style.display = "none";
+}
+
+function resetSendMessages(){
+  hideBox("sendSuccess");
+  hideBox("sendError");
 }
 
 function resetVerifyMessages(){
-  document.getElementById("verifyError").style.display = "none";
-  document.getElementById("verifySuccess").style.display = "none";
-}
-
-function showRegisterError(message){
-  const errorBox = document.getElementById("registerError");
-  const successBox = document.getElementById("registerSuccess");
-  successBox.style.display = "none";
-  errorBox.textContent = message;
-  errorBox.style.display = "block";
-}
-
-function showRegisterSuccess(message){
-  const errorBox = document.getElementById("registerError");
-  const successBox = document.getElementById("registerSuccess");
-  errorBox.style.display = "none";
-  successBox.textContent = message;
-  successBox.style.display = "block";
+  hideBox("verifyError");
 }
 
 function resetRegisterMessages(){
-  document.getElementById("registerError").style.display = "none";
-  document.getElementById("registerSuccess").style.display = "none";
+  hideBox("registerSuccess");
+  hideBox("registerError");
 }
 
-async function sendCode(){
+function showRegisterError(message){
+  hideBox("registerSuccess");
+  showBox("registerError", message);
+}
+
+function showRegisterSuccess(message){
+  hideBox("registerError");
+  showBox("registerSuccess", message);
+}
+
+function clearCodeInputs(){
+  document.querySelectorAll(".code-box input").forEach(input => {
+    input.value = "";
+  });
+}
+
+function sendCode(){
   const email = document.getElementById("email").value.trim();
 
+  resetSendMessages();
   resetVerifyMessages();
   resetRegisterMessages();
 
   if(email === ""){
-    showVerifyError("الرجاء إدخال البريد الإلكتروني أولاً.");
+    showBox("sendError", "اكتب البريد الإلكتروني أولاً");
     return;
   }
 
-  // Basic email format validation
-  const emailRegex = /^[^\[\]@\s]+@[^\[\]@\s]+\.[^\[\]@\s]+$/;
-  if (!emailRegex.test(email)) {
-    showVerifyError("صيغة البريد الإلكتروني غير صحيحة.");
+  if(!isValidEmail(email)){
+    showBox("sendError", "أدخل بريدًا إلكترونيًا صحيحًا");
     return;
   }
 
-  try {
-    const res = await fetch(`${API_BASE}/send-code`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ email })
-    });
+  fetch(`${API_BASE}/send-code`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ email })
+  })
+  .then(async (res) => {
     const data = await res.json();
 
     if(!res.ok || data.success === false){
       throw new Error(data.message || "فشل إرسال الكود");
     }
 
-    // document.getElementById("codeSection").style.display = "block"; // Already visible
+    clearCodeInputs();
+    showBox("sendSuccess", "تم إرسال كود التحقق إلى بريدك الإلكتروني");
     startTimer();
-    showVerifySuccess("تم إرسال كود التحقق إلى بريدك الإلكتروني."); // Display as normal text
-    emailSent = true; // Set flag
-  } catch (err) {
-    showVerifyError(err.message || "حدث خطأ أثناء إرسال الكود");
-  }
+    document.querySelector(".code-box input").focus();
+  })
+  .catch((err) => {
+    showBox("sendError", err.message || "حدث خطأ أثناء إرسال الكود");
+  });
 }
 
 function startTimer(){
@@ -503,7 +495,39 @@ inputs.forEach((input, index) => {
   });
 });
 
-// Removed verifyCode function as it will be integrated into createAccount
+async function verifyCodeBeforeRegister(email){
+  const code = Array.from(inputs).map(input => input.value).join("");
+
+  resetVerifyMessages();
+
+  if(code.length !== 6){
+    showBox("verifyError", "اكتب كود التحقق كاملاً");
+    return false;
+  }
+
+  try{
+    const res = await fetch(`${API_BASE}/verify-code`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, code })
+    });
+
+    const data = await res.json();
+
+    if(!res.ok || data.success === false){
+      throw new Error(data.message || "فشل التحقق من الكود");
+    }
+
+    hideBox("verifyError");
+    return true;
+
+  }catch(err){
+    showBox("verifyError", err.message || "حدث خطأ أثناء التحقق من الكود");
+    return false;
+  }
+}
 
 async function createAccount(){
   const fullName = document.getElementById("fullName").value.trim();
@@ -512,112 +536,86 @@ async function createAccount(){
   const referralCode = document.getElementById("referralCode").value.trim();
   const password = document.getElementById("password").value.trim();
   const confirmPassword = document.getElementById("confirmPassword").value.trim();
-  const code = Array.from(inputs).map(input => input.value).join("");
 
   resetRegisterMessages();
-  resetVerifyMessages(); // Also reset verify messages for a clean slate
-
-  if(!emailSent){ // Check if code was sent first
-    showRegisterError("الرجاء التحقق من البريد الإلكتروني أولاً بإرسال الكود.");
-    return;
-  }
+  resetVerifyMessages();
 
   if(fullName === ""){
-    showRegisterError("الرجاء إدخال الاسم الحقيقي.");
+    showRegisterError("اكتب الاسم الحقيقي");
     return;
   }
 
   if(email === ""){
-    showRegisterError("الرجاء إدخال البريد الإلكتروني.");
+    showRegisterError("اكتب البريد الإلكتروني");
     return;
   }
 
-  const emailRegex = /^[^\[\]@\s]+@[^\[\]@\s]+\.[^\[\]@\s]+$/;
-  if (!emailRegex.test(email)) {
-    showRegisterError("صيغة البريد الإلكتروني غير صحيحة.");
-    return;
-  }
-
-  if(code.length !== 6){
-    showRegisterError("الرجاء إدخال كود التحقق كاملاً.");
+  if(!isValidEmail(email)){
+    showRegisterError("أدخل بريدًا إلكترونيًا صحيحًا");
     return;
   }
 
   if(phone === ""){
-    showRegisterError("الرجاء إدخال رقم الهاتف.");
+    showRegisterError("اكتب رقم الهاتف");
     return;
   }
 
   if(password === ""){
-    showRegisterError("الرجاء إدخال كلمة المرور.");
+    showRegisterError("اكتب كلمة المرور");
     return;
   }
 
   if(password.length < 8){
-    showRegisterError("كلمة المرور يجب أن تتكون من 8 أحرف أو أكثر.");
+    showRegisterError("كلمة المرور يجب أن تكون 8 أحرف أو أكثر");
     return;
   }
 
   if(confirmPassword === ""){
-    showRegisterError("الرجاء تأكيد كلمة المرور.");
+    showRegisterError("اكتب تأكيد كلمة المرور");
     return;
   }
 
   if(password !== confirmPassword){
-    showRegisterError("كلمتا المرور غير متطابقتين.");
+    showRegisterError("كلمتا المرور غير متطابقتين");
     return;
   }
 
-  // --- Start Code Verification (integrated) ---
-  try {
-    const verifyRes = await fetch(`${API_BASE}/verify-code`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ email, code })
-    });
-    const verifyData = await verifyRes.json();
+  const verified = await verifyCodeBeforeRegister(email);
 
-    if(!verifyRes.ok || verifyData.success === false){
-      throw new Error(verifyData.message || "فشل التحقق من الكود.");
-    }
-    showVerifySuccess("تم التحقق من البريد بنجاح.");
-  } catch (err) {
-    showRegisterError(err.message || "حدث خطأ أثناء التحقق من الكود.");
-    return; // Stop account creation if code verification fails
+  if(!verified){
+    return;
   }
-  // --- End Code Verification ---
 
-  // If code verification passes, proceed with account creation
-  try {
-    const res = await fetch(`${API_BASE}/register`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        name: fullName,
-        email: email,
-        phone: phone,
-        password: password,
-        referral: referralCode
-      })
-    });
+  fetch(`${API_BASE}/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      name: fullName,
+      email: email,
+      phone: phone,
+      password: password,
+      referral: referralCode
+    })
+  })
+  .then(async (res) => {
     const data = await res.json();
 
     if(!res.ok || data.success === false){
-      throw new Error(data.message || "فشل إنشاء الحساب.");
+      throw new Error(data.message || "فشل إنشاء الحساب");
     }
 
-    showRegisterSuccess("تم إنشاء الحساب بنجاح.");
+    showRegisterSuccess("تم إنشاء الحساب بنجاح");
     setTimeout(() => {
       window.location.href = "login.html";
     }, 1200);
-  } catch (err) {
-    showRegisterError(err.message || "حدث خطأ أثناء إنشاء الحساب.");
-  }
+  })
+  .catch((err) => {
+    showRegisterError(err.message || "حدث خطأ أثناء إنشاء الحساب");
+  });
 }
 </script>
+
 </body>
 </html>
