@@ -3,6 +3,8 @@ const cors = require("cors");
 const crypto = require("crypto");
 const { Resend } = require("resend");
 const { MongoClient } = require("mongodb");
+const multer = require("multer");
+const path = require("path");
 
 const app = express();
 
@@ -25,6 +27,21 @@ const ADMIN_PASSWORD = "admin_2050";
 
 const OTP_EXPIRES_MS = 5 * 60 * 1000;
 const PACKAGE_DURATION_DAYS = 280;
+
+/* ---------------- UPLOAD SETUP ---------------- */
+
+const storage = multer.diskStorage({
+  destination: function(req,file,cb){
+    cb(null,"uploads/");
+  },
+  filename: function(req,file,cb){
+    const unique = Date.now() + "-" + Math.round(Math.random()*1E9);
+    cb(null, unique + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage });
+app.use("/uploads",express.static("uploads"));
 
 /* ---------------- FUNCTIONS ---------------- */
 
@@ -341,7 +358,6 @@ app.post("/login", async (req,res)=>{
     res.json({success:false,message:"فشل تسجيل الدخول"});
   }
 });
-
 /* ---------------- USER DATA ---------------- */
 
 app.post("/user-data", async (req,res)=>{
@@ -574,7 +590,7 @@ app.get("/admin-withdraws", async (req,res)=>{
     res.json({success:false,message:"فشل تحميل طلبات السحب"});
   }
 });
-/* ---------------- APPROVE DEPOSIT ---------------- */
+/* ---------------- ADMIN OPERATIONS ---------------- */
 
 app.post("/admin-approve-deposit", async (req,res)=>{
   try{
@@ -602,9 +618,7 @@ app.post("/admin-approve-deposit", async (req,res)=>{
 
     operations[index].status = "approved";
 
-    const updateData = {
-      operations
-    };
+    const updateData = { operations };
 
     if(op.type === "deposit"){
       updateData.balance = Number(user.balance || 0) + Number(op.amount || 0);
@@ -631,8 +645,6 @@ app.post("/admin-approve-deposit", async (req,res)=>{
     res.json({success:false,message:"فشلت العملية"});
   }
 });
-
-/* ---------------- REJECT DEPOSIT ---------------- */
 
 app.post("/admin-reject-deposit", async (req,res)=>{
   try{
@@ -667,8 +679,6 @@ app.post("/admin-reject-deposit", async (req,res)=>{
     res.json({success:false,message:"فشلت العملية"});
   }
 });
-
-/* ---------------- APPROVE WITHDRAW ---------------- */
 
 app.post("/admin-approve-withdraw", async (req,res)=>{
   try{
@@ -718,8 +728,6 @@ app.post("/admin-approve-withdraw", async (req,res)=>{
   }
 });
 
-/* ---------------- REJECT WITHDRAW ---------------- */
-
 app.post("/admin-reject-withdraw", async (req,res)=>{
   try{
     if(!requireAdmin(req,res)) return;
@@ -754,8 +762,6 @@ app.post("/admin-reject-withdraw", async (req,res)=>{
   }
 });
 
-/* ---------------- ADMIN CHANGE PASSWORD ---------------- */
-
 app.post("/admin-change-password", async (req,res)=>{
   try{
     if(!requireAdmin(req,res)) return;
@@ -781,8 +787,6 @@ app.post("/admin-change-password", async (req,res)=>{
     res.json({success:false,message:"فشلت العملية"});
   }
 });
-
-/* ---------------- ADMIN ADD BALANCE ---------------- */
 
 app.post("/admin-add-balance", async (req,res)=>{
   try{
@@ -822,8 +826,6 @@ app.post("/admin-add-balance", async (req,res)=>{
     res.json({success:false,message:"فشلت العملية"});
   }
 });
-
-/* ---------------- ADMIN REMOVE BALANCE ---------------- */
 
 app.post("/admin-remove-balance", async (req,res)=>{
   try{
@@ -868,8 +870,6 @@ app.post("/admin-remove-balance", async (req,res)=>{
   }
 });
 
-/* ---------------- ADMIN BAN USER ---------------- */
-
 app.post("/admin-ban-user", async (req,res)=>{
   try{
     if(!requireAdmin(req,res)) return;
@@ -888,8 +888,6 @@ app.post("/admin-ban-user", async (req,res)=>{
     res.json({success:false,message:"فشلت العملية"});
   }
 });
-
-/* ---------------- ADMIN UNBAN USER ---------------- */
 
 app.post("/admin-unban-user", async (req,res)=>{
   try{
@@ -910,8 +908,6 @@ app.post("/admin-unban-user", async (req,res)=>{
   }
 });
 
-/* ---------------- ADMIN FREEZE USER ---------------- */
-
 app.post("/admin-freeze-user", async (req,res)=>{
   try{
     if(!requireAdmin(req,res)) return;
@@ -930,8 +926,6 @@ app.post("/admin-freeze-user", async (req,res)=>{
     res.json({success:false,message:"فشلت العملية"});
   }
 });
-
-/* ---------------- ADMIN UNFREEZE USER ---------------- */
 
 app.post("/admin-unfreeze-user", async (req,res)=>{
   try{
@@ -952,8 +946,6 @@ app.post("/admin-unfreeze-user", async (req,res)=>{
   }
 });
 
-/* ---------------- ADMIN DELETE USER ---------------- */
-
 app.post("/admin-delete-user", async (req,res)=>{
   try{
     if(!requireAdmin(req,res)) return;
@@ -972,8 +964,6 @@ app.post("/admin-delete-user", async (req,res)=>{
     res.json({success:false,message:"فشلت العملية"});
   }
 });
-
-/* ---------------- ADMIN SET PACKAGE ---------------- */
 
 app.post("/admin-set-package", async (req,res)=>{
   try{
@@ -1024,7 +1014,7 @@ app.post("/admin-set-package", async (req,res)=>{
 
 /* ---------------- SEND VERIFICATION ---------------- */
 
-app.post("/submit-verification", async (req,res)=>{
+app.post("/submit-verification", upload.single("file"), async (req,res)=>{
   try{
 
     const email = normalizeEmail(req.body.email);
@@ -1032,11 +1022,12 @@ app.post("/submit-verification", async (req,res)=>{
     const docType = cleanText(req.body.docType);
     const docNumber = cleanText(req.body.docNumber);
     const note = cleanText(req.body.note);
-    const fileName = cleanText(req.body.fileName);
 
-    if(!email || !fullName || !docType || !docNumber){
-      return res.json({success:false,message:"البيانات ناقصة"});
+    if(!req.file){
+      return res.json({success:false,message:"الصورة مطلوبة"});
     }
+
+    const fileUrl = "/uploads/" + req.file.filename;
 
     await verifyCollection.updateOne(
       { email },
@@ -1047,7 +1038,7 @@ app.post("/submit-verification", async (req,res)=>{
           docType,
           docNumber,
           note,
-          fileName,
+          fileUrl,
           status:"pending",
           createdAt:new Date().toISOString()
         }
@@ -1067,7 +1058,6 @@ app.post("/submit-verification", async (req,res)=>{
 
 app.get("/admin-verifications", async (req,res)=>{
   try{
-
     if(!requireAdmin(req,res)) return;
 
     const list = await verifyCollection.find().toArray();
@@ -1080,11 +1070,8 @@ app.get("/admin-verifications", async (req,res)=>{
   }
 });
 
-/* ---------------- ADMIN APPROVE VERIFICATION ---------------- */
-
 app.post("/admin-approve-verification", async (req,res)=>{
   try{
-
     if(!requireAdmin(req,res)) return;
 
     const email = normalizeEmail(req.body.email);
@@ -1102,11 +1089,8 @@ app.post("/admin-approve-verification", async (req,res)=>{
   }
 });
 
-/* ---------------- ADMIN REJECT VERIFICATION ---------------- */
-
 app.post("/admin-reject-verification", async (req,res)=>{
   try{
-
     if(!requireAdmin(req,res)) return;
 
     const email = normalizeEmail(req.body.email);
@@ -1153,4 +1137,5 @@ async function startServer(){
 }
 
 startServer();
+
 
