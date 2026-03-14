@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>طلبات التوثيق</title>
+
+<style>
+body{
+margin:0;
+font-family:Tahoma,Arial,sans-serif;
+background:#f2f5fa;
+}
+
+.header{
+background:#0b1f3a;
+color:white;
+padding:18px;
+text-align:center;
+font-size:22px;
+font-weight:bold;
+}
+
+.container{
+padding:20px;
+max-width:1100px;
+margin:auto;
+}
+
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:10px;
+margin-bottom:15px;
+flex-wrap:wrap;
+}
+
+.refresh{
+background:#2D6AF6;
+color:white;
+border:none;
+padding:10px 16px;
+border-radius:8px;
+cursor:pointer;
+font-size:14px;
+font-weight:bold;
+}
+
+.count{
+font-size:14px;
+color:#444;
+font-weight:bold;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+background:white;
+box-shadow:0 6px 16px rgba(0,0,0,0.08);
+border-radius:12px;
+overflow:hidden;
+}
+
+th,td{
+padding:12px;
+border-bottom:1px solid #eee;
+text-align:center;
+font-size:13px;
+vertical-align:middle;
+}
+
+th{
+background:#f4f6fb;
+}
+
+button{
+padding:8px 12px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-size:12px;
+margin:2px;
+font-weight:bold;
+}
+
+.approve{
+background:#27ae60;
+color:white;
+}
+
+.reject{
+background:#c0392b;
+color:white;
+}
+
+.pending{
+color:#c2410c;
+font-weight:bold;
+}
+
+.approved{
+color:#047857;
+font-weight:bold;
+}
+
+.rejected{
+color:#b91c1c;
+font-weight:bold;
+}
+
+.empty{
+padding:25px;
+color:#777;
+}
+
+.file-name{
+word-break:break-word;
+max-width:160px;
+margin:auto;
+}
+
+.note-box{
+max-width:180px;
+word-break:break-word;
+margin:auto;
+color:#444;
+}
+
+@media(max-width:768px){
+.container{
+padding:12px;
+}
+
+th,td{
+padding:8px;
+font-size:12px;
+}
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">طلبات التوثيق</div>
+
+<div class="container">
+
+<div class="topbar">
+<button class="refresh" onclick="loadVerifications()">تحديث</button>
+<div class="count" id="countBox">جاري التحميل...</div>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>الاسم</th>
+<th>البريد</th>
+<th>نوع المستند</th>
+<th>رقم المستند</th>
+<th>الملف</th>
+<th>ملاحظات</th>
+<th>الحالة</th>
+<th>التحكم</th>
+</tr>
+</thead>
+<tbody id="verificationTable"></tbody>
+</table>
+
+</div>
+
+<script>
+const API="https://sudancryptomarket-api.onrender.com";
+const adminToken=localStorage.getItem("adminToken");
+
+if(!adminToken){
+window.location.href="login.html";
+}
+
+function getStatusClass(status){
+if(status==="approved") return "approved";
+if(status==="rejected") return "rejected";
+return "pending";
+}
+
+function getStatusText(status){
+if(status==="approved") return "تمت الموافقة";
+if(status==="rejected") return "مرفوض";
+return "قيد المراجعة";
+}
+
+async function loadVerifications(){
+document.getElementById("verificationTable").innerHTML="<tr><td colspan='8'>جاري التحميل...</td></tr>";
+document.getElementById("countBox").innerText="جاري التحميل...";
+
+try{
+const res=await fetch(API+"/admin-verifications",{
+headers:{
+"x-admin-token":adminToken
+}
+});
+
+const data=await res.json();
+
+if(!data.success){
+alert(data.message || "فشل تحميل طلبات التوثيق");
+return;
+}
+
+const list=data.verifications || [];
+
+document.getElementById("countBox").innerText="عدد الطلبات: " + list.length;
+
+let html="";
+
+list.forEach(item=>{
+html += `
+<tr>
+<td>${item.fullName || "-"}</td>
+<td>${item.email || "-"}</td>
+<td>${item.docType || "-"}</td>
+<td>${item.docNumber || "-"}</td>
+<td><div class="file-name">${item.fileName || "-"}</div></td>
+<td><div class="note-box">${item.note || "-"}</div></td>
+<td class="${getStatusClass(item.status)}">${getStatusText(item.status)}</td>
+<td>
+<button class="approve" onclick="approveVerification('${item.email}')">قبول</button>
+<button class="reject" onclick="rejectVerification('${item.email}')">رفض</button>
+</td>
+</tr>
+`;
+});
+
+document.getElementById("verificationTable").innerHTML =
+html || "<tr><td colspan='8' class='empty'>لا توجد طلبات توثيق</td></tr>";
+
+}catch(err){
+document.getElementById("verificationTable").innerHTML="<tr><td colspan='8'>تعذر الاتصال بالسيرفر</td></tr>";
+document.getElementById("countBox").innerText="تعذر التحميل";
+}
+}
+
+function postAdmin(url,body){
+return fetch(API+url,{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"x-admin-token":adminToken
+},
+body:JSON.stringify(body)
+}).then(res=>res.json());
+}
+
+function approveVerification(email){
+postAdmin("/admin-approve-verification",{email}).then(data=>{
+alert(data.success ? "تمت الموافقة على التوثيق" : (data.message || "فشلت العملية"));
+loadVerifications();
+});
+}
+
+function rejectVerification(email){
+postAdmin("/admin-reject-verification",{email}).then(data=>{
+alert(data.success ? "تم رفض التوثيق" : (data.message || "فشلت العملية"));
+loadVerifications();
+});
+}
+
+loadVerifications();
+</script>
+
+</body>
+  </html>
