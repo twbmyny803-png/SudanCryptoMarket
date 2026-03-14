@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>حسابي | سودان كربتو</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     *{box-sizing:border-box}
     body{
@@ -226,14 +227,17 @@
     }
   </style>
 </head>
-<body>
+
+  <body>
   <div class="app">
     <div class="page-title">حسابي</div>
 
     <div class="card">
       <div class="row-item">
         <div class="row-right">
-          <div class="icon-box blue">👤</div>
+          <div class="icon-box blue">
+            <i class="fa-solid fa-user"></i>
+          </div>
           <div class="row-label">الاسم</div>
         </div>
         <div class="row-value" id="userName">...</div>
@@ -241,7 +245,9 @@
 
       <div class="row-item">
         <div class="row-right">
-          <div class="icon-box blue">📧</div>
+          <div class="icon-box blue">
+            <i class="fa-solid fa-envelope"></i>
+          </div>
           <div class="row-label">البريد</div>
         </div>
         <div class="row-value" id="userEmail">...</div>
@@ -249,7 +255,9 @@
 
       <div class="row-item">
         <div class="row-right">
-          <div class="icon-box blue">📱</div>
+          <div class="icon-box blue">
+            <i class="fa-solid fa-phone"></i>
+          </div>
           <div class="row-label">رقم الهاتف</div>
         </div>
         <div class="row-value" id="userPhone">...</div>
@@ -259,7 +267,9 @@
     <div class="card">
       <div class="row-item">
         <div class="row-right">
-          <div class="icon-box green">🔒</div>
+          <div class="icon-box green">
+            <i class="fa-solid fa-lock"></i>
+          </div>
           <div class="row-label">تغيير كلمة المرور</div>
         </div>
         <div class="row-value">عبر التحقق بالبريد الإلكتروني</div>
@@ -291,7 +301,9 @@
     <div class="card">
       <div class="row-item">
         <div class="row-right">
-          <div class="icon-box purple">✔</div>
+          <div class="icon-box purple">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
           <div class="row-label">توثيق الحساب</div>
         </div>
         <div class="row-value">
@@ -344,7 +356,9 @@
     <div class="card">
       <div class="row-item">
         <div class="row-right">
-          <div class="icon-box orange">📱</div>
+          <div class="icon-box orange">
+            <i class="fa-brands fa-whatsapp"></i>
+          </div>
           <div class="row-label">واتساب الدعم</div>
         </div>
         <div class="row-value">
@@ -354,7 +368,9 @@
 
       <div class="row-item">
         <div class="row-right">
-          <div class="icon-box sky">✈</div>
+          <div class="icon-box sky">
+            <i class="fa-brands fa-telegram"></i>
+          </div>
           <div class="row-label">تيليجرام الدعم</div>
         </div>
         <div class="row-value">
@@ -364,7 +380,9 @@
 
       <div class="row-item">
         <div class="row-right">
-          <div class="icon-box sky">📢</div>
+          <div class="icon-box sky">
+            <i class="fa-solid fa-bullhorn"></i>
+          </div>
           <div class="row-label">قناة المجتمع</div>
         </div>
         <div class="row-value">
@@ -376,27 +394,37 @@
 
   <div class="bottom-nav">
     <a href="dashboard.html" class="nav-item">
-      <div class="nav-icon">⌂</div>
+      <div class="nav-icon">
+        <i class="fa-solid fa-house"></i>
+      </div>
       الرئيسية
     </a>
 
     <a href="daily.html" class="nav-item">
-      <div class="nav-icon">📈</div>
+      <div class="nav-icon">
+        <i class="fa-solid fa-chart-line"></i>
+      </div>
       الدخل
     </a>
 
     <a href="referrals.html" class="nav-item">
-      <div class="nav-icon">👥</div>
+      <div class="nav-icon">
+        <i class="fa-solid fa-users"></i>
+      </div>
       الإحالات
     </a>
 
     <a href="assets.html" class="nav-item">
-      <div class="nav-icon">💼</div>
+      <div class="nav-icon">
+        <i class="fa-solid fa-briefcase"></i>
+      </div>
       الأصول
     </a>
 
     <a href="account.html" class="nav-item active">
-      <div class="nav-icon">👤</div>
+      <div class="nav-icon">
+        <i class="fa-solid fa-user"></i>
+      </div>
       حسابي
     </a>
   </div>
@@ -668,7 +696,6 @@ function submitVerification(){
   localStorage.setItem(key, JSON.stringify(payload));
   loadVerificationState(fullName);
 }
-
 </script>
 </body>
-          </html>
+</html>
