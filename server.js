@@ -16,6 +16,7 @@ const client = new MongoClient(process.env.MONGODB_URI);
 let db;
 let usersCollection;
 let otpCollection;
+let verifyCollection;
 
 const adminSessions = {};
 
@@ -498,7 +499,7 @@ app.get("/admin-users", async (req,res)=>{
 
   }catch(e){
     console.log(e);
-    res.json({success:false,message:"فشل تحميل المستخدمين"});
+    res.json({success:false,message:"فشل تحميل قائمة المستخدمين"});
   }
 });
 
@@ -573,7 +574,6 @@ app.get("/admin-withdraws", async (req,res)=>{
     res.json({success:false,message:"فشل تحميل طلبات السحب"});
   }
 });
-
 /* ---------------- APPROVE DEPOSIT ---------------- */
 
 app.post("/admin-approve-deposit", async (req,res)=>{
@@ -1022,6 +1022,108 @@ app.post("/admin-set-package", async (req,res)=>{
   }
 });
 
+/* ---------------- SEND VERIFICATION ---------------- */
+
+app.post("/submit-verification", async (req,res)=>{
+  try{
+
+    const email = normalizeEmail(req.body.email);
+    const fullName = cleanText(req.body.fullName);
+    const docType = cleanText(req.body.docType);
+    const docNumber = cleanText(req.body.docNumber);
+    const note = cleanText(req.body.note);
+    const fileName = cleanText(req.body.fileName);
+
+    if(!email || !fullName || !docType || !docNumber){
+      return res.json({success:false,message:"البيانات ناقصة"});
+    }
+
+    await verifyCollection.updateOne(
+      { email },
+      {
+        $set:{
+          email,
+          fullName,
+          docType,
+          docNumber,
+          note,
+          fileName,
+          status:"pending",
+          createdAt:new Date().toISOString()
+        }
+      },
+      { upsert:true }
+    );
+
+    res.json({success:true});
+
+  }catch(e){
+    console.log(e);
+    res.json({success:false,message:"فشل إرسال التوثيق"});
+  }
+});
+
+/* ---------------- ADMIN VERIFICATIONS ---------------- */
+
+app.get("/admin-verifications", async (req,res)=>{
+  try{
+
+    if(!requireAdmin(req,res)) return;
+
+    const list = await verifyCollection.find().toArray();
+
+    res.json({success:true,verifications:list});
+
+  }catch(e){
+    console.log(e);
+    res.json({success:false});
+  }
+});
+
+/* ---------------- ADMIN APPROVE VERIFICATION ---------------- */
+
+app.post("/admin-approve-verification", async (req,res)=>{
+  try{
+
+    if(!requireAdmin(req,res)) return;
+
+    const email = normalizeEmail(req.body.email);
+
+    await verifyCollection.updateOne(
+      { email },
+      { $set:{ status:"approved" } }
+    );
+
+    res.json({success:true});
+
+  }catch(e){
+    console.log(e);
+    res.json({success:false});
+  }
+});
+
+/* ---------------- ADMIN REJECT VERIFICATION ---------------- */
+
+app.post("/admin-reject-verification", async (req,res)=>{
+  try{
+
+    if(!requireAdmin(req,res)) return;
+
+    const email = normalizeEmail(req.body.email);
+
+    await verifyCollection.updateOne(
+      { email },
+      { $set:{ status:"rejected" } }
+    );
+
+    res.json({success:true});
+
+  }catch(e){
+    console.log(e);
+    res.json({success:false});
+  }
+});
+
 /* ---------------- START SERVER ---------------- */
 
 async function startServer(){
@@ -1031,6 +1133,7 @@ async function startServer(){
     db = client.db("sudancrypto");
     usersCollection = db.collection("users");
     otpCollection = db.collection("otp_codes");
+    verifyCollection = db.collection("verifications");
 
     await usersCollection.createIndex({ email:1 }, { unique:true });
     await otpCollection.createIndex({ email:1 }, { unique:true });
@@ -1050,3 +1153,4 @@ async function startServer(){
 }
 
 startServer();
+
