@@ -365,337 +365,286 @@
           <a href="https://wa.me/16727123329" target="_blank" style="color:#2563eb;text-decoration:none">+16727123329</a>
         </div>
       </div>
-
-      <div class="row-item">
-        <div class="row-right">
-          <div class="icon-box sky">
-            <i class="fa-brands fa-telegram"></i>
-          </div>
-          <div class="row-label">تيليجرام الدعم</div>
-        </div>
-        <div class="row-value">
-          <a href="https://t.me/lool0002" target="_blank" style="color:#2563eb;text-decoration:none">@lool0002</a>
-        </div>
-      </div>
-
-      <div class="row-item">
-        <div class="row-right">
-          <div class="icon-box sky">
-            <i class="fa-solid fa-bullhorn"></i>
-          </div>
-          <div class="row-label">قناة المجتمع</div>
-        </div>
-        <div class="row-value">
-          <a href="https://t.me/crypto_sudanees" target="_blank" style="color:#2563eb;text-decoration:none">فتح القناة</a>
-        </div>
-      </div>
     </div>
+
+    <nav class="bottom-nav">
+      <a href="index.html" class="nav-item">
+        <div class="nav-icon"><i class="fa-solid fa-house"></i></div>
+        الرئيسية
+      </a>
+      <a href="buy.html" class="nav-item">
+        <div class="nav-icon"><i class="fa-solid fa-cart-shopping"></i></div>
+        شراء
+      </a>
+      <a href="sell.html" class="nav-item">
+        <div class="nav-icon"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+        بيع
+      </a>
+      <a href="orders.html" class="nav-item">
+        <div class="nav-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+        الطلبات
+      </a>
+      <a href="account.html" class="nav-item active">
+        <div class="nav-icon"><i class="fa-solid fa-user"></i></div>
+        حسابي
+      </a>
+    </nav>
   </div>
 
-  <div class="bottom-nav">
-    <a href="dashboard.html" class="nav-item">
-      <div class="nav-icon">
-        <i class="fa-solid fa-house"></i>
-      </div>
-      الرئيسية
-    </a>
+      <script>
+    const API = "https://sudan-crypto.onrender.com/api";
+    let savedEmail = localStorage.getItem("userEmail");
 
-    <a href="daily.html" class="nav-item">
-      <div class="nav-icon">
-        <i class="fa-solid fa-chart-line"></i>
-      </div>
-      الدخل
-    </a>
-
-    <a href="referrals.html" class="nav-item">
-      <div class="nav-icon">
-        <i class="fa-solid fa-users"></i>
-      </div>
-      الإحالات
-    </a>
-
-    <a href="assets.html" class="nav-item">
-      <div class="nav-icon">
-        <i class="fa-solid fa-briefcase"></i>
-      </div>
-      الأصول
-    </a>
-
-    <a href="account.html" class="nav-item active">
-      <div class="nav-icon">
-        <i class="fa-solid fa-user"></i>
-      </div>
-      حسابي
-    </a>
-  </div>
-
-<script>
-const API = "https://sudancryptomarket-api.onrender.com";
-const savedEmail = localStorage.getItem("userEmail");
-
-if(!savedEmail){
-  window.location.href = "login.html";
-}
-
-function showBoxMessage(id, type, text){
-  const el = document.getElementById(id);
-  el.className = "";
-  if(type === "success"){
-    el.className = "alert alert-success";
-  }else if(type === "danger"){
-    el.className = "alert alert-danger";
-  }else if(type === "warn"){
-    el.className = "alert alert-warn";
-  }else{
-    el.className = "alert alert-info";
-  }
-  el.innerText = text;
-}
-
-function clearBoxMessage(id){
-  const el = document.getElementById(id);
-  el.className = "";
-  el.innerText = "";
-}
-
-fetch(API + "/user-data", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({ email: savedEmail })
-})
-.then(res => res.json())
-.then(data => {
-  if(!data.success){
-    localStorage.removeItem("userEmail");
-    window.location.href = "login.html";
-    return;
-  }
-
-  document.getElementById("userName").innerText = data.name || "-";
-  document.getElementById("userEmail").innerText = data.email || "-";
-  document.getElementById("userPhone").innerText = data.phone || "-";
-  document.getElementById("passEmail").value = data.email || savedEmail;
-
-  loadVerificationState(data.name || "");
-})
-.catch(() => {
-  window.location.href = "login.html";
-});
-
-function togglePasswordBox(){
-  document.getElementById("passwordBox").classList.toggle("hidden");
-}
-
-function sendResetCodeFromAccount(){
-  clearBoxMessage("passwordMsg");
-
-  const email = document.getElementById("passEmail").value.trim();
-
-  if(email === ""){
-    showBoxMessage("passwordMsg", "danger", "اكتب البريد الإلكتروني أولاً");
-    return;
-  }
-
-  fetch(`${API}/forgot-password`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ email })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if(!data.success){
-      showBoxMessage("passwordMsg", "danger", data.message || "فشل إرسال الكود");
-      return;
+    if(!savedEmail){
+      window.location.href = "login.html";
     }
 
-    showBoxMessage("passwordMsg", "success", "تم إرسال كود التحقق إلى البريد الإلكتروني");
-  })
-  .catch(() => {
-    showBoxMessage("passwordMsg", "danger", "فشل الاتصال بالخادم");
-  });
-}
-
-function changePasswordNow(){
-  clearBoxMessage("passwordMsg");
-
-  const email = document.getElementById("passEmail").value.trim();
-  const code = document.getElementById("passCode").value.trim();
-  const newPass1 = document.getElementById("newPass1").value.trim();
-  const newPass2 = document.getElementById("newPass2").value.trim();
-
-  if(email === ""){
-    showBoxMessage("passwordMsg", "danger", "اكتب البريد الإلكتروني");
-    return;
-  }
-
-  if(code === ""){
-    showBoxMessage("passwordMsg", "danger", "اكتب كود التحقق");
-    return;
-  }
-
-  if(newPass1 === "" || newPass2 === ""){
-    showBoxMessage("passwordMsg", "danger", "اكتب كلمة المرور الجديدة كاملة");
-    return;
-  }
-
-  if(newPass1.length < 8){
-    showBoxMessage("passwordMsg", "danger", "كلمة المرور يجب أن تكون 8 أحرف أو أكثر");
-    return;
-  }
-
-  if(newPass1 !== newPass2){
-    showBoxMessage("passwordMsg", "danger", "كلمتا المرور غير متطابقتين");
-    return;
-  }
-
-  fetch(`${API}/reset-password`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      email,
-      code,
-      password: newPass1
+    fetch(`${API}/user-info?email=${savedEmail}`)
+    .then(res => res.json())
+    .then(data => {
+      if(!data.success){
+        localStorage.removeItem("userEmail");
+        window.location.href = "login.html";
+        return;
+      }
+      document.getElementById("userName").innerText = data.user.name;
+      document.getElementById("userEmail").innerText = data.user.email;
+      document.getElementById("userPhone").innerText = data.user.phone || "غير مسجل";
+      
+      loadVerificationState(data.user.name);
     })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if(!data.success){
-      showBoxMessage("passwordMsg", "danger", data.message || "فشل تغيير كلمة المرور");
-      return;
+    .catch(() => {
+      alert("فشل الاتصال بالخادم");
+    });
+
+    function togglePasswordBox(){
+      document.getElementById("passwordBox").classList.toggle("hidden");
     }
 
-    document.getElementById("passCode").value = "";
-    document.getElementById("newPass1").value = "";
-    document.getElementById("newPass2").value = "";
-    showBoxMessage("passwordMsg", "success", "تم تغيير كلمة المرور بنجاح");
-  })
-  .catch(() => {
-    showBoxMessage("passwordMsg", "danger", "فشل الاتصال بالخادم");
-  });
-}
+    function showBoxMessage(id, type, msg){
+      const div = document.getElementById(id);
+      div.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+    }
 
-function toggleVerifyBox(){
-  document.getElementById("verifyBox").classList.toggle("hidden");
-}
+    function clearBoxMessage(id){
+      document.getElementById(id).innerHTML = "";
+    }
 
-function loadVerificationState(realName){
-  const key = "verification_" + savedEmail;
-  const state = JSON.parse(localStorage.getItem(key) || "null");
+    function sendResetCodeFromAccount(){
+      clearBoxMessage("passwordMsg");
+      const email = document.getElementById("passEmail").value.trim();
+      if(email === ""){
+        showBoxMessage("passwordMsg", "danger", "اكتب البريد الإلكتروني");
+        return;
+      }
 
-  if(!state){
-    document.getElementById("verifyStatusBadge").innerText = "غير مرسل";
-    document.getElementById("verifyStatusBadge").className = "status-badge pending";
-    document.getElementById("verifyFullName").value = realName || "";
-    unlockVerificationForm();
-    return;
-  }
+      fetch(`${API}/send-reset-code`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(!data.success){
+          showBoxMessage("passwordMsg", "danger", data.message || "فشل إرسال الكود");
+          return;
+        }
 
-  document.getElementById("verifyFullName").value = state.fullName || "";
-  document.getElementById("verifyDocType").value = state.docType || "";
-  document.getElementById("verifyDocNumber").value = state.docNumber || "";
-  document.getElementById("verifyNote").value = state.note || "";
+        showBoxMessage("passwordMsg", "success", "تم إرسال كود التحقق إلى البريد الإلكتروني");
+      })
+      .catch(() => {
+        showBoxMessage("passwordMsg", "danger", "فشل الاتصال بالخادم");
+      });
+    }
 
-  const badge = document.getElementById("verifyStatusBadge");
+    function changePasswordNow(){
+      clearBoxMessage("passwordMsg");
 
-  if(state.status === "pending"){
-    badge.innerText = "قيد المراجعة";
-    badge.className = "status-badge pending";
-    lockVerificationForm();
-    showBoxMessage("verifyMsg", "warn", "تم إرسال طلب التوثيق وهو الآن قيد المراجعة. لا يمكنك تعديل البيانات أو رفع بيانات جديدة حتى يتم اتخاذ قرار بشأن الطلب.");
-  }else if(state.status === "approved"){
-    badge.innerText = "تمت الموافقة";
-    badge.className = "status-badge approved";
-    lockVerificationForm();
-    showBoxMessage("verifyMsg", "success", "تمت الموافقة على التوثيق بنجاح. لا يمكن تعديل البيانات بعد اعتماد التوثيق.");
-  }else if(state.status === "rejected"){
-    badge.innerText = "مرفوض";
-    badge.className = "status-badge rejected";
-    unlockVerificationForm();
-    showBoxMessage("verifyMsg", "danger", "تم رفض الطلب. يمكنك الآن تعديل البيانات وإعادة رفع المستندات من جديد.");
-  }
-}
+      const email = document.getElementById("passEmail").value.trim();
+      const code = document.getElementById("passCode").value.trim();
+      const newPass1 = document.getElementById("newPass1").value.trim();
+      const newPass2 = document.getElementById("newPass2").value.trim();
 
-function lockVerificationForm(){
-  document.getElementById("verifyFullName").disabled = true;
-  document.getElementById("verifyDocType").disabled = true;
-  document.getElementById("verifyDocNumber").disabled = true;
-  document.getElementById("verifyFile").disabled = true;
-  document.getElementById("verifyNote").disabled = true;
-  document.getElementById("verifySubmitBtn").disabled = true;
-  document.getElementById("verifySubmitBtn").style.opacity = "0.6";
-  document.getElementById("verifySubmitBtn").style.cursor = "not-allowed";
-}
+      if(email === ""){
+        showBoxMessage("passwordMsg", "danger", "اكتب البريد الإلكتروني");
+        return;
+      }
 
-function unlockVerificationForm(){
-  document.getElementById("verifyFullName").disabled = false;
-  document.getElementById("verifyDocType").disabled = false;
-  document.getElementById("verifyDocNumber").disabled = false;
-  document.getElementById("verifyFile").disabled = false;
-  document.getElementById("verifyNote").disabled = false;
-  document.getElementById("verifySubmitBtn").disabled = false;
-  document.getElementById("verifySubmitBtn").style.opacity = "1";
-  document.getElementById("verifySubmitBtn").style.cursor = "pointer";
-}
+      if(code === ""){
+        showBoxMessage("passwordMsg", "danger", "اكتب كود التحقق");
+        return;
+      }
 
-function submitVerification(){
-  clearBoxMessage("verifyMsg");
+      if(newPass1 === "" || newPass2 === ""){
+        showBoxMessage("passwordMsg", "danger", "اكتب كلمة المرور الجديدة كاملة");
+        return;
+      }
 
-  const key = "verification_" + savedEmail;
-  const oldState = JSON.parse(localStorage.getItem(key) || "null");
+      if(newPass1.length < 8){
+        showBoxMessage("passwordMsg", "danger", "كلمة المرور يجب أن تكون 8 أحرف أو أكثر");
+        return;
+      }
 
-  if(oldState && (oldState.status === "pending" || oldState.status === "approved")){
-    showBoxMessage("verifyMsg", "warn", "لا يمكن تعديل أو إرسال بيانات جديدة في هذه الحالة.");
-    return;
-  }
+      if(newPass1 !== newPass2){
+        showBoxMessage("passwordMsg", "danger", "كلمتا المرور غير متطابقتين");
+        return;
+      }
 
-  const fullName = document.getElementById("verifyFullName").value.trim();
-  const docType = document.getElementById("verifyDocType").value.trim();
-  const docNumber = document.getElementById("verifyDocNumber").value.trim();
-  const note = document.getElementById("verifyNote").value.trim();
-  const fileInput = document.getElementById("verifyFile");
+      fetch(`${API}/reset-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email,
+          code,
+          password: newPass1
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(!data.success){
+          showBoxMessage("passwordMsg", "danger", data.message || "فشل تغيير كلمة المرور");
+          return;
+        }
 
-  if(fullName === ""){
-    showBoxMessage("verifyMsg", "danger", "يرجى إدخال الاسم الحقيقي كما في المستند");
-    return;
-  }
+        document.getElementById("passCode").value = "";
+        document.getElementById("newPass1").value = "";
+        document.getElementById("newPass2").value = "";
+        showBoxMessage("passwordMsg", "success", "تم تغيير كلمة المرور بنجاح");
+      })
+      .catch(() => {
+        showBoxMessage("passwordMsg", "danger", "فشل الاتصال بالخادم");
+      });
+    }
 
-  if(docType === ""){
-    showBoxMessage("verifyMsg", "danger", "يرجى اختيار نوع المستند");
-    return;
-  }
+      function toggleVerifyBox(){
+      document.getElementById("verifyBox").classList.toggle("hidden");
+    }
 
-  if(docNumber === ""){
-    showBoxMessage("verifyMsg", "danger", "يرجى إدخال رقم المستند");
-    return;
-  }
+    function loadVerificationState(realName){
+      const key = "verification_" + savedEmail;
+      const state = JSON.parse(localStorage.getItem(key) || "null");
 
-  if(!fileInput.files || !fileInput.files[0]){
-    showBoxMessage("verifyMsg", "danger", "يرجى رفع صورة واضحة للمستند");
-    return;
-  }
+      if(!state){
+        document.getElementById("verifyStatusBadge").innerText = "غير مرسل";
+        document.getElementById("verifyStatusBadge").className = "status-badge pending";
+        document.getElementById("verifyFullName").value = realName || "";
+        unlockVerificationForm();
+        return;
+      }
 
-  const fileName = fileInput.files[0].name;
+      document.getElementById("verifyFullName").value = state.fullName || "";
+      document.getElementById("verifyDocType").value = state.docType || "";
+      document.getElementById("verifyDocNumber").value = state.docNumber || "";
+      document.getElementById("verifyNote").value = state.note || "";
 
-  const payload = {
-    email: savedEmail,
-    fullName,
-    docType,
-    docNumber,
-    note,
-    fileName,
-    status: "pending",
-    createdAt: new Date().toISOString()
-  };
+      const badge = document.getElementById("verifyStatusBadge");
 
-  localStorage.setItem(key, JSON.stringify(payload));
-  loadVerificationState(fullName);
-}
-</script>
+      if(state.status === "pending"){
+        badge.innerText = "قيد المراجعة";
+        badge.className = "status-badge pending";
+        lockVerificationForm();
+        showBoxMessage("verifyMsg", "warn", "تم إرسال طلب التوثيق وهو الآن قيد المراجعة. لا يمكنك تعديل البيانات أو رفع بيانات جديدة حتى يتم اتخاذ قرار بشأن الطلب.");
+      }else if(state.status === "approved"){
+        badge.innerText = "تمت الموافقة";
+        badge.className = "status-badge approved";
+        lockVerificationForm();
+        showBoxMessage("verifyMsg", "success", "تمت الموافقة على التوثيق بنجاح. لا يمكن تعديل البيانات بعد اعتماد التوثيق.");
+      }else if(state.status === "rejected"){
+        badge.innerText = "مرفوض";
+        badge.className = "status-badge rejected";
+        unlockVerificationForm();
+        showBoxMessage("verifyMsg", "danger", "تم رفض الطلب. يمكنك الآن تعديل البيانات وإعادة رفع المستندات من جديد.");
+      }
+    }
+
+    function lockVerificationForm(){
+      document.getElementById("verifyFullName").disabled = true;
+      document.getElementById("verifyDocType").disabled = true;
+      document.getElementById("verifyDocNumber").disabled = true;
+      document.getElementById("verifyFile").disabled = true;
+      document.getElementById("verifyNote").disabled = true;
+      document.getElementById("verifySubmitBtn").disabled = true;
+      document.getElementById("verifySubmitBtn").style.opacity = "0.6";
+      document.getElementById("verifySubmitBtn").style.cursor = "not-allowed";
+    }
+
+    function unlockVerificationForm(){
+      document.getElementById("verifyFullName").disabled = false;
+      document.getElementById("verifyDocType").disabled = false;
+      document.getElementById("verifyDocNumber").disabled = false;
+      document.getElementById("verifyFile").disabled = false;
+      document.getElementById("verifyNote").disabled = false;
+      document.getElementById("verifySubmitBtn").disabled = false;
+      document.getElementById("verifySubmitBtn").style.opacity = "1";
+      document.getElementById("verifySubmitBtn").style.cursor = "pointer";
+    }
+
+    function submitVerification(){
+      clearBoxMessage("verifyMsg");
+
+      const key = "verification_" + savedEmail;
+      const oldState = JSON.parse(localStorage.getItem(key) || "null");
+
+      if(oldState && (oldState.status === "pending" || oldState.status === "approved")){
+        showBoxMessage("verifyMsg", "warn", "لا يمكن تعديل أو إرسال بيانات جديدة في هذه الحالة.");
+        return;
+      }
+
+      const fullName = document.getElementById("verifyFullName").value.trim();
+      const docType = document.getElementById("verifyDocType").value.trim();
+      const docNumber = document.getElementById("verifyDocNumber").value.trim();
+      const note = document.getElementById("verifyNote").value.trim();
+      const fileInput = document.getElementById("verifyFile");
+
+      if(fullName === ""){
+        showBoxMessage("verifyMsg", "danger", "يرجى إدخال الاسم الحقيقي كما في المستند");
+        return;
+      }
+
+      if(docType === ""){
+        showBoxMessage("verifyMsg", "danger", "يرجى اختيار نوع المستند");
+        return;
+      }
+
+      if(docNumber === ""){
+        showBoxMessage("verifyMsg", "danger", "يرجى إدخال رقم المستند");
+        return;
+      }
+
+      if(!fileInput.files || !fileInput.files[0]){
+        showBoxMessage("verifyMsg", "danger", "يرجى رفع صورة واضحة للمستند");
+        return;
+      }
+
+      // --- التعديل الجديد باستخدام FormData لإرسال الملفات ---
+      const formData = new FormData();
+      formData.append("email", savedEmail);
+      formData.append("fullName", fullName);
+      formData.append("docType", docType);
+      formData.append("docNumber", docNumber);
+      formData.append("note", note);
+      formData.append("file", fileInput.files[0]);
+
+      fetch(`${API}/submit-verification`,{
+        method:"POST",
+        body:formData
+      })
+      .then(res=>res.json())
+      .then(data=>{
+        if(!data.success){
+          showBoxMessage("verifyMsg","danger",data.message);
+          return;
+        }
+
+        loadVerificationState(fullName);
+      });
+    }
+  </script>
 </body>
 </html>
+
+      
