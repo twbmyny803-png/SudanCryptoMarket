@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>سودان كربتو | الرئيسية</title>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 <style>
 *{box-sizing:border-box}
 
@@ -75,8 +77,11 @@ border:none;
 border-radius:50%;
 background:rgba(255,255,255,.18);
 color:#fff;
-font-size:18px;
+font-size:16px;
 cursor:pointer;
+display:flex;
+align-items:center;
+justify-content:center;
 }
 
 .welcome-box{
@@ -108,6 +113,7 @@ display:flex;
 align-items:center;
 justify-content:center;
 font-size:48px;
+color:#0f172a;
 }
 
 .banner-text h3{
@@ -154,7 +160,7 @@ border-radius:50%;
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:24px;
+font-size:22px;
 color:#fff;
 margin:auto auto 6px;
 }
@@ -227,11 +233,15 @@ display:flex;
 align-items:center;
 justify-content:center;
 background:#eef2ff;
-font-size:18px;
+font-size:16px;
 }
 
 .nav-item.active .nav-icon{
 background:#d9f99d;
+}
+
+.fa-bitcoin{
+color:#f59e0b;
 }
 </style>
 </head>
@@ -245,7 +255,7 @@ background:#d9f99d;
 <div class="topbar-row">
 
 <div class="brand">
-<div class="brand-logo">₿</div>
+<div class="brand-logo"><i class="fa-brands fa-bitcoin"></i></div>
 <div class="brand-text">
 <h1>سودان كربتو</h1>
 <p>لوحة المستخدم</p>
@@ -253,8 +263,8 @@ background:#d9f99d;
 </div>
 
 <div class="top-icons">
-<button class="icon-btn" onclick="window.open('https://t.me/lool0002')">✈️</button>
-<button class="icon-btn" onclick="window.open('https://wa.me/16727123329')">🟢</button>
+<button class="icon-btn" onclick="window.open('https://t.me/lool0002')"><i class="fa-brands fa-telegram"></i></button>
+<button class="icon-btn" onclick="window.open('https://wa.me/16727123329')"><i class="fa-brands fa-whatsapp"></i></button>
 </div>
 
 </div>
@@ -269,7 +279,7 @@ background:#d9f99d;
 
 <div class="banner">
 
-<div class="banner-art">₿</div>
+<div class="banner-art"><i class="fa-brands fa-bitcoin"></i></div>
 
 <div class="banner-text">
 <h3>منصة سودان كربتو</h3>
@@ -284,17 +294,17 @@ background:#d9f99d;
 <div class="actions-grid">
 
 <div class="action-item" onclick="location.href='about.html'">
-<div class="action-icon c1">🏢</div>
+<div class="action-icon c1"><i class="fa-solid fa-building"></i></div>
 <div class="action-text">عن المنصة</div>
 </div>
 
 <div class="action-item" onclick="location.href='referrals.html'">
-<div class="action-icon c2">👥</div>
+<div class="action-icon c2"><i class="fa-solid fa-users"></i></div>
 <div class="action-text">فريقي</div>
 </div>
 
 <div class="action-item" onclick="location.href='packages.html'">
-<div class="action-icon c3">💰</div>
+<div class="action-icon c3"><i class="fa-solid fa-sack-dollar"></i></div>
 <div class="action-text">الباقات</div>
 </div>
 
@@ -333,27 +343,27 @@ background:#d9f99d;
 <div class="bottom-nav">
 
 <a href="dashboard.html" class="nav-item active">
-<div class="nav-icon">⌂</div>
+<div class="nav-icon"><i class="fa-solid fa-house"></i></div>
 الرئيسية
 </a>
 
 <a href="packages.html" class="nav-item">
-<div class="nav-icon">💰</div>
+<div class="nav-icon"><i class="fa-solid fa-sack-dollar"></i></div>
 الباقات
 </a>
 
 <a href="daily.html" class="nav-item">
-<div class="nav-icon">📈</div>
+<div class="nav-icon"><i class="fa-solid fa-chart-line"></i></div>
 الدخل
 </a>
 
 <a href="assets.html" class="nav-item">
-<div class="nav-icon">💼</div>
+<div class="nav-icon"><i class="fa-solid fa-briefcase"></i></div>
 الأصول
 </a>
 
 <a href="account.html" class="nav-item">
-<div class="nav-icon">👤</div>
+<div class="nav-icon"><i class="fa-solid fa-user"></i></div>
 حسابي
 </a>
 
@@ -362,7 +372,6 @@ background:#d9f99d;
 </div>
 
 <script>
-
 const API="https://sudancryptomarket-api.onrender.com"
 
 const email=localStorage.getItem("userEmail")
@@ -395,8 +404,7 @@ document.getElementById("refCount").innerText=data.referralCount||0
 })
 
 }
-
 </script>
 
 </body>
-</html>
+  </html>
