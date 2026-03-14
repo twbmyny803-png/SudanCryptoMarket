@@ -50,7 +50,8 @@ cursor:pointer;
 }
 </style>
 </head>
-<body>
+
+  <body>
 
 <div class="header">لوحة تحكم الأدمن</div>
 
@@ -59,13 +60,14 @@ cursor:pointer;
 <div class="card" onclick="location.href='users.html'">المستخدمين</div>
 <div class="card" onclick="location.href='deposits.html'">طلبات الإيداع</div>
 <div class="card" onclick="location.href='withdraws.html'">طلبات السحب</div>
+<div class="card" onclick="location.href='verifications.html'">طلبات التوثيق</div>
 <div class="card" onclick="location.href='../dashboard.html'">دخول الموقع</div>
 </div>
 
 <button class="logout" onclick="logout()">تسجيل الخروج</button>
 </div>
 
-<script>
+    <script>
 if(!localStorage.getItem("adminToken")){
 window.location.href="login.html";
 }
