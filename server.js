@@ -800,95 +800,19 @@ app.post("/admin-add-balance", async (req,res)=>{
 
     if(!user){
 
-        const amount = Number(req.body.amount);
-    const network = cleanText(req.body.network);
-    const txid = cleanText(req.body.txid);
-    const packageName = cleanText(req.body.packageName);
-
-    const user = await usersCollection.findOne({ email });
-
-    if(!user || user.isDeleted){
-      return res.json({success:false});
-    }
-
-    let operation = {
-      type:"deposit",
-      amount,
-      network,
-      txid,
-      status:"pending",
-      date:new Date().toISOString()
-    };
-
-    if(packageName){
-      const info = getPackageInfo(packageName);
-
-      if(info){
-        operation = {
-          type:"package_deposit",
-          amount: info.price,
-          network,
-          txid,
-          packageKey: packageName.toLowerCase(),
-          packageName: info.name,
-          dailyProfit: info.dailyProfit,
-          durationDays: info.durationDays,
-          status:"pending",
-          date:new Date().toISOString()
-        };
-      }
+          return res.json({success:false,message:"المستخدم غير موجود"});
     }
 
     await usersCollection.updateOne(
       { email },
       {
-        $push:{
-          operations:{
-            $each:[operation],
-            $position:0
-          }
-        }
-      }
-    );
-
-    res.json({success:true});
-
-  }catch(e){
-    console.log(e);
-    res.json({success:false,message:"فشل الإيداع"});
-  }
-});
-
-/* ---------------- WITHDRAW ---------------- */
-
-app.post("/withdraw", async (req,res)=>{
-  try{
-    const email = normalizeEmail(req.body.email);
-    const amount = Number(req.body.amount);
-    const network = cleanText(req.body.network);
-
-    let user = await usersCollection.findOne({ email });
-
-    if(!user || user.isDeleted){
-      return res.json({success:false});
-    }
-
-    user = await applyPendingDailyProfit(user);
-
-    if(Number(user.balance || 0) < amount){
-      return res.json({success:false,message:"الرصيد غير كافي"});
-    }
-
-    await usersCollection.updateOne(
-      { email },
-      {
+        $inc:{ balance: amount },
         $push:{
           operations:{
             $each:[{
-              type:"withdraw",
+              type:"admin_add_balance",
               amount,
-              network,
-              status:"pending",
+              status:"approved",
               date:new Date().toISOString()
             }],
             $position:0
@@ -901,105 +825,16 @@ app.post("/withdraw", async (req,res)=>{
 
   }catch(e){
     console.log(e);
-    res.json({success:false,message:"فشل السحب"});
+    res.json({success:false,message:"فشلت العملية"});
   }
 });
 
-/* ---------------- ADMIN USERS ---------------- */
-
-app.get("/admin-users", async (req,res)=>{
-  try{
-    if(!requireAdmin(req,res)) return;
-
-    const list = await usersCollection.find({ isDeleted:{ $ne:true } }).toArray();
-
-    res.json({success:true,users:list});
-
-  }catch(e){
-    console.log(e);
-    res.json({success:false,message:"فشل تحميل قائمة المستخدمين"});
-  }
-});
-
-/* ---------------- ADMIN DEPOSITS ---------------- */
-
-app.get("/admin-deposits", async (req,res)=>{
-  try{
-    if(!requireAdmin(req,res)) return;
-
-    const users = await usersCollection.find({ isDeleted:{ $ne:true } }).toArray();
-
-    const deposits = [];
-
-    users.forEach(user=>{
-      (user.operations || []).forEach((op,index)=>{
-        if(op.type === "deposit" || op.type === "package_deposit"){
-          deposits.push({
-            id:user.email + "_" + index,
-            email:user.email,
-            name:user.name,
-            amount:op.amount,
-            currency:"USDT",
-            network:op.network || "",
-            txid:op.txid || "",
-            packageName:op.packageName || "",
-            status:op.status,
-            index
-          });
-        }
-      });
-    });
-
-    res.json({success:true,deposits});
-
-  }catch(e){
-    console.log(e);
-    res.json({success:false,message:"فشل تحميل طلبات الإيداع"});
-  }
-});
-
-/* ---------------- ADMIN WITHDRAWS ---------------- */
-
-app.get("/admin-withdraws", async (req,res)=>{
-  try{
-    if(!requireAdmin(req,res)) return;
-
-    const users = await usersCollection.find({ isDeleted:{ $ne:true } }).toArray();
-
-    const withdraws = [];
-
-    users.forEach(user=>{
-      (user.operations || []).forEach((op,index)=>{
-        if(op.type === "withdraw"){
-          withdraws.push({
-            id:user.email + "_" + index,
-            email:user.email,
-            name:user.name,
-            amount:op.amount,
-            currency:"USDT",
-            network:op.network || "",
-            status:op.status,
-            index
-          });
-        }
-      });
-    });
-
-    res.json({success:true,withdraws});
-
-  }catch(e){
-    console.log(e);
-    res.json({success:false,message:"فشل تحميل طلبات السحب"});
-  }
-});
-/* ---------------- ADMIN OPERATIONS ---------------- */
-
-app.post("/admin-approve-deposit", async (req,res)=>{
+app.post("/admin-remove-balance", async (req,res)=>{
   try{
     if(!requireAdmin(req,res)) return;
 
     const email = normalizeEmail(req.body.email);
-    const index = Number(req.body.index);
+    const amount = Number(req.body.amount);
 
     const user = await usersCollection.findOne({ email });
 
@@ -1007,118 +842,25 @@ app.post("/admin-approve-deposit", async (req,res)=>{
       return res.json({success:false,message:"المستخدم غير موجود"});
     }
 
-    const operations = user.operations || [];
-    const op = operations[index];
-
-    if(!op){
-      return res.json({success:false,message:"العملية غير موجودة"});
-    }
-
-    if(op.status === "approved"){
-      return res.json({success:false,message:"تمت الموافقة مسبقاً"});
-    }
-
-    operations[index].status = "approved";
-
-    const updateData = { operations };
-
-    if(op.type === "deposit"){
-      updateData.balance = Number(user.balance || 0) + Number(op.amount || 0);
-    }
-
-    if(op.type === "package_deposit"){
-      updateData.packageName = op.packageName || "";
-      updateData.packagePrice = Number(op.amount || 0);
-      updateData.dailyProfit = Number(op.dailyProfit || 0);
-      updateData.packageStart = new Date().toISOString();
-      updateData.packageDurationDays = Number(op.durationDays || 0);
-      updateData.profitCreditedDays = 0;
-    }
-
-    await usersCollection.updateOne(
-      { email },
-      { $set:updateData }
-    );
-
-    res.json({success:true});
-
-  }catch(e){
-    console.log(e);
-    res.json({success:false,message:"فشلت العملية"});
-  }
-});
-
-app.post("/admin-reject-deposit", async (req,res)=>{
-  try{
-    if(!requireAdmin(req,res)) return;
-
-    const email = normalizeEmail(req.body.email);
-    const index = Number(req.body.index);
-
-    const user = await usersCollection.findOne({ email });
-
-    if(!user){
-      return res.json({success:false,message:"المستخدم غير موجود"});
-    }
-
-    const operations = user.operations || [];
-
-    if(!operations[index]){
-      return res.json({success:false,message:"العملية غير موجودة"});
-    }
-
-    operations[index].status = "rejected";
-
-    await usersCollection.updateOne(
-      { email },
-      { $set:{ operations } }
-    );
-
-    res.json({success:true});
-
-  }catch(e){
-    console.log(e);
-    res.json({success:false,message:"فشلت العملية"});
-  }
-});
-
-app.post("/admin-approve-withdraw", async (req,res)=>{
-  try{
-    if(!requireAdmin(req,res)) return;
-
-    const email = normalizeEmail(req.body.email);
-    const index = Number(req.body.index);
-
-    let user = await usersCollection.findOne({ email });
-
-    if(!user){
-      return res.json({success:false,message:"المستخدم غير موجود"});
-    }
-
-    user = await applyPendingDailyProfit(user);
-
-    const operations = user.operations || [];
-    const op = operations[index];
-
-    if(!op){
-      return res.json({success:false,message:"العملية غير موجودة"});
-    }
-
-    if(op.status === "approved"){
-      return res.json({success:false,message:"تمت الموافقة مسبقاً"});
-    }
-
-    if(Number(user.balance || 0) < Number(op.amount || 0)){
+    if(Number(user.balance || 0) < amount){
       return res.json({success:false,message:"الرصيد غير كافي"});
     }
-
-    operations[index].status = "approved";
 
     await usersCollection.updateOne(
       { email },
       {
-        $set:{ operations },
-        $inc:{ balance: -Number(op.amount || 0) }
+        $inc:{ balance: -amount },
+        $push:{
+          operations:{
+            $each:[{
+              type:"admin_remove_balance",
+              amount,
+              status:"approved",
+              date:new Date().toISOString()
+            }],
+            $position:0
+          }
+        }
       }
     );
 
@@ -1130,30 +872,15 @@ app.post("/admin-approve-withdraw", async (req,res)=>{
   }
 });
 
-app.post("/admin-reject-withdraw", async (req,res)=>{
+app.post("/admin-ban-user", async (req,res)=>{
   try{
     if(!requireAdmin(req,res)) return;
 
     const email = normalizeEmail(req.body.email);
-    const index = Number(req.body.index);
-
-    const user = await usersCollection.findOne({ email });
-
-    if(!user){
-      return res.json({success:false,message:"المستخدم غير موجود"});
-    }
-
-    const operations = user.operations || [];
-
-    if(!operations[index]){
-      return res.json({success:false,message:"العملية غير موجودة"});
-    }
-
-    operations[index].status = "rejected";
 
     await usersCollection.updateOne(
       { email },
-      { $set:{ operations } }
+      { $set:{ isBanned:true } }
     );
 
     res.json({success:true});
@@ -1164,22 +891,15 @@ app.post("/admin-reject-withdraw", async (req,res)=>{
   }
 });
 
-app.post("/admin-change-password", async (req,res)=>{
+app.post("/admin-unban-user", async (req,res)=>{
   try{
     if(!requireAdmin(req,res)) return;
 
     const email = normalizeEmail(req.body.email);
-    const newPassword = cleanText(req.body.newPassword);
-
-    const user = await usersCollection.findOne({ email });
-
-    if(!user){
-      return res.json({success:false,message:"المستخدم غير موجود"});
-    }
 
     await usersCollection.updateOne(
       { email },
-      { $set:{ password:newPassword } }
+      { $set:{ isBanned:false } }
     );
 
     res.json({success:true});
@@ -1190,13 +910,279 @@ app.post("/admin-change-password", async (req,res)=>{
   }
 });
 
-app.post("/admin-add-balance", async (req,res)=>{
+app.post("/admin-freeze-user", async (req,res)=>{
   try{
     if(!requireAdmin(req,res)) return;
 
     const email = normalizeEmail(req.body.email);
-    const amount = Number(req.body.amount);
 
-    const user = await usersCollection.findOne({ email });
+    await usersCollection.updateOne(
+      { email },
+      { $set:{ isFrozen:true } }
+    );
 
-    if(!user){
+    res.json({success:true});
+
+  }catch(e){
+    console.log(e);
+    res.json({success:false,message:"فشلت العملية"});
+  }
+});
+
+app.post("/admin-unfreeze-user", async (req,res)=>{
+  try{
+    if(!requireAdmin(req,res)) return;
+
+    const email = normalizeEmail(req.body.email);
+
+    await usersCollection.updateOne(
+      { email },
+      { $set:{ isFrozen:false } }
+    );
+
+    res.json({success:true});
+
+  }catch(e){
+    console.log(e);
+    res.json({success:false,message:"فشلت العملية"});
+  }
+});
+
+app.post("/admin-delete-user", async (req,res)=>{
+  try{
+    if(!requireAdmin(req,res)) return;
+
+    const email = normalizeEmail(req.body.email);
+
+    await usersCollection.updateOne(
+      { email },
+      { $set:{ isDeleted:true } }
+    );
+
+    res.json({success:true});
+
+  }catch(e){
+    console.log(e);
+    res.json({success:false,message:"فشلت العملية"});
+  }
+});
+
+app.post("/admin-set-package", async (req,res)=>{
+  try{
+    if(!requireAdmin(req,res)) return;
+
+    const email = normalizeEmail(req.body.email);
+    const pack = cleanText(req.body.package);
+
+    const info = getPackageInfo(pack);
+
+    if(!info){
+      return res.json({success:false,message:"الباقة غير صحيحة"});
+    }
+
+    await usersCollection.updateOne(
+      { email },
+      {
+        $set:{
+          packageName:info.name,
+          packagePrice:info.price,
+          dailyProfit:info.dailyProfit,
+          packageStart:new Date().toISOString(),
+          packageDurationDays:info.durationDays,
+          profitCreditedDays:0
+        },
+        $push:{
+          operations:{
+            $each:[{
+              type:"admin_set_package",
+              amount:info.price,
+              packageName:info.name,
+              status:"approved",
+              date:new Date().toISOString()
+            }],
+            $position:0
+          }
+        }
+      }
+    );
+
+    res.json({success:true});
+
+  }catch(e){
+    console.log(e);
+    res.json({success:false,message:"فشلت العملية"});
+  }
+});
+
+/* ---------------- SEND VERIFICATION ---------------- */
+
+app.post("/submit-verification", upload.single("file"), async (req,res)=>{
+  try{
+
+    const email = normalizeEmail(req.body.email);
+    const fullName = cleanText(req.body.fullName);
+    const docType = cleanText(req.body.docType);
+    const docNumber = cleanText(req.body.docNumber);
+    const note = cleanText(req.body.note);
+
+    if(!req.file){
+      return res.json({success:false,message:"الصورة مطلوبة"});
+    }
+
+    const fileUrl = "/uploads/" + req.file.filename;
+
+    await verifyCollection.updateOne(
+      { email },
+      {
+        $set:{
+          email,
+          fullName,
+          docType,
+          docNumber,
+          note,
+          fileUrl,
+          status:"pending",
+          createdAt:new Date().toISOString()
+        }
+      },
+      { upsert:true }
+    );
+
+    res.json({success:true});
+
+  }catch(e){
+    console.log(e);
+    res.json({success:false,message:"فشل إرسال التوثيق"});
+  }
+});
+
+/* ---------------- ADMIN VERIFICATIONS ---------------- */
+
+app.get("/admin-verifications", async (req,res)=>{
+  try{
+    if(!requireAdmin(req,res)) return;
+
+    const list = await verifyCollection.find().toArray();
+
+    res.json({success:true,verifications:list});
+
+  }catch(e){
+    console.log(e);
+    res.json({success:false});
+  }
+});
+
+app.post("/admin-approve-verification", async (req,res)=>{
+  try{
+    if(!requireAdmin(req,res)) return;
+
+    const email = normalizeEmail(req.body.email);
+
+    await verifyCollection.updateOne(
+      { email },
+      { $set:{ status:"approved" } }
+    );
+
+    res.json({success:true});
+
+  }catch(e){
+    console.log(e);
+    res.json({success:false});
+  }
+});
+
+app.post("/admin-reject-verification", async (req,res)=>{
+  try{
+    if(!requireAdmin(req,res)) return;
+
+    const email = normalizeEmail(req.body.email);
+
+    await verifyCollection.updateOne(
+      { email },
+      { $set:{ status:"rejected" } }
+    );
+
+    res.json({success:true});
+
+  }catch(e){
+    console.log(e);
+    res.json({success:false});
+  }
+});
+
+
+/* ---------------- MY VERIFICATION ---------------- */
+
+app.post("/my-verification", async (req,res)=>{
+  try{
+
+    const email = normalizeEmail(req.body.email);
+
+    if(!email){
+      return res.json({
+        success:false,
+        message:"البريد مطلوب"
+      });
+    }
+
+    const verification = await verifyCollection.findOne({ email });
+
+    if(!verification){
+      return res.json({
+        success:true,
+        verification:null
+      });
+    }
+
+    res.json({
+      success:true,
+      verification:{
+        fullName: verification.fullName,
+        docType: verification.docType,
+        docNumber: verification.docNumber,
+        note: verification.note,
+        fileUrl: verification.fileUrl,
+        status: verification.status,
+        createdAt: verification.createdAt
+      }
+    });
+
+  }catch(e){
+    console.log(e);
+
+    res.json({
+      success:false,
+      message:"فشل تحميل حالة التوثيق"
+    });
+  }
+});
+
+/* ---------------- START SERVER ---------------- */
+
+async function startServer(){
+  try{
+    await client.connect();
+
+    db = client.db("sudancrypto");
+    usersCollection = db.collection("users");
+    otpCollection = db.collection("otp_codes");
+    verifyCollection = db.collection("verifications");
+
+    await usersCollection.createIndex({ email:1 }, { unique:true });
+    await otpCollection.createIndex({ email:1 }, { unique:true });
+
+    console.log("MongoDB connected");
+
+    const PORT = process.env.PORT || 10000;
+
+    app.listen(PORT,()=>{
+      console.log("Server running on port " + PORT);
+    });
+
+  }catch(e){
+    console.log("MongoDB connection error:", e);
+    process.exit(1);
+  }
+}
+
+startServer();
