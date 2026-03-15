@@ -5,6 +5,7 @@ const { Resend } = require("resend");
 const { MongoClient } = require("mongodb");
 const multer = require("multer");
 const path = require("path");
+const cron = require("node-cron");
 
 const app = express();
 
@@ -163,6 +164,28 @@ async function applyPendingDailyProfit(user){
   );
 
   return await usersCollection.findOne({ email:user.email });
+}
+
+async function runDailyProfitForAllUsers(){
+  try{
+    const users = await usersCollection.find({
+      isDeleted: { $ne:true },
+      isBanned: { $ne:true },
+      isFrozen: { $ne:true },
+      packageName: { $ne:"" },
+      packageStart: { $ne:null },
+      dailyProfit: { $gt:0 }
+    }).toArray();
+
+    for(const user of users){
+      await applyPendingDailyProfit(user);
+    }
+
+    console.log("Daily profit job finished:", new Date().toISOString());
+
+  }catch(e){
+    console.log("Daily profit job error:", e);
+  }
 }
 
 /* ---------------- ROOT ---------------- */
@@ -1172,6 +1195,10 @@ async function startServer(){
     await otpCollection.createIndex({ email:1 }, { unique:true });
 
     console.log("MongoDB connected");
+
+    cron.schedule("5 * * * *", async ()=>{
+      await runDailyProfitForAllUsers();
+    });
 
     const PORT = process.env.PORT || 10000;
 
