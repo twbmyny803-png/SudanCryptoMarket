@@ -101,8 +101,7 @@ font-weight:700;
 cursor:pointer;
 }
 
-.verify-btn,
-.confirm-btn{
+.login-btn{
 width:100%;
 height:44px;
 border:none;
@@ -110,58 +109,9 @@ border-radius:8px;
 font-size:14px;
 font-weight:700;
 cursor:pointer;
-margin-top:10px;
-}
-
-.verify-btn{
-background:#2D6AF6;
-color:#fff;
-}
-
-.confirm-btn{
+margin-top:12px;
 background:#10B981;
 color:#fff;
-}
-
-.code-section{
-display:none;
-text-align:center;
-margin-top:14px;
-padding:14px 10px;
-background:#eef5ff;
-border-radius:12px;
-}
-
-.code-box{
-display:flex;
-justify-content:center;
-gap:8px;
-margin:14px 0;
-direction:ltr;
-}
-
-.code-box input{
-width:42px;
-height:48px;
-text-align:center;
-font-size:20px;
-border-radius:10px;
-border:2px solid #d4deef;
-background:#fff;
-}
-
-.timer{
-font-size:13px;
-margin-top:8px;
-}
-
-.resend{
-color:#2D6AF6;
-margin-top:10px;
-display:none;
-cursor:pointer;
-font-size:13px;
-font-weight:700;
 }
 
 .status-message{
@@ -216,34 +166,9 @@ font-weight:600;
 <button type="button" class="toggle-password" onclick="togglePassword()">إظهار</button>
 </div>
 
-<button class="verify-btn" onclick="sendLoginCode()">إرسال كود التحقق</button>
-
-<div class="code-section" id="codeSection">
-
-<p>أدخل كود التحقق</p>
-
-<div class="code-box">
-<input type="text" maxlength="1">
-<input type="text" maxlength="1">
-<input type="text" maxlength="1">
-<input type="text" maxlength="1">
-<input type="text" maxlength="1">
-<input type="text" maxlength="1">
-</div>
-
-<button class="confirm-btn" onclick="confirmLogin()">تأكيد الكود</button>
-
-<div class="timer">
-إعادة إرسال الكود خلال <span id="count">60</span> ثانية
-</div>
-
-<div class="resend" id="resend" onclick="sendLoginCode()">
-إرسال كود جديد
-</div>
+<button class="login-btn" onclick="loginNow()">دخول</button>
 
 <div class="status-message" id="statusMessage"></div>
-
-</div>
 
 <div class="links">
 <a href="forgot.html">هل نسيت كلمة السر؟</a>
@@ -255,10 +180,7 @@ font-weight:600;
 </div>
 
 <script>
-
 const API_BASE="https://sudancryptomarket-api.onrender.com";
-let timerInterval=null;
-let sending=false;
 
 function togglePassword(){
 const input=document.getElementById("password");
@@ -283,10 +205,7 @@ function clearStatus(){
 document.getElementById("statusMessage").style.display="none";
 }
 
-function sendLoginCode(){
-
-if(sending) return;
-
+function loginNow(){
 const email=document.getElementById("email").value.trim();
 const password=document.getElementById("password").value.trim();
 
@@ -302,87 +221,6 @@ showStatus("اكتب كلمة السر");
 return;
 }
 
-sending=true;
-
-fetch(`${API_BASE}/send-code`,{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-email,
-purpose:"login"
-})
-})
-.then(res=>res.json())
-.then(data=>{
-
-if(data.success===false){
-throw new Error(data.message);
-}
-
-document.getElementById("codeSection").style.display="block";
-startTimer();
-
-})
-.catch(err=>{
-showStatus(err.message);
-sending=false;
-});
-}
-
-function startTimer(){
-
-let time=60;
-
-const count=document.getElementById("count");
-const resend=document.getElementById("resend");
-
-resend.style.display="none";
-count.innerText=time;
-
-timerInterval=setInterval(()=>{
-
-time--;
-count.innerText=time;
-
-if(time<=0){
-clearInterval(timerInterval);
-resend.style.display="block";
-sending=false;
-}
-
-},1000);
-}
-
-const inputs=document.querySelectorAll(".code-box input");
-
-inputs.forEach((input,index)=>{
-
-input.addEventListener("input",()=>{
-
-input.value=input.value.replace(/[^0-9]/g,"");
-
-if(input.value.length===1 && index<inputs.length-1){
-inputs[index+1].focus();
-}
-
-});
-});
-
-function confirmLogin(){
-
-const email=document.getElementById("email").value.trim();
-const password=document.getElementById("password").value.trim();
-const code=Array.from(inputs).map(i=>i.value).join("");
-
-clearStatus();
-
-if(code.length!==6){
-showStatus("اكتب كود التحقق كاملاً");
-return;
-}
-
 fetch(`${API_BASE}/login`,{
 method:"POST",
 headers:{
@@ -390,29 +228,24 @@ headers:{
 },
 body:JSON.stringify({
 email,
-password,
-code
+password
 })
 })
 .then(res=>res.json())
 .then(data=>{
 
 if(data.success===false){
-throw new Error(data.message);
+throw new Error(data.message || "فشل تسجيل الدخول");
 }
 
-/* حفظ الإيميل */
 localStorage.setItem("userEmail",email);
-
-/* الانتقال للداشبورد */
 window.location.href="dashboard.html";
 
 })
 .catch(err=>{
-showStatus(err.message);
+showStatus(err.message || "حدث خطأ أثناء تسجيل الدخول");
 });
 }
-
 </script>
 
 </body>
