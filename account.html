@@ -391,15 +391,21 @@
     </nav>
   </div>
 
-      <script>
-    const API = "https://sudan-crypto.onrender.com/api";
+  <script>
+    const API = "https://sudancryptomarket-api.onrender.com";
     let savedEmail = localStorage.getItem("userEmail");
 
     if(!savedEmail){
       window.location.href = "login.html";
     }
 
-    fetch(`${API}/user-info?email=${savedEmail}`)
+    fetch(`${API}/user-data`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email: savedEmail })
+    })
     .then(res => res.json())
     .then(data => {
       if(!data.success){
@@ -407,11 +413,13 @@
         window.location.href = "login.html";
         return;
       }
-      document.getElementById("userName").innerText = data.user.name;
-      document.getElementById("userEmail").innerText = data.user.email;
-      document.getElementById("userPhone").innerText = data.user.phone || "غير مسجل";
-      
-      loadVerificationState(data.user.name);
+
+      document.getElementById("userName").innerText = data.name || "...";
+      document.getElementById("userEmail").innerText = data.email || "...";
+      document.getElementById("userPhone").innerText = data.phone || "غير مسجل";
+      document.getElementById("passEmail").value = data.email || savedEmail;
+
+      loadVerificationState(data.name || "");
     })
     .catch(() => {
       alert("فشل الاتصال بالخادم");
@@ -438,7 +446,7 @@
         return;
       }
 
-      fetch(`${API}/send-reset-code`, {
+      fetch(`${API}/forgot-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -520,7 +528,7 @@
       });
     }
 
-      function toggleVerifyBox(){
+    function toggleVerifyBox(){
       document.getElementById("verifyBox").classList.toggle("hidden");
     }
 
@@ -620,7 +628,6 @@
         return;
       }
 
-      // --- التعديل الجديد باستخدام FormData لإرسال الملفات ---
       const formData = new FormData();
       formData.append("email", savedEmail);
       formData.append("fullName", fullName);
@@ -636,15 +643,16 @@
       .then(res=>res.json())
       .then(data=>{
         if(!data.success){
-          showBoxMessage("verifyMsg","danger",data.message);
+          showBoxMessage("verifyMsg","danger",data.message || "فشل إرسال التوثيق");
           return;
         }
 
-        loadVerificationState(fullName);
+        document.getElementById("verifyStatusBadge").innerText = "قيد المراجعة";
+        document.getElementById("verifyStatusBadge").className = "status-badge pending";
+        lockVerificationForm();
+        showBoxMessage("verifyMsg","warn","تم إرسال طلب التوثيق وهو الآن قيد المراجعة.");
       });
     }
   </script>
 </body>
 </html>
-
-      
