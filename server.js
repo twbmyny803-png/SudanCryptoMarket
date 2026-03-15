@@ -320,6 +320,7 @@ app.post("/register", async (req,res)=>{
       phone,
       password,
       balance:0,
+      incomeBalance:0,
       operations:[],
       packageName:"",
       packagePrice:0,
@@ -381,6 +382,7 @@ app.post("/login", async (req,res)=>{
     res.json({success:false,message:"فشل تسجيل الدخول"});
   }
 });
+
 /* ---------------- USER DATA ---------------- */
 
 app.post("/user-data", async (req,res)=>{
@@ -422,7 +424,7 @@ app.post("/deposit", async (req,res)=>{
   try{
     const email = normalizeEmail(req.body.email);
 
-      const amount = Number(req.body.amount);
+    const amount = Number(req.body.amount);
     const network = cleanText(req.body.network);
     const txid = cleanText(req.body.txid);
     const packageName = cleanText(req.body.packageName);
@@ -614,6 +616,7 @@ app.get("/admin-withdraws", async (req,res)=>{
     res.json({success:false,message:"فشل تحميل طلبات السحب"});
   }
 });
+
 /* ---------------- ADMIN OPERATIONS ---------------- */
 
 app.post("/admin-approve-deposit", async (req,res)=>{
@@ -822,8 +825,7 @@ app.post("/admin-add-balance", async (req,res)=>{
     const user = await usersCollection.findOne({ email });
 
     if(!user){
-
-          return res.json({success:false,message:"المستخدم غير موجود"});
+      return res.json({success:false,message:"المستخدم غير موجود"});
     }
 
     await usersCollection.updateOne(
