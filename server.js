@@ -62,6 +62,10 @@ function generateToken(){
   return crypto.randomBytes(24).toString("hex");
 }
 
+function generateRefCode(){
+  return Math.random().toString(36).substring(2,8).toUpperCase();
+}
+
 function isValidEmail(email){
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -405,6 +409,11 @@ app.post("/register", async (req,res)=>{
       email,
       phone,
       password,
+
+      refCode: generateRefCode(),
+      referrer: req.body.referrer || null,
+      referrals:[],
+
       balance:0,
       incomeBalance:0,
       operations:[],
@@ -419,6 +428,17 @@ app.post("/register", async (req,res)=>{
       isDeleted:false,
       createdAt:new Date().toISOString()
     });
+
+    if(req.body.referrer){
+
+      await usersCollection.updateOne(
+        { refCode:req.body.referrer },
+        {
+          $push:{ referrals:email }
+        }
+      )
+
+    }
 
     await otpCollection.deleteOne({ email });
 
@@ -488,7 +508,13 @@ app.post("/user-data", async (req,res)=>{
       name:user.name,
       email:user.email,
       phone:user.phone || "",
-      balance:user.balance,
+
+      balance:user.balance || 0,
+      incomeBalance:user.incomeBalance || 0,
+
+      refCode:user.refCode,
+      referrals:user.referrals || [],
+
       operations:user.operations || [],
       packageName:user.packageName || "",
       packagePrice:user.packagePrice || 0,
@@ -746,6 +772,8 @@ app.post("/admin-approve-deposit", async (req,res)=>{
       updateData.packageStart = new Date().toISOString();
       updateData.packageDurationDays = Number(op.durationDays || 0);
       updateData.profitCreditedDays = 0;
+
+      await distributeReferralCommission(user, op.amount);
     }
 
     await usersCollection.updateOne(
@@ -1269,6 +1297,56 @@ app.post("/my-verification", async (req,res)=>{
     });
   }
 });
+
+/* ---------------- REFERRAL FUNCTIONS ---------------- */
+
+async function distributeReferralCommission(user, price){
+
+  const commissions = {
+    50:[5,3,2,1,1,0.5,0.5],
+    100:[10,6,4,3,2,1,1],
+    250:[30,18,10,7,5,3,2],
+    500:[50,30,20,15,10,7,5],
+    1000:[70,40,25,20,15,10,7]
+  };
+
+  let currentRef = user.referrer;
+
+  for(let level=0; level<7; level++){
+
+    if(!currentRef) break;
+
+    const refUser = await usersCollection.findOne({ refCode: currentRef });
+
+    if(!refUser) break;
+
+    const reward = commissions[price]?.[level] || 0;
+
+    if(reward > 0){
+      await usersCollection.updateOne(
+        { email: refUser.email },
+        {
+          $inc:{ incomeBalance: reward },
+          $push:{
+            operations:{
+              $each:[{
+                type:"referral_bonus",
+                amount:reward,
+                level:level+1,
+                from:user.email,
+                status:"approved",
+                date:new Date().toISOString()
+              }],
+              $position:0
+            }
+          }
+        }
+      );
+    }
+
+    currentRef = refUser.referrer;
+  }
+}
 
 /* ---------------- START SERVER ---------------- */
 
