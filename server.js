@@ -290,7 +290,7 @@ app.post("/send-code", async (req,res)=>{
     );
 
     await resend.emails.send({
-      from:"Sudan Crypto <onboarding@resend.dev>",
+      from:"Sudan Crypto <noreply@sudancrypto.com>",
       to:email,
       subject:"رمز التحقق",
       html:`<h2>${code}</h2>`
@@ -336,7 +336,7 @@ app.post("/send-withdraw-code", async (req,res)=>{
     )
 
     await resend.emails.send({
-      from:"Sudan Crypto <onboarding@resend.dev>",
+      from:"Sudan Crypto <noreply@sudancrypto.com>",
       to:email,
       subject:"رمز سحب الأموال",
       html:`<h2>${code}</h2>`
