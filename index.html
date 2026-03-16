@@ -353,6 +353,13 @@ footer{
 <script>
 const API_BASE = "https://sudancryptomarket-api.onrender.com";
 
+const urlParams = new URLSearchParams(window.location.search);
+const refCodeFromLink = urlParams.get("ref");
+
+if(refCodeFromLink){
+  document.getElementById("referralCode").value = refCodeFromLink;
+}
+
 let timerInterval = null;
 
 function togglePassword(inputId, button){
@@ -498,8 +505,6 @@ inputs.forEach((input, index) => {
 async function verifyCodeBeforeRegister(email){
   const code = Array.from(inputs).map(input => input.value).join("");
 
-  resetVerifyMessages();
-
   if(code.length !== 6){
     showBox("verifyError", "اكتب كود التحقق كاملاً");
     return false;
@@ -596,7 +601,7 @@ async function createAccount(){
       email: email,
       phone: phone,
       password: password,
-      referral: referralCode
+      referrer: referralCode
     })
   })
   .then(async (res) => {
@@ -618,4 +623,4 @@ async function createAccount(){
 </script>
 
 </body>
-</html>
+  </html>
