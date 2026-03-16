@@ -260,6 +260,52 @@ app.post("/send-code", async (req,res)=>{
   }
 });
 
+/* ---------------- SEND WITHDRAW CODE ---------------- */
+
+app.post("/send-withdraw-code", async (req,res)=>{
+  try{
+
+    const email = normalizeEmail(req.body.email)
+
+    if(!email){
+      return res.json({success:false,message:"البريد مطلوب"})
+    }
+
+    const user = await usersCollection.findOne({ email })
+
+    if(!user){
+      return res.json({success:false,message:"الحساب غير موجود"})
+    }
+
+    const code = generateOTP()
+
+    await otpCollection.updateOne(
+      { email },
+      {
+        $set:{
+          email,
+          code,
+          expiresAt: Date.now() + OTP_EXPIRES_MS
+        }
+      },
+      { upsert:true }
+    )
+
+    await resend.emails.send({
+      from:"Sudan Crypto <noreply@sudancrypto.com>",
+      to:email,
+      subject:"رمز سحب الأموال",
+      html:`<h2>${code}</h2>`
+    })
+
+    res.json({success:true})
+
+  }catch(e){
+    console.log(e)
+    res.json({success:false,message:"فشل إرسال الكود"})
+  }
+})
+
 /* ---------------- VERIFY OTP ---------------- */
 
 app.post("/verify-code", async (req,res)=>{
