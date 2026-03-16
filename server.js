@@ -103,6 +103,46 @@ function getPackageInfo(pack){
   return null;
 }
 
+async function cancelExpiredDeposits(){
+  try{
+
+    const users = await usersCollection.find({}).toArray()
+
+    for(const user of users){
+
+      const operations = user.operations || []
+      let changed = false
+
+      for(let i=0;i<operations.length;i++){
+
+        const op = operations[i]
+
+        if(
+          op.type === "deposit" &&
+          op.status === "pending" &&
+          op.expiresAt &&
+          Date.now() > op.expiresAt
+        ){
+          operations[i].status = "cancelled"
+          changed = true
+        }
+
+      }
+
+      if(changed){
+        await usersCollection.updateOne(
+          { email:user.email },
+          { $set:{ operations } }
+        )
+      }
+
+    }
+
+  }catch(e){
+    console.log(e)
+  }
+}
+
 function calculateDailyAccruedProfit(user){
   if(!user.packageName || !user.packageStart || !user.dailyProfit){
     return 0;
@@ -487,7 +527,8 @@ app.post("/deposit", async (req,res)=>{
       network,
       txid,
       status:"pending",
-      date:new Date().toISOString()
+      date:new Date().toISOString(),
+      expiresAt: Date.now() + (15 * 60 * 1000)
     };
 
     if(packageName){
@@ -1247,6 +1288,10 @@ async function startServer(){
 
     cron.schedule("5 * * * *", async ()=>{
       await runDailyProfitForAllUsers();
+    });
+
+    cron.schedule("*/5 * * * *", async ()=>{
+      await cancelExpiredDeposits();
     });
 
     const PORT = process.env.PORT || 10000;
