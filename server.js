@@ -270,7 +270,7 @@ app.post("/send-code", async (req,res)=>{
 
     const existingUser = await usersCollection.findOne({ email });
 
-    if(existingUser){
+    if(existingUser && !existingUser.isDeleted){
       return res.json({success:false,message:"البريد مسجل"});
     }
 
@@ -400,7 +400,7 @@ app.post("/register", async (req,res)=>{
       return res.json({success:false,message:"يجب التحقق من البريد"});
     }
 
-    if(existingUser){
+    if(existingUser && !existingUser.isDeleted){
       return res.json({success:false,message:"البريد مسجل"});
     }
 
