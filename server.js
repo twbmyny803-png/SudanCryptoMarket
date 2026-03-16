@@ -652,6 +652,7 @@ app.post("/admin-approve-deposit", async (req,res)=>{
     }
 
     if(op.type === "package_deposit"){
+      updateData.balance = Number(user.balance || 0) + Number(op.amount || 0);
       updateData.packageName = op.packageName || "";
       updateData.packagePrice = Number(op.amount || 0);
       updateData.dailyProfit = Number(op.dailyProfit || 0);
