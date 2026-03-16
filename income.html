@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الدخل اليومي</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Tah​oma;
+background:#f4f8ff;
+}
+
+.container{
+max-width:420px;
+margin:auto;
+padding:15px;
+}
+
+.title{
+font-size:20px;
+font-weight:bold;
+margin-bottom:15px;
+}
+
+.card{
+background:#fff;
+border-radius:14px;
+padding:12px;
+margin-bottom:10px;
+}
+
+.row{
+display:flex;
+justify-content:space-between;
+margin-bottom:5px;
+}
+
+.amount{
+color:#16a34a;
+font-weight:bold;
+}
+
+.date{
+font-size:12px;
+color:#666;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="title">
+الدخل اليومي
+</div>
+
+<div id="incomeList"></div>
+
+</div>
+
+<script>
+
+const API="https://sudancryptomarket-api.onrender.com"
+const email=localStorage.getItem("userEmail")
+
+if(!email){
+location.href="login.html"
+}
+
+fetch(API+"/user-data",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({email})
+})
+
+.then(r=>r.json())
+.then(data=>{
+
+if(!data.success)return
+
+const operations=data.operations||[]
+const container=document.getElementById("incomeList")
+
+const profits=operations.filter(o=>o.type==="daily_profit")
+
+if(profits.length===0){
+container.innerHTML="لا يوجد دخل بعد"
+return
+}
+
+profits.forEach(op=>{
+
+const card=document.createElement("div")
+card.className="card"
+
+card.innerHTML=`
+
+<div class="row">
+<div>الباقة</div>
+<div>${data.packageName||""}</div>
+</div>
+
+<div class="row">
+<div>الربح</div>
+<div class="amount">${op.amount} USDT</div>
+</div>
+
+<div class="date">
+${new Date(op.date).toLocaleString()}
+</div>
+
+`
+
+container.appendChild(card)
+
+})
+
+})
+
+</script>
+
+</body>
+</html>
