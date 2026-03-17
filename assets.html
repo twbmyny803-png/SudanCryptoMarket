@@ -134,10 +134,10 @@ padding:10px;
 <div class="card-desc">سحب الأموال إلى محفظتك</div>
 </div>
 
-<div class="card">
-<div class="card-title">تحويل</div>
-<div class="card-desc">سيتم إضافته لاحقاً</div>
-</div>
+	<div class="card" onclick="transferProfit()" style="cursor:pointer;">
+	<div class="card-title">تحويل</div>
+	<div class="card-desc">اضغط لتحويل الأرباح</div>
+	</div>
 
 <div class="card" onclick="openPage('transactions.html')">
 <div class="card-title">سجل العمليات</div>
@@ -235,9 +235,31 @@ box.innerHTML=html;
 window.location.href="login.html";
 });
 
-function openPage(page){
-window.location.href=page;
-}
+	function openPage(page){
+	window.location.href=page;
+	}
+
+	function transferProfit(){
+
+	  const email = localStorage.getItem("userEmail")
+
+	  fetch(API + "/transfer-profit",{
+	    method:"POST",
+	    headers:{
+	      "Content-Type":"application/json"
+	    },
+	    body:JSON.stringify({ email })
+	  })
+	  .then(res=>res.json())
+	  .then(data=>{
+	    if(data.success){
+	      alert("تم تحويل الأرباح بنجاح")
+	      location.reload()
+	    }else{
+	      alert(data.message || "فشل التحويل")
+	    }
+	  })
+	}
 
 </script>
 
