@@ -318,11 +318,14 @@ color:#f59e0b;
 <div class="stat-sub">الأصول الحالية</div>
 </div>
 
-<div class="stat-card">
-<div class="stat-label">الدخل اليومي</div>
-<div class="stat-value" id="dailyIncome">0 USDT</div>
-<div class="stat-sub">الأرباح الحالية</div>
-</div>
+	<div class="stat-card">
+	<div class="stat-label">الدخل اليومي</div>
+	<div class="stat-value" id="dailyIncome">0 USDT</div>
+	<div class="stat-sub">الأرباح الحالية</div>
+	<button onclick="transferProfit()" style="margin-top:10px;width:100%;padding:10px;border:none;border-radius:8px;background:#10b981;color:#fff;font-weight:bold;">
+	تحويل الأرباح
+	</button>
+	</div>
 
 <div class="stat-card">
 <div class="stat-label">الباقة الحالية</div>
@@ -397,13 +400,35 @@ return
 
 document.getElementById("userName").innerText=data.name||"مستخدم"
 document.getElementById("balance").innerText=(data.balance||0)+" USDT"
-document.getElementById("dailyIncome").innerText=(data.dailyIncome||0)+" USDT"
+	document.getElementById("dailyIncome").innerText=(data.incomeBalance||0)+" USDT"
 document.getElementById("packageName").innerText=data.packageName||"لا توجد"
-document.getElementById("refCount").innerText=data.referralCount||0
+	document.getElementById("refCount").innerText=data.referralCount||0
+	
+	})
+	
+	}
 
-})
+	function transferProfit(){
 
-}
+	  fetch(API + "/transfer-profit",{
+	    method:"POST",
+	    headers:{
+	      "Content-Type":"application/json"
+	    },
+	    body:JSON.stringify({
+	      email:localStorage.getItem("userEmail")
+	    })
+	  })
+	  .then(res=>res.json())
+	  .then(data=>{
+	    if(data.success){
+	      alert("تم تحويل الأرباح بنجاح")
+	      location.reload()
+	    }else{
+	      alert(data.message || "فشل التحويل")
+	    }
+	  })
+	}
 </script>
 
 </body>
