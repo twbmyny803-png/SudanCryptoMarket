@@ -765,13 +765,28 @@ app.post("/admin-approve-deposit", async (req,res)=>{
     }
 
     if(op.type === "package_deposit"){
+
       updateData.balance = Number(user.balance || 0) + Number(op.amount || 0);
       updateData.packageName = op.packageName || "";
       updateData.packagePrice = Number(op.amount || 0);
       updateData.dailyProfit = Number(op.dailyProfit || 0);
+
+      // 👇 دي مهمة
       updateData.packageStart = new Date().toISOString();
-      updateData.packageDurationDays = Number(op.durationDays || 0);
-      updateData.profitCreditedDays = 0;
+      updateData.lastProfitAt = new Date().toISOString();
+      updateData.packageDurationDays = 280;
+      updateData.profitDays = 1;
+
+      // 👇 أول ربح فوراً
+      updateData.incomeBalance = Number(user.incomeBalance || 0) + Number(op.dailyProfit || 0);
+
+      operations.unshift({
+        type:"daily_profit",
+        amount: Number(op.dailyProfit || 0),
+        status:"approved",
+        date:new Date().toISOString(),
+        note:"أول ربح"
+      });
 
       await distributeReferralCommission(user, op.amount);
     }
