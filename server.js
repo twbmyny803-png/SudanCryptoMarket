@@ -270,7 +270,7 @@ app.post("/send-code", async (req,res)=>{
 
     const existingUser = await usersCollection.findOne({ email });
 
-    if(existingUser && !existingUser.isDeleted){
+    if(existingUser){
       return res.json({success:false,message:"البريد مسجل"});
     }
 
@@ -290,7 +290,7 @@ app.post("/send-code", async (req,res)=>{
     );
 
     await resend.emails.send({
-      from:"Sudan Crypto <onboarding@resend.dev>",
+      from:"Sudan Crypto <noreply@sudancrypto.com>",
       to:email,
       subject:"رمز التحقق",
       html:`<h2>${code}</h2>`
@@ -336,7 +336,7 @@ app.post("/send-withdraw-code", async (req,res)=>{
     )
 
     await resend.emails.send({
-      from:"Sudan Crypto <onboarding@resend.dev>",
+      from:"Sudan Crypto <noreply@sudancrypto.com>",
       to:email,
       subject:"رمز سحب الأموال",
       html:`<h2>${code}</h2>`
@@ -400,7 +400,7 @@ app.post("/register", async (req,res)=>{
       return res.json({success:false,message:"يجب التحقق من البريد"});
     }
 
-    if(existingUser && !existingUser.isDeleted){
+    if(existingUser){
       return res.json({success:false,message:"البريد مسجل"});
     }
 
