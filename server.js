@@ -164,43 +164,53 @@ function calculateDailyAccruedProfit(user){
 }
 
 async function applyPendingDailyProfit(user){
-  if(!user.packageName || !user.packageStart || !user.dailyProfit){
+
+  if(!user.packageName || !user.lastProfitAt){
     return user;
   }
 
-  const start = new Date(user.packageStart).getTime();
-  if(!start){
+  const now = Date.now();
+  const last = new Date(user.lastProfitAt).getTime();
+
+  const hoursPassed = (now - last) / (1000 * 60 * 60);
+
+  if(hoursPassed < 24){
     return user;
   }
 
-  const daysPassed = Math.floor((Date.now() - start) / (1000 * 60 * 60 * 24));
-  const totalEligibleDays = Math.min(Math.max(daysPassed, 0), Number(user.packageDurationDays || 0));
-  const creditedDays = Number(user.profitCreditedDays || 0);
+  const daysToAdd = Math.floor(hoursPassed / 24);
 
-  if(totalEligibleDays <= creditedDays){
+  const totalDays = Number(user.profitDays || 0);
+  const maxDays = Number(user.packageDurationDays || 280);
+
+  const remainingDays = maxDays - totalDays;
+
+  if(remainingDays <= 0){
     return user;
   }
 
-  const newDays = totalEligibleDays - creditedDays;
-  const profitToAdd = newDays * Number(user.dailyProfit || 0);
+  const actualDays = Math.min(daysToAdd, remainingDays);
 
-  const operation = {
-    type:"daily_profit",
-    amount:profitToAdd,
-    status:"approved",
-    date:new Date().toISOString()
-  };
+  const totalProfit = actualDays * Number(user.dailyProfit || 0);
 
   await usersCollection.updateOne(
     { email:user.email },
     {
       $inc:{
-        balance: profitToAdd,
-        profitCreditedDays: newDays
+        incomeBalance: totalProfit,
+        profitDays: actualDays
+      },
+      $set:{
+        lastProfitAt: new Date().toISOString()
       },
       $push:{
         operations:{
-          $each:[operation],
+          $each:[{
+            type:"daily_profit",
+            amount: totalProfit,
+            status:"approved",
+            date:new Date().toISOString()
+          }],
           $position:0
         }
       }
