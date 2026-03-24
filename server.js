@@ -1426,6 +1426,48 @@ app.post("/webhook", async (req,res)=>{
   }
 });
 
+app.post("/create-payment", async (req, res) => {
+  try {
+
+    const email = req.body.email;
+    const amount = Number(req.body.amount);
+
+    if (!email || !amount) {
+      return res.json({ success: false, message: "بيانات ناقصة" });
+    }
+
+    const response = await fetch("https://api.nowpayments.io/v1/invoice", {
+      method: "POST",
+      headers: {
+        "x-api-key": process.env.NOWPAYMENTS_API_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        price_amount: amount,
+        price_currency: "usd",
+        pay_currency: "usdttrc20",
+
+        order_id: Date.now().toString(),
+        order_description: "Deposit",
+
+        success_url: "https://sudancryptomarket.onrender.com/success.html",
+        cancel_url: "https://sudancryptomarket.onrender.com/deposit.html"
+      })
+    });
+
+    const data = await response.json();
+
+    res.json({
+      success: true,
+      url: data.invoice_url
+    });
+
+  } catch (e) {
+    console.log(e);
+    res.json({ success: false });
+  }
+});
+
 /* ---------------- START SERVER ---------------- */
 
 async function startServer(){
