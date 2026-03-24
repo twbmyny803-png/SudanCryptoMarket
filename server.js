@@ -541,71 +541,7 @@ app.post("/user-data", async (req,res)=>{
   }
 });
 
-/* ---------------- DEPOSIT ---------------- */
 
-app.post("/deposit", async (req,res)=>{
-  try{
-    const email = normalizeEmail(req.body.email);
-
-    const amount = Number(req.body.amount);
-    const network = cleanText(req.body.network);
-    const txid = cleanText(req.body.txid);
-    const packageName = cleanText(req.body.packageName);
-
-    const user = await usersCollection.findOne({ email });
-
-    if(!user || user.isDeleted){
-      return res.json({success:false});
-    }
-
-    let operation = {
-      type:"deposit",
-      amount,
-      network,
-      txid,
-      status:"pending",
-      date:new Date().toISOString(),
-      expiresAt: Date.now() + (15 * 60 * 1000)
-    };
-
-    if(packageName){
-      const info = getPackageInfo(packageName);
-
-      if(info){
-        operation = {
-          type:"package_deposit",
-          amount: info.price,
-          network,
-          txid,
-          packageKey: packageName.toLowerCase(),
-          packageName: info.name,
-          dailyProfit: info.dailyProfit,
-          durationDays: info.durationDays,
-          status:"pending",
-          date:new Date().toISOString()
-        };
-      }
-    }
-
-    await usersCollection.updateOne(
-      { email },
-      {
-        $push:{
-          operations:{
-            $each:[operation],
-            $position:0
-          }
-        }
-      }
-    );
-
-    res.json({success:true});
-
-  }catch(e){
-    console.log(e);
-    res.json({success:false,message:"فشل الإيداع"});
-  }
-});
 
 /* ---------------- WITHDRAW ---------------- */
 
@@ -1376,36 +1312,36 @@ async function distributeReferralCommission(user, price){
 
 /* ---------------- CREATE PAYMENT LINK ---------------- */
 
-app.post("/create-payment", async (req,res)=>{
-  try{
+app.post("/create-payment", async (req, res) => {
+  try {
     const email = normalizeEmail(req.body.email);
     const amount = Number(req.body.amount);
 
-    if(!email){
-      return res.json({success:false,message:"البريد مطلوب"});
+    if (!email) {
+      return res.json({ success: false, message: "البريد مطلوب" });
     }
 
-    if(!amount || amount <= 0){
-      return res.json({success:false,message:"المبلغ غير صحيح"});
+    if (!amount || amount <= 0) {
+      return res.json({ success: false, message: "المبلغ غير صحيح" });
     }
 
     const user = await usersCollection.findOne({ email });
 
-    if(!user || user.isDeleted){
-      return res.json({success:false,message:"المستخدم غير موجود"});
+    if (!user || user.isDeleted) {
+      return res.json({ success: false, message: "المستخدم غير موجود" });
     }
 
     const response = await axios.post(
-      "https://api.nowpayments.io/v1/invoice",
+      "https://api.nowpayments.io/v1/payment",
       {
         price_amount: amount,
         price_currency: "usd",
         pay_currency: "usdttrc20",
-        order_id: email,
-        order_description: "deposit"
+        order_id: email + "_" + Date.now(),
+        order_description: "Deposit"
       },
       {
-        headers:{
+        headers: {
           "x-api-key": process.env.NOWPAYMENTS_API_KEY,
           "Content-Type": "application/json"
         }
@@ -1413,13 +1349,13 @@ app.post("/create-payment", async (req,res)=>{
     );
 
     return res.json({
-      success:true,
-      url: response.data.invoice_url
+      success: true,
+      payment_url: response.data.invoice_url
     });
 
-  }catch(e){
+  } catch (e) {
     console.log(e?.response?.data || e.message || e);
-    return res.json({success:false,message:"فشل إنشاء رابط الدفع"});
+    return res.json({ success: false, message: "فشل إنشاء رابط الدفع" });
   }
 });
 
