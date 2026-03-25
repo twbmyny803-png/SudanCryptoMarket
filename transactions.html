@@ -108,6 +108,10 @@ margin:10px 0;
 سجل العمليات
 </div>
 
+<div class="container">
+    <div id="payments"></div>
+</div>
+
 <div class="container" id="transactionsBox">
 <div class="empty">
 جاري تحميل العمليات...
@@ -242,6 +246,29 @@ box.innerHTML=html
 .catch(()=>{
 document.getElementById("transactionsBox").innerHTML=`<div class="empty">تعذر تحميل العمليات</div>`
 })
+
+async function loadPayments() {
+
+    const res = await fetch('/payments');
+    const data = await res.json();
+
+    const container = document.getElementById('payments');
+
+    container.innerHTML = "";
+
+    data.forEach(p => {
+        const item = `
+            <div style="background:#222;padding:10px;margin:10px;border-radius:8px;color:white;">
+                <p>ID: ${p.id}</p>
+                <p>Amount: $${p.amount}</p>
+                <p>Status: ${p.status}</p>
+            </div>
+        `;
+        container.innerHTML += item;
+    });
+}
+
+loadPayments();
 </script>
 
 </body>
