@@ -1401,10 +1401,8 @@ app.post("/create-payment", async (req, res) => {
         price_amount: amount,
         price_currency: "usd",
         pay_currency: "usdttrc20",
-
         order_id: email + "_" + Date.now(),
         order_description: "Deposit",
-
         success_url: "https://sudancryptomarket.onrender.com/success.html",
         cancel_url: "https://sudancryptomarket.onrender.com/deposit.html"
       })
@@ -1412,13 +1410,22 @@ app.post("/create-payment", async (req, res) => {
 
     const data = await response.json();
 
+    console.log("NOWPAY RESPONSE:", data); // 🔥 مهم
+
+    if (!data.invoice_url) {
+      return res.json({
+        success: false,
+        message: "فشل من مزود الدفع"
+      });
+    }
+
     res.json({
       success: true,
       url: data.invoice_url
     });
 
   } catch (e) {
-    console.log(e);
+    console.log("ERROR CREATE PAYMENT:", e);
     res.json({ success: false });
   }
 });
