@@ -214,7 +214,7 @@ async function payNow(){
   const data = await res.json()
 
   if(data.success){
-    window.location.href = data.url || data.payment_url
+    window.location.href = data.url
   }else{
     alert("فشل إنشاء الدفع")
   }
