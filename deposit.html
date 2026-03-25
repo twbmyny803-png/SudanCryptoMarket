@@ -192,17 +192,15 @@ if(selectedPackage && selectedPrice){
 }
 
 async function payNow(){
-  alert("تم الضغط على الزر");
+
+  const amount = Number(document.getElementById("amount").value);
+
+  if(!amount || amount <= 0){
+    alert("أدخل مبلغ صحيح");
+    return;
+  }
 
   try {
-    const amount = Number(document.getElementById("amount").value);
-
-    if(!amount || amount <= 0){
-      alert("أدخل مبلغ صحيح");
-      return;
-    }
-
-    alert("جاري إرسال طلب الدفع...");
 
     const res = await fetch(API + "/create-payment", {
       method:"POST",
@@ -215,19 +213,16 @@ async function payNow(){
       })
     });
 
-    alert("وصل رد من السيرفر: " + res.status);
-
     const data = await res.json();
-    alert("رد السيرفر: " + JSON.stringify(data));
 
     if(data.success && data.url){
-      window.location.href = data.url;
+      window.location.href = data.url; // 🔥 تحويل مباشر
     }else{
-      alert(data.message || "فشل إنشاء الدفع");
+      alert("فشل إنشاء الدفع");
     }
 
   } catch (e) {
-    alert("خطأ: " + e.message);
+    alert("حدث خطأ في الاتصال بالسيرفر");
   }
 }
 </script>
