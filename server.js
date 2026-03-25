@@ -2,7 +2,6 @@ const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
 const axios = require("axios");
-const fetch = require("node-fetch");
 const { Resend } = require("resend");
 const { MongoClient } = require("mongodb");
 const multer = require("multer");
@@ -499,6 +498,7 @@ app.post("/login", async (req,res)=>{
     console.log(e);
     res.json({success:false,message:"فشل تسجيل الدخول"});
   }
+});
 });
 
 /* ---------------- USER DATA ---------------- */
