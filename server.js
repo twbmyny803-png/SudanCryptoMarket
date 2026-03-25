@@ -7,6 +7,7 @@ const { MongoClient } = require("mongodb");
 const multer = require("multer");
 const path = require("path");
 const cron = require("node-cron");
+const fetch = require("node-fetch");
 
 const app = express();
 
@@ -498,7 +499,6 @@ app.post("/login", async (req,res)=>{
     console.log(e);
     res.json({success:false,message:"فشل تسجيل الدخول"});
   }
-});
 });
 
 /* ---------------- USER DATA ---------------- */
