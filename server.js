@@ -1312,52 +1312,7 @@ async function distributeReferralCommission(user, price){
 
 /* ---------------- CREATE PAYMENT LINK ---------------- */
 
-app.post("/create-payment", async (req, res) => {
-  try {
-    const email = normalizeEmail(req.body.email);
-    const amount = Number(req.body.amount);
 
-    if (!email) {
-      return res.json({ success: false, message: "البريد مطلوب" });
-    }
-
-    if (!amount || amount <= 0) {
-      return res.json({ success: false, message: "المبلغ غير صحيح" });
-    }
-
-    const user = await usersCollection.findOne({ email });
-
-    if (!user || user.isDeleted) {
-      return res.json({ success: false, message: "المستخدم غير موجود" });
-    }
-
-    const response = await axios.post(
-      "https://api.nowpayments.io/v1/payment",
-      {
-        price_amount: amount,
-        price_currency: "usd",
-        pay_currency: "usdttrc20",
-        order_id: email + "_" + Date.now(),
-        order_description: "Deposit"
-      },
-      {
-        headers: {
-          "x-api-key": process.env.NOWPAYMENTS_API_KEY,
-          "Content-Type": "application/json"
-        }
-      }
-    );
-
-    return res.json({
-      success: true,
-      payment_url: response.data.invoice_url
-    });
-
-  } catch (e) {
-    console.log(e?.response?.data || e.message || e);
-    return res.json({ success: false, message: "فشل إنشاء رابط الدفع" });
-  }
-});
 
 /* ---------------- NOWPAYMENTS WEBHOOK ---------------- */
 
@@ -1379,7 +1334,7 @@ app.post("/webhook", async (req,res)=>{
 
     if(payment.payment_status === "finished"){
 
-      const email = normalizeEmail(payment.order_id);
+      const email = normalizeEmail(payment.order_id.split("_")[0]);
       const amount = Number(payment.pay_amount || 0);
       const txid = String(payment.payment_id || "");
 
