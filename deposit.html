@@ -192,17 +192,13 @@ if(selectedPackage && selectedPrice){
 }
 
 async function payNow(){
-  alert("تم الضغط على الزر");
-
-  try {
-    const amount = Number(document.getElementById("amount").value);
+  try{
+    const amount = Number(document.getElementById("amount").value)
 
     if(!amount || amount <= 0){
-      alert("أدخل مبلغ صحيح");
-      return;
+      alert("أدخل مبلغ صحيح")
+      return
     }
-
-    alert("جاري إرسال طلب الدفع...");
 
     const res = await fetch(API + "/create-payment", {
       method:"POST",
@@ -213,21 +209,27 @@ async function payNow(){
         email: email,
         amount: amount
       })
-    });
+    })
 
-    alert("وصل رد من السيرفر: " + res.status);
+    const text = await res.text()
+    console.log("RAW RESPONSE:", text)
 
-    const data = await res.json();
-    alert("رد السيرفر: " + JSON.stringify(data));
-
-    if(data.success && data.url){
-      window.location.href = data.url;
-    }else{
-      alert(data.message || "فشل إنشاء الدفع");
+    let data
+    try{
+      data = JSON.parse(text)
+    }catch(e){
+      alert("السيرفر رجع HTML أو نص غير JSON")
+      return
     }
 
-  } catch (e) {
-    alert("خطأ: " + e.message);
+    if(data.success && data.url){
+      window.location.href = data.url
+    }else{
+      alert(data.message || "فشل إنشاء الدفع")
+    }
+
+  }catch(e){
+    alert("خطأ: " + e.message)
   }
 }
 </script>
