@@ -174,7 +174,7 @@ const API="https://sudancryptomarket-api.onrender.com"
 const email=localStorage.getItem("userEmail")
 
 if(!email){
-window.location.href="login.html"
+  window.location.href="login.html"
 }
 
 const selectedPackage=localStorage.getItem("selectedPackage")
@@ -183,40 +183,51 @@ const selectedDailyProfit=localStorage.getItem("selectedDailyProfit")
 const selectedDuration=localStorage.getItem("selectedDuration")
 
 if(selectedPackage && selectedPrice){
-document.getElementById("selectedPackageCard").style.display="block"
-document.getElementById("packageName").innerText=selectedPackage
-document.getElementById("packagePrice").innerText=selectedPrice+" USDT"
-document.getElementById("packageDailyProfit").innerText=selectedDailyProfit+" USDT"
-document.getElementById("packageDuration").innerText=selectedDuration+" يوم"
-document.getElementById("amount").value=selectedPrice
+  document.getElementById("selectedPackageCard").style.display="block"
+  document.getElementById("packageName").innerText=selectedPackage
+  document.getElementById("packagePrice").innerText=selectedPrice+" USDT"
+  document.getElementById("packageDailyProfit").innerText=selectedDailyProfit+" USDT"
+  document.getElementById("packageDuration").innerText=selectedDuration+" يوم"
+  document.getElementById("amount").value=selectedPrice
 }
 
 async function payNow(){
+  alert("تم الضغط على الزر");
 
-  const amount = Number(document.getElementById("amount").value)
+  try {
+    const amount = Number(document.getElementById("amount").value);
 
-  if(!amount || amount <= 0){
-    alert("أدخل مبلغ صحيح")
-    return
-  }
+    if(!amount || amount <= 0){
+      alert("أدخل مبلغ صحيح");
+      return;
+    }
 
-  const res = await fetch(API + "/create-payment", {
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body: JSON.stringify({
-      email: email,
-      amount: amount
-    })
-  })
+    alert("جاري إرسال طلب الدفع...");
 
-  const data = await res.json()
+    const res = await fetch(API + "/create-payment", {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body: JSON.stringify({
+        email: email,
+        amount: amount
+      })
+    });
 
-  if(data.success){
-    window.location.href = data.url
-  }else{
-    alert("فشل إنشاء الدفع")
+    alert("وصل رد من السيرفر: " + res.status);
+
+    const data = await res.json();
+    alert("رد السيرفر: " + JSON.stringify(data));
+
+    if(data.success && data.url){
+      window.location.href = data.url;
+    }else{
+      alert(data.message || "فشل إنشاء الدفع");
+    }
+
+  } catch (e) {
+    alert("خطأ: " + e.message);
   }
 }
 </script>
