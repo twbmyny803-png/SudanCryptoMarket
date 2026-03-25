@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
-const axios = require("axios");
 const { Resend } = require("resend");
 const { MongoClient } = require("mongodb");
 const multer = require("multer");
