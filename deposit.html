@@ -187,7 +187,6 @@ const selectedDuration=localStorage.getItem("selectedDuration")
 if(selectedPackage && selectedPrice){
   document.getElementById("selectedPackageCard").style.display="block"
   document.getElementById("packageName").innerText=selectedPackage
-  document.getElementById("packageName").innerText=selectedPackage
   document.getElementById("packagePrice").innerText=selectedPrice+" USDT"
   document.getElementById("packageDailyProfit").innerText=selectedDailyProfit+" USDT"
   document.getElementById("packageDuration").innerText=selectedDuration+" يوم"
@@ -243,7 +242,15 @@ async function createPayment() {
 
     const data = await res.json();
 
-    console.log(data);
+    if (data.success) {
+
+        const paymentId = data.payment.id;
+
+        console.log("Payment Created:", paymentId);
+
+        // هنا حط رابط الدفع حقك
+        window.location.href = "رابط_الدفع_الحالي";
+    }
 }
 </script>
 
