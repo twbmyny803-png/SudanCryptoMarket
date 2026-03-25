@@ -160,6 +160,8 @@ color:#0b1f3a;
 ادفع الآن 💳
 </button>
 
+<button class="submit" onclick="createPayment()" style="background:#2D6AF6; margin-top: 10px;">شراء الباقة</button>
+
 <div class="note">
 سيتم تحويلك مباشرة لصفحة الدفع الآمنة
 </div>
@@ -184,6 +186,7 @@ const selectedDuration=localStorage.getItem("selectedDuration")
 
 if(selectedPackage && selectedPrice){
   document.getElementById("selectedPackageCard").style.display="block"
+  document.getElementById("packageName").innerText=selectedPackage
   document.getElementById("packageName").innerText=selectedPackage
   document.getElementById("packagePrice").innerText=selectedPrice+" USDT"
   document.getElementById("packageDailyProfit").innerText=selectedDailyProfit+" USDT"
@@ -224,6 +227,23 @@ async function payNow(){
   } catch (e) {
     alert("حدث خطأ في الاتصال بالسيرفر");
   }
+}
+
+async function createPayment() {
+
+    const res = await fetch('/create-payment', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            amount: 1000
+        })
+    });
+
+    const data = await res.json();
+
+    console.log(data);
 }
 </script>
 
