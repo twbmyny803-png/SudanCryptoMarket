@@ -23,6 +23,7 @@ let otpCollection;
 let verifyCollection;
 
 const adminSessions = {};
+let payments = [];
 
 const ADMIN_USERNAME = "admain";
 const ADMIN_PASSWORD = "admin_2050";
@@ -1428,6 +1429,24 @@ app.post("/create-payment", async (req, res) => {
     console.log("ERROR CREATE PAYMENT:", e);
     res.json({ success: false });
   }
+});
+
+app.post('/create-payment', (req, res) => {
+
+    const payment = {
+        id: Date.now(),
+        user_id: 1,
+        amount: req.body.amount,
+        status: "pending",
+        created_at: new Date()
+    };
+
+    payments.push(payment);
+
+    res.json({
+        success: true,
+        payment: payment
+    });
 });
 
 /* ---------------- START SERVER ---------------- */
