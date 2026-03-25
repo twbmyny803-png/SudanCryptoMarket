@@ -1449,6 +1449,10 @@ app.post('/create-payment', (req, res) => {
     });
 });
 
+app.get('/payments', (req, res) => {
+    res.json(payments);
+});
+
 /* ---------------- START SERVER ---------------- */
 
 async function startServer(){
