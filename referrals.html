@@ -8,7 +8,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
-
 body{
 margin:0;
 font-family:Tahoma;
@@ -101,7 +100,6 @@ color:#777;
 font-size:13px;
 padding:10px;
 }
-
 </style>
 </head>
 
@@ -114,162 +112,119 @@ padding:10px;
 <div class="container">
 
 <div class="card">
-
-<div class="title">
-رمز الإحالة
-</div>
-
-<div class="code" id="refCode">
-...
-</div>
-
-<div class="link" id="refLink">
-...
-</div>
-
+<div class="title">رمز الإحالة</div>
+<div class="code" id="refCode">...</div>
+<div class="link" id="refLink">...</div>
 <div class="qr" id="qrCode"></div>
-
-<button class="btn" onclick="copyLink()">
-نسخ رابط الإحالة
-</button>
-
-<button class="btn btn2" onclick="shareWhatsApp()">
-مشاركة عبر واتساب
-</button>
-
+<button class="btn" onclick="copyLink()">نسخ رابط الإحالة</button>
+<button class="btn btn2" onclick="shareWhatsApp()">مشاركة عبر واتساب</button>
 </div>
 
 <div class="card">
-
-<div class="title">
-عدد أعضاء الفريق
-</div>
-
-<div class="count" id="teamCount">
-0
-</div>
-
+<div class="title">عدد أعضاء الفريق</div>
+<div class="count" id="teamCount">0</div>
 </div>
 
 <div class="card">
-
-<div class="title">
-أعضاء الفريق
-</div>
-
+<div class="title">أعضاء الفريق</div>
 <div id="teamList">
-
-<div class="empty">
-لا يوجد أعضاء بعد
+<div class="empty">جاري التحميل...</div>
 </div>
-
-</div>
-
 </div>
 
 </div>
 
 <script>
-
-const API="https://sudancryptomarket-api.onrender.com"
-
-const email=localStorage.getItem("userEmail")
+const API = "https://sudancryptomarket-api.onrender.com";
+const email = localStorage.getItem("userEmail");
 
 if(!email){
-window.location.href="login.html"
+  window.location.href = "login.html";
 }
 
-fetch(API+"/user-data",{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({email})
-
+// 1. جلب بيانات المستخدم الأساسية (الرمز والرابط)
+fetch(API + "/user-data", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email })
 })
+.then(res => res.json())
+.then(data => {
+  if(!data.success){
+    localStorage.removeItem("userEmail");
+    window.location.href = "login.html";
+    return;
+  }
 
-.then(res=>res.json())
+  const refCode = data.refCode || data.referralCode || "";
+  document.getElementById("refCode").innerText = refCode;
+  
+  const link = window.location.origin + "/index.html?ref=" + refCode;
+  document.getElementById("refLink").innerText = link;
 
-.then(data=>{
+  // توليد الـ QR Code
+  new QRCode(document.getElementById("qrCode"), {
+    text: link,
+    width: 150,
+    height: 150
+  });
+})
+.catch(err => console.error("Error loading user data:", err));
 
-if(!data.success){
+// 2. جلب قائمة أعضاء الفريق بالتفصيل
+async function loadTeam(){
+  try{
+    const res = await fetch(API + "/my-team", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
 
-localStorage.removeItem("userEmail")
+    const data = await res.json();
+    const list = document.getElementById("teamList");
 
-window.location.href="login.html"
+    if(!data.success){
+      list.innerHTML = '<div class="empty">فشل تحميل الفريق</div>';
+      return;
+    }
 
-return
+    document.getElementById("teamCount").innerText = data.count || 0;
+    list.innerHTML = "";
 
+    if(!data.team || data.team.length === 0){
+      list.innerHTML = '<div class="empty">لا يوجد أعضاء حتى الآن</div>';
+      return;
+    }
+
+    data.team.forEach(member => {
+      const div = document.createElement("div");
+      div.className = "member";
+      div.innerHTML = `
+        <div>👤 <b>الاسم:</b> ${member.name || "-"}</div>
+        <div>📧 <b>البريد:</b> ${member.email || "-"}</div>
+        <div>📞 <b>الهاتف:</b> ${member.phone || "-"}</div>
+      `;
+      list.appendChild(div);
+    });
+  } catch(e) {
+    document.getElementById("teamList").innerHTML = '<div class="empty">حدث خطأ أثناء تحميل الفريق</div>';
+  }
 }
-
-document.getElementById("refCode").innerText=data.referralCode
-
-const link=location.origin+"/index.html?ref="+data.referralCode
-
-document.getElementById("refLink").innerText=link
-
-document.getElementById("teamCount").innerText=data.referralCount
-
-new QRCode(document.getElementById("qrCode"),{
-text:link,
-width:150,
-height:150
-})
-
-const list=document.getElementById("teamList")
-
-list.innerHTML=""
-
-if(!data.teamMembers || data.teamMembers.length===0){
-
-list.innerHTML='<div class="empty">لا يوجد أعضاء بعد</div>'
-
-return
-
-}
-
-data.teamMembers.forEach(m=>{
-
-const div=document.createElement("div")
-
-div.className="member"
-
-div.innerHTML="👤 "+m.name+"<br>"+m.email
-
-list.appendChild(div)
-
-})
-
-})
 
 function copyLink(){
-
-const code=document.getElementById("refCode").innerText
-
-const link=location.origin+"/index.html?ref="+code
-
-navigator.clipboard.writeText(link)
-
-alert("تم نسخ رابط الإحالة")
-
+  const link = document.getElementById("refLink").innerText;
+  navigator.clipboard.writeText(link);
+  alert("تم نسخ رابط الإحالة");
 }
 
 function shareWhatsApp(){
-
-const code=document.getElementById("refCode").innerText
-
-const link=location.origin+"/index.html?ref="+code
-
-const text="انضم إلى منصة سودان كربتو عبر رابط الإحالة الخاص بي: "+link
-
-window.open("https://wa.me/?text="+encodeURIComponent(text))
-
+  const link = document.getElementById("refLink").innerText;
+  const text = "انضم إلى منصة سودان كربتو عبر رابط الإحالة الخاص بي: " + link;
+  window.open("https://wa.me/?text=" + encodeURIComponent(text));
 }
 
+loadTeam();
 </script>
 
 </body>
-  </html>
+</html>
