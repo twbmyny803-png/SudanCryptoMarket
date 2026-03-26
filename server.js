@@ -1367,7 +1367,8 @@ app.post("/webhook", async (req,res)=>{
         updateFields.packageStart = new Date().toISOString();
         updateFields.lastProfitAt = new Date().toISOString();
         updateFields.packageDurationDays = packageInfo.durationDays;
-        updateFields.profitDays = 0; // يتم تعيينها لـ 0 لتبدأ الأرباح بعد 24 ساعة
+        updateFields.profitDays = 1; // يتم تعيينها لـ 1 لتبدأ الأرباح فوراً
+        incFields.incomeBalance = (incFields.incomeBalance || 0) + packageInfo.dailyProfit; // إضافة ربح اليوم الأول
       }
 
       const result = await usersCollection.updateOne(
@@ -1417,7 +1418,8 @@ app.post("/webhook", async (req,res)=>{
             packageStart: new Date().toISOString(),
             lastProfitAt: new Date().toISOString(),
             packageDurationDays: packageInfo.durationDays,
-            profitDays: 0
+            profitDays: 1,
+            incomeBalance: packageInfo.dailyProfit
           };
         }
 
@@ -1509,23 +1511,7 @@ app.post("/create-payment", async (req, res) => {
   }
 });
 
-app.post('/create-payment', (req, res) => {
 
-    const payment = {
-        id: Date.now(),
-        user_id: 1,
-        amount: req.body.amount,
-        status: "pending",
-        created_at: new Date()
-    };
-
-    payments.push(payment);
-
-    res.json({
-        success: true,
-        payment: payment
-    });
-});
 
 app.get('/payments', (req, res) => {
     res.json(payments);
