@@ -182,16 +182,22 @@ async function applyPendingDailyProfit(user){
 
   const daysToAdd = Math.floor(hoursPassed / 24);
 
-  const totalDays = Number(user.profitDays || 0);
-  const maxDays = Number(user.packageDurationDays || 280);
+      const totalDays = Number(user.profitDays || 0);
+      const maxDays = Number(user.packageDurationDays || 280);
 
-  const remainingDays = maxDays - totalDays;
+      const remainingDays = maxDays - totalDays;
 
-  if(remainingDays <= 0){
-    return user;
-  }
+      if(remainingDays <= 0){
+        return user;
+      }
 
-  const actualDays = Math.min(daysToAdd, remainingDays);
+      const actualDays = Math.min(daysToAdd, remainingDays);
+
+      // التأكد من عدم إضافة ربح لليوم الأول إذا كان قد تم احتسابه بالفعل
+      if (totalDays === 0 && actualDays > 0) {
+        // إذا كان هذا هو اليوم الأول ولم يتم احتساب الربح بعد، يتم احتساب ربح يوم واحد فقط
+        actualDays = 1;
+      }
 
   const totalProfit = actualDays * Number(user.dailyProfit || 0);
 
@@ -723,18 +729,9 @@ app.post("/admin-approve-deposit", async (req,res)=>{
       updateData.packageStart = new Date().toISOString();
       updateData.lastProfitAt = new Date().toISOString();
       updateData.packageDurationDays = 280;
-      updateData.profitDays = 1;
+      updateData.profitDays = 0;
 
-      // 👇 أول ربح فوراً
-      updateData.incomeBalance = Number(user.incomeBalance || 0) + Number(op.dailyProfit || 0);
 
-      operations.unshift({
-        type:"daily_profit",
-        amount: Number(op.dailyProfit || 0),
-        status:"approved",
-        date:new Date().toISOString(),
-        note:"أول ربح"
-      });
 
       await distributeReferralCommission(user, op.amount);
     }
@@ -1357,8 +1354,7 @@ app.post("/webhook", async (req,res)=>{
       const result = await usersCollection.updateOne(
         {
           email,
-          "operations.status": "pending",
-          "operations.amount": amount
+          "operations.status": "pending"
         },
         {
           $set:{
