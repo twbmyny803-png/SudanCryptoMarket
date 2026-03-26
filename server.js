@@ -1353,31 +1353,45 @@ app.post("/webhook", async (req,res)=>{
         return res.send("User not found");
       }
 
-      // منع التكرار
-      const exists = (user.operations || []).find(op => String(op.txid || "") === txid);
-      if(exists){
-        return res.send("Already processed");
-      }
-
-      await usersCollection.updateOne(
-        { email },
+      // تحديث حالة العملية من pending إلى approved
+      const result = await usersCollection.updateOne(
         {
-          $inc:{ balance: amount },
-          $push:{
-            operations:{
-              $each:[{
-                type:"deposit",
-                amount,
-                network:"USDT-TRC20",
-                txid,
-                status:"approved",
-                date:new Date().toISOString()
-              }],
-              $position:0
-            }
-          }
+          email,
+          "operations.status": "pending",
+          "operations.amount": amount
+        },
+        {
+          $set:{
+            "operations.$.status": "approved",
+            "operations.$.txid": txid
+          },
+          $inc:{ balance: amount }
         }
       );
+
+      if (result.matchedCount === 0) {
+        console.log("⚠️ No pending deposit found for:", email, amount);
+        // في حال لم يتم العثور على pending، نقوم بإضافتها كعملية جديدة (كإجراء احتياطي)
+        await usersCollection.updateOne(
+          { email },
+          {
+            $inc:{ balance: amount },
+            $push:{
+              operations:{
+                $each:[{
+                  type:"deposit",
+                  amount,
+                  network:"USDT-TRC20",
+                  txid,
+                  status:"approved",
+                  date:new Date().toISOString()
+                }],
+                $position:0
+              }
+            }
+          }
+        );
+      }
 
       console.log("✅ Deposit added:", email, amount);
     }
@@ -1399,6 +1413,25 @@ app.post("/create-payment", async (req, res) => {
     if (!email || !amount) {
       return res.json({ success: false, message: "بيانات ناقصة" });
     }
+
+    // ✅ سجل الطلب أولاً
+    await usersCollection.updateOne(
+      { email },
+      {
+        $push:{
+          operations:{
+            $each:[{
+              type:"deposit",
+              amount,
+              network:"USDT-TRC20",
+              status:"pending",
+              date:new Date().toISOString()
+            }],
+            $position:0
+          }
+        }
+      }
+    );
 
     const response = await fetch("https://api.nowpayments.io/v1/invoice", {
       method: "POST",
