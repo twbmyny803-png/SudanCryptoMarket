@@ -1336,6 +1336,8 @@ app.post("/webhook", async (req,res)=>{
 
       const orderId = payment.order_id || "";
       const email = normalizeEmail(orderId.split("_")[0]);
+      const packageName = payment.order_description || "";
+      const packageInfo = getPackageInfo(packageName);
 
       if (!email) {
         console.log("❌ Email not found in order_id:", orderId);
@@ -1351,41 +1353,77 @@ app.post("/webhook", async (req,res)=>{
       }
 
       // تحديث حالة العملية من pending إلى approved
+      // البحث عن العملية المعلقة وتحديثها
+      const updateFields = {
+        "operations.$.status": "approved",
+        "operations.$.txid": txid,
+      };
+      const incFields = { balance: amount };
+
+      if (packageInfo) {
+        updateFields.packageName = packageInfo.name;
+        updateFields.packagePrice = packageInfo.price;
+        updateFields.dailyProfit = packageInfo.dailyProfit;
+        updateFields.packageStart = new Date().toISOString();
+        updateFields.lastProfitAt = new Date().toISOString();
+        updateFields.packageDurationDays = packageInfo.durationDays;
+        updateFields.profitDays = 0; // يتم تعيينها لـ 0 لتبدأ الأرباح بعد 24 ساعة
+      }
+
       const result = await usersCollection.updateOne(
         {
           email,
-          "operations.status": "pending"
+          "operations.status": "pending",
+          "operations.packageName": packageName // البحث عن العملية المعلقة لنفس الباقة
         },
         {
-          $set:{
-            "operations.$.status": "approved",
-            "operations.$.txid": txid
-          },
-          $inc:{ balance: amount }
+          $set: updateFields,
+          $inc: incFields
         }
       );
 
       if (result.matchedCount === 0) {
-        console.log("⚠️ No pending deposit found for:", email, amount);
-        // في حال لم يتم العثور على pending، نقوم بإضافتها كعملية جديدة (كإجراء احتياطي)
-        await usersCollection.updateOne(
-          { email },
-          {
-            $inc:{ balance: amount },
-            $push:{
-              operations:{
-                $each:[{
-                  type:"deposit",
-                  amount,
-                  network:"USDT-TRC20",
-                  txid,
-                  status:"approved",
-                  date:new Date().toISOString()
-                }],
-                $position:0
-              }
+        console.log("⚠️ No pending package deposit found for:", email, amount, packageName);
+        // إذا لم يتم العثور على عملية معلقة، نقوم بإضافة عملية جديدة كـ package_deposit
+        const newOperation = {
+          type: packageInfo ? "package_deposit" : "deposit",
+          amount,
+          network: "USDT-TRC20",
+          txid,
+          status: "approved",
+          date: new Date().toISOString()
+        };
+
+        if (packageInfo) {
+          newOperation.packageName = packageInfo.name;
+          newOperation.dailyProfit = packageInfo.dailyProfit;
+        }
+
+        const updateDoc = {
+          $inc: { balance: amount },
+          $push: {
+            operations: {
+              $each: [newOperation],
+              $position: 0
             }
           }
+        };
+
+        if (packageInfo) {
+          updateDoc.$set = {
+            packageName: packageInfo.name,
+            packagePrice: packageInfo.price,
+            dailyProfit: packageInfo.dailyProfit,
+            packageStart: new Date().toISOString(),
+            lastProfitAt: new Date().toISOString(),
+            packageDurationDays: packageInfo.durationDays,
+            profitDays: 0
+          };
+        }
+
+        await usersCollection.updateOne(
+          { email },
+          updateDoc
         );
       }
 
@@ -1405,8 +1443,9 @@ app.post("/create-payment", async (req, res) => {
 
     const email = req.body.email;
     const amount = Number(req.body.amount);
+    const packageName = cleanText(req.body.packageName);
 
-    if (!email || !amount) {
+    if (!email || !amount || !packageName) {
       return res.json({ success: false, message: "بيانات ناقصة" });
     }
 
@@ -1417,10 +1456,12 @@ app.post("/create-payment", async (req, res) => {
         $push:{
           operations:{
             $each:[{
-              type:"deposit",
+              type:"package_deposit",
               amount,
               network:"USDT-TRC20",
               status:"pending",
+              packageName,
+              dailyProfit: getPackageInfo(packageName)?.dailyProfit || 0,
               date:new Date().toISOString()
             }],
             $position:0
@@ -1440,7 +1481,7 @@ app.post("/create-payment", async (req, res) => {
         price_currency: "usd",
         pay_currency: "usdttrc20",
         order_id: email + "_" + Date.now(),
-        order_description: "Deposit",
+        order_description: packageName,
         success_url: "https://sudancryptomarket.onrender.com/success.html",
         cancel_url: "https://sudancryptomarket.onrender.com/deposit.html"
       })
