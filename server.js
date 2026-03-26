@@ -498,7 +498,6 @@ app.post("/login", async (req,res)=>{
     }
 
     user = await applyPendingDailyProfit(user);
-
     res.json({success:true,user});
 
   }catch(e){
@@ -1515,6 +1514,43 @@ app.post("/create-payment", async (req, res) => {
 
 app.get('/payments', (req, res) => {
     res.json(payments);
+});
+
+app.post("/my-team", async (req,res)=>{
+  try{
+    const email = normalizeEmail(req.body.email);
+
+    const user = await usersCollection.findOne({ email });
+
+    if(!user){
+      return res.json({success:false,message:"المستخدم غير موجود"});
+    }
+
+    const team = [];
+
+    for(const refEmail of user.referrals || []){
+      const refUser = await usersCollection.findOne({ email: refEmail });
+
+      if(refUser){
+        team.push({
+          name: refUser.name,
+          email: refUser.email,
+          phone: refUser.phone || "",
+          createdAt: refUser.createdAt
+        });
+      }
+    }
+
+    res.json({
+      success:true,
+      count: team.length,
+      team
+    });
+
+  }catch(e){
+    console.log(e);
+    res.json({success:false,message:"فشل تحميل الفريق"});
+  }
 });
 
 /* ---------------- START SERVER ---------------- */
