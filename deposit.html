@@ -160,10 +160,8 @@ color:#0b1f3a;
 ادفع الآن 💳
 </button>
 
-<button class="submit" onclick="createPayment()" style="background:#2D6AF6; margin-top: 10px;">شراء الباقة</button>
-
 <div class="note">
-سيتم تحويلك مباشرة لصفحة الدفع الآمنة
+سيتم تحويلك مباشرة لصفحة الدفع الآمنة (NowPayments)
 </div>
 
 </div>
@@ -196,9 +194,15 @@ if(selectedPackage && selectedPrice){
 async function payNow(){
 
   const amount = Number(document.getElementById("amount").value);
+  const packageName = localStorage.getItem("selectedPackage"); // 🔥 جلب اسم الباقة من التخزين المحلي
 
   if(!amount || amount <= 0){
     alert("أدخل مبلغ صحيح");
+    return;
+  }
+
+  if(!packageName){
+    alert("يرجى اختيار باقة أولاً");
     return;
   }
 
@@ -211,46 +215,22 @@ async function payNow(){
       },
       body: JSON.stringify({
         email: email,
-        amount: amount
+        amount: amount,
+        packageName: packageName // 🔥 إرسال اسم الباقة للسيرفر
       })
     });
 
     const data = await res.json();
 
     if(data.success && data.url){
-      window.location.href = data.url; // 🔥 تحويل مباشر
+      window.location.href = data.url; // 🔥 تحويل مباشر لصفحة الدفع
     }else{
-      alert("فشل إنشاء الدفع");
+      alert("فشل إنشاء الدفع: " + (data.message || "خطأ غير معروف"));
     }
 
   } catch (e) {
     alert("حدث خطأ في الاتصال بالسيرفر");
   }
-}
-
-async function createPayment() {
-
-    const res = await fetch('/create-payment', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            amount: 1000
-        })
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-
-        const paymentId = data.payment.id;
-
-        console.log("Payment Created:", paymentId);
-
-        // هنا حط رابط الدفع حقك
-        window.location.href = "رابط_الدفع_الحالي";
-    }
 }
 </script>
 
