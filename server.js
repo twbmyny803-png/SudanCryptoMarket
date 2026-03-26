@@ -1331,11 +1331,19 @@ app.post("/webhook", async (req,res)=>{
       return res.status(400).send("Invalid signature");
     }
 
+    console.log("🔥 WEBHOOK DATA:", req.body);
+
     const payment = req.body;
 
     if(payment.payment_status === "finished"){
 
-      const email = normalizeEmail(payment.order_id.split("_")[0]);
+      const orderId = payment.order_id || "";
+      const email = normalizeEmail(orderId.split("_")[0]);
+
+      if (!email) {
+        console.log("❌ Email not found in order_id:", orderId);
+        return res.send("No email");
+      }
       const amount = Number(payment.pay_amount || 0);
       const txid = String(payment.payment_id || "");
 
