@@ -650,6 +650,7 @@ app.get("/admin-deposits", async (req,res)=>{
             txid:op.txid || "",
             packageName:op.packageName || "",
             status:op.status,
+            proof: op.proof || "",
             index
           });
         }
@@ -1380,7 +1381,7 @@ app.post("/manual-deposit", async (req,res)=>{
               packageName,
               dailyProfit: packageInfo?.dailyProfit || 0,
               txid:"",
-              proofImage:"",
+              proof:"",
               expiresAt: Date.now() + (30 * 60 * 1000),
               date:new Date().toISOString()
             }],
