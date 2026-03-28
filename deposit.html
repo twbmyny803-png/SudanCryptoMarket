@@ -152,6 +152,33 @@ color:#0b1f3a;
 
 <div class="card">
 
+<div class="title">📥 بيانات الإيداع</div>
+
+<div style="margin-bottom:16px;">
+  <label style="display:block;margin-bottom:8px;font-weight:bold;">اختر الشبكة:</label>
+  <select id="network" onchange="updateWallet()" style="margin-top:0;">
+    <option value="TRC20">USDT TRC20</option>
+    <option value="BEP20">USDT BEP20</option>
+  </select>
+</div>
+
+<div style="margin-bottom:16px;">
+  <p style="margin:0 0 8px 0;font-weight:bold;">📌 العنوان:</p>
+  <div class="address" style="background:#f7f9fc;padding:12px;border-radius:8px;word-break:break-all;">
+    <b id="walletAddress">-</b>
+  </div>
+  <button class="copy" onclick="copyAddress()" style="margin-top:10px;">📋 نسخ العنوان</button>
+</div>
+
+<div style="margin-bottom:16px;">
+  <p style="margin:0 0 8px 0;font-weight:bold;">📷 امسح الباركود:</p>
+  <div style="text-align:center;">
+    <img id="qrCode" width="200" style="border-radius:8px;">
+  </div>
+</div>
+
+<hr style="border:none;border-top:1px solid #ddd;margin:16px 0;">
+
 <div class="title">الإيداع</div>
 
 <input type="number" id="amount" placeholder="أدخل مبلغ الإيداع">
@@ -190,6 +217,41 @@ if(selectedPackage && selectedPrice){
   document.getElementById("packageDuration").innerText=selectedDuration+" يوم"
   document.getElementById("amount").value=selectedPrice
 }
+
+// 🔥 بيانات المحافظ حسب الشبكة
+const wallets = {
+  TRC20: "TLvwBXpVKVvjfvVJwMqDRKdqF8Kx1Qs1Aq",
+  BEP20: "0x1234567890abcdef1234567890abcdef12345678"
+};
+
+// 🔥 تحديث عنوان المحفظة والباركود عند تغيير الشبكة
+function updateWallet(){
+  const network = document.getElementById("network").value;
+  const address = wallets[network];
+  document.getElementById("walletAddress").innerText = address;
+  generateQRCode(address);
+}
+
+// 🔥 نسخ العنوان إلى الحافظة
+function copyAddress(){
+  const address = document.getElementById("walletAddress").innerText;
+  navigator.clipboard.writeText(address).then(()=>{
+    alert("✅ تم نسخ العنوان بنجاح");
+  }).catch(()=>{
+    alert("❌ فشل النسخ");
+  });
+}
+
+// 🔥 إنشاء باركود QR باستخدام API مجاني
+function generateQRCode(address){
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(address)}`;
+  document.getElementById("qrCode").src = qrUrl;
+}
+
+// 🔥 تحديث المحفظة عند تحميل الصفحة
+window.addEventListener("load", ()=>{
+  updateWallet();
+});
 
 async function payNow(){
 
