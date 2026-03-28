@@ -1400,26 +1400,20 @@ app.post("/manual-deposit", async (req,res)=>{
 
 app.post("/upload-proof", upload.single("file"), async (req,res)=>{
   try{
-    const email = normalizeEmail(req.body.email);
-    const txid = cleanText(req.body.txid);
+
+    const email = req.body.email;
+    const txid = req.body.txid;
 
     const fileUrl = "/uploads/" + req.file.filename;
 
-    const user = await usersCollection.findOne({ email });
-
-    const operations = user.operations || [];
-
-    for(let i=0;i<operations.length;i++){
-      if(operations[i].status === "pending"){
-        operations[i].txid = txid;
-        operations[i].proofImage = fileUrl;
-        break;
-      }
-    }
-
     await usersCollection.updateOne(
-      { email },
-      { $set:{ operations } }
+      { email, "operations.status":"pending" },
+      {
+        $set:{
+          "operations.$.txid": txid,
+          "operations.$.proof": fileUrl
+        }
+      }
     );
 
     res.json({success:true});
