@@ -79,6 +79,13 @@ select, input{
 
 <h2>صفحة الدفع</h2>
 
+<!-- 🔥 بيانات الطلب -->
+<div style="background:#334155;padding:10px;border-radius:8px;margin-bottom:10px;">
+  <div>رقم الطلب: <b id="orderId"></b></div>
+  <div>الباقة: <b id="packageName"></b></div>
+  <div>المبلغ: <b id="amount"></b> USDT</div>
+</div>
+
 <div id="timer" class="timer">15:00</div>
 
 <select id="network" onchange="startTimer()">
@@ -98,13 +105,29 @@ select, input{
 
 <button class="btn" onclick="submitPayment()">تأكيد الدفع</button>
 
-<div id="status" class="status">بانتظار الدفع...</div>
+<div id="status" class="status">في انتظار الدفع...</div>
 
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
 <script>
+
+// 🔥 بيانات من الخطوات السابقة
+const orderId = localStorage.getItem("orderId");
+const packageName = localStorage.getItem("selectedPackage");
+const amount = localStorage.getItem("selectedPrice");
+
+// 🔴 حماية
+if(!orderId){
+  alert("لا يوجد طلب");
+  window.location.href = "packages.html";
+}
+
+// عرض البيانات
+document.getElementById("orderId").innerText = orderId || "-";
+document.getElementById("packageName").innerText = packageName || "-";
+document.getElementById("amount").innerText = amount || "-";
 
 const TRC20 = "TLPZEoW71BNe6mHPK8XRJ5PkN5Agqqpa5n";
 const BEP20 = "0x990635c24b47a3ebbc14efadf0355e26ec706385";
@@ -114,10 +137,8 @@ let time = 900;
 let sent = false;
 let approvedOnce = false;
 
-// صوت
 const successSound = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
 
-// Popup
 function showPopup(message,color){
   let popup = document.createElement("div");
 
@@ -132,22 +153,20 @@ function showPopup(message,color){
   popup.style.borderRadius="8px";
 
   document.body.appendChild(popup);
-
   setTimeout(()=>popup.remove(),3000);
 }
 
-// اختيار الشبكة
+// 🔥 يبدأ بعد اختيار الشبكة فقط
 function startTimer(){
 
   if(timerStarted) return;
 
+  const net = document.getElementById("network").value;
+  if(!net) return;
+
   timerStarted = true;
 
-  const net = document.getElementById("network").value;
-  let address = "";
-
-  if(net === "TRC20") address = TRC20;
-  if(net === "BEP20") address = BEP20;
+  let address = net === "TRC20" ? TRC20 : BEP20;
 
   document.getElementById("addressBox").innerHTML = `
     <div>${address}</div>
@@ -170,16 +189,14 @@ function startTimer(){
     }
 
   },1000);
-
 }
 
-// نسخ
 function copyAddress(addr){
   navigator.clipboard.writeText(addr);
   showPopup("تم النسخ", "blue");
 }
 
-// إرسال
+// 🔥 إرسال بدون تخريب
 async function submitPayment(){
 
   if(sent){
@@ -187,9 +204,7 @@ async function submitPayment(){
     return;
   }
 
-  const email = localStorage.getItem("email");
-  const amount = localStorage.getItem("amount");
-  const packageName = localStorage.getItem("packageName");
+  const email = localStorage.getItem("userEmail");
 
   const txid = document.getElementById("txid").value;
   const file = document.getElementById("proof").files[0];
@@ -203,12 +218,6 @@ async function submitPayment(){
 
   document.getElementById("status").innerText="جاري الإرسال...";
 
-  await fetch("/manual-deposit",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({email,amount,packageName})
-  });
-
   const formData = new FormData();
   formData.append("email",email);
   formData.append("txid",txid);
@@ -220,17 +229,16 @@ async function submitPayment(){
   });
 
   showPopup("تم الإرسال","orange");
-
 }
 
-// تحديث الحالة
+// 🔥 تحديث الحالة مباشر
 setInterval(async ()=>{
 
   const res = await fetch("/user-data",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body: JSON.stringify({
-      email: localStorage.getItem("email")
+      email: localStorage.getItem("userEmail")
     })
   });
 
@@ -243,7 +251,7 @@ setInterval(async ()=>{
 
     approvedOnce = true;
 
-    document.getElementById("status").innerText="✔ تم القبول";
+    document.getElementById("status").innerText="تم القبول";
     document.getElementById("status").style.color="green";
 
     successSound.play();
@@ -257,7 +265,7 @@ setInterval(async ()=>{
   }
 
   if(op.status === "rejected"){
-    document.getElementById("status").innerText="❌ مرفوض";
+    document.getElementById("status").innerText="مرفوض";
     showPopup("تم الرفض","red");
   }
 
