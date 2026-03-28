@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إنشاء الطلب</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body{
+margin:0;
+font-family:Tahoma;
+background:#f2f5fa;
+}
+
+.container{
+max-width:500px;
+margin:auto;
+padding:20px;
+}
+
+.card{
+background:#fff;
+padding:20px;
+border-radius:14px;
+box-shadow:0 6px 16px rgba(0,0,0,0.08);
+}
+
+h2{
+text-align:center;
+margin-bottom:20px;
+}
+
+.info{
+background:#eef3ff;
+padding:12px;
+border-radius:10px;
+margin-bottom:10px;
+display:flex;
+justify-content:space-between;
+}
+
+.warning{
+background:#fff3cd;
+color:#856404;
+padding:10px;
+border-radius:8px;
+margin-top:10px;
+font-size:14px;
+}
+
+button{
+width:100%;
+padding:14px;
+background:#2D6AF6;
+color:#fff;
+border:none;
+border-radius:8px;
+font-size:16px;
+margin-top:15px;
+cursor:pointer;
+}
+
+.order-box{
+background:#e0ffe7;
+padding:10px;
+border-radius:8px;
+margin-top:10px;
+text-align:center;
+font-weight:bold;
+display:none;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card">
+
+<h2><i class="fa-solid fa-file-invoice"></i> إنشاء الطلب</h2>
+
+<div class="info">
+<span><i class="fa-solid fa-box"></i> الباقة</span>
+<b id="name"></b>
+</div>
+
+<div class="info">
+<span><i class="fa-solid fa-dollar-sign"></i> السعر</span>
+<b id="price"></b>
+</div>
+
+<div class="info">
+<span><i class="fa-solid fa-chart-line"></i> الربح اليومي</span>
+<b id="profit"></b>
+</div>
+
+<div class="info">
+<span><i class="fa-regular fa-clock"></i> مدة الباقة</span>
+<b id="duration"></b>
+</div>
+
+<div class="warning">
+<div><i class="fa-solid fa-triangle-exclamation"></i> الحد الأدنى للإيداع 10 USDT</div>
+<div><i class="fa-solid fa-triangle-exclamation"></i> أرسل نفس المبلغ بالضبط</div>
+<div><i class="fa-solid fa-triangle-exclamation"></i> اختر الشبكة الصحيحة</div>
+</div>
+
+<div class="order-box" id="orderBox"></div>
+
+<button onclick="createOrder()">
+<i class="fa-solid fa-circle-plus"></i> إنشاء الطلب
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+const API = "https://sudancryptomarket-api.onrender.com";
+
+const name = localStorage.getItem("selectedPackage");
+const price = localStorage.getItem("selectedPrice");
+const profit = localStorage.getItem("selectedDailyProfit");
+const duration = localStorage.getItem("selectedDuration");
+
+document.getElementById("name").innerText = name;
+document.getElementById("price").innerText = price + " USDT";
+document.getElementById("profit").innerText = profit + " USDT";
+document.getElementById("duration").innerText = duration + " يوم";
+
+async function createOrder(){
+
+  const email = localStorage.getItem("userEmail");
+
+  const res = await fetch(API + "/manual-deposit",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body: JSON.stringify({
+      email,
+      amount: price,
+      packageName: name
+    })
+  });
+
+  const data = await res.json();
+
+  if(data.success){
+
+    const orderId = data.orderId || ("ORD" + Date.now());
+
+    localStorage.setItem("orderId", orderId);
+
+    const box = document.getElementById("orderBox");
+    box.style.display="block";
+    box.innerHTML = `
+      <i class="fa-solid fa-hashtag"></i> رقم الطلب: ${orderId}
+    `;
+
+    setTimeout(()=>{
+      window.location.href = "deposit.html";
+    },2000);
+
+  }else{
+    alert("فشل إنشاء الطلب");
+  }
+
+}
+
+</script>
+
+</body>
+</html>
