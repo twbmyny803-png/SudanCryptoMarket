@@ -141,11 +141,14 @@ opacity:0.9;
 
 <script>
 function buyPackage(name, price, dailyProfit, durationDays){
-localStorage.setItem("selectedPackage", name);
-localStorage.setItem("selectedPrice", price);
-localStorage.setItem("selectedDailyProfit", dailyProfit);
-localStorage.setItem("selectedDuration", durationDays);
-window.location.href = "deposit.html";
+
+  localStorage.setItem("selectedPackage", name);
+  localStorage.setItem("selectedPrice", price);
+  localStorage.setItem("selectedDailyProfit", dailyProfit);
+  localStorage.setItem("selectedDuration", durationDays);
+
+  // 🔥 التعديل هنا فقط
+  window.location.href = "create-order.html";
 }
 </script>
 
