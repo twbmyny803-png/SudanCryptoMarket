@@ -554,8 +554,6 @@ app.post("/user-data", async (req,res)=>{
       dailyProfit:user.dailyProfit || 0,
       packageStart:user.packageStart || null,
       packageDurationDays:user.packageDurationDays || 0,
-      profitDays:user.profitDays || 0,
-      lastProfitAt:user.lastProfitAt || null,
       accruedProfit: calculateDailyAccruedProfit(user)
     });
 
@@ -1380,18 +1378,18 @@ app.post("/webhook", async (req,res)=>{
         updateFields.packageName = packageInfo.name;
         updateFields.packagePrice = packageInfo.price;
         updateFields.dailyProfit = packageInfo.dailyProfit;
-
         updateFields.packageStart = new Date().toISOString();
         updateFields.lastProfitAt = new Date().toISOString();
-
-        updateFields.packageDurationDays = 280; // ✅ مهم
-        updateFields.profitDays = 0;
+        updateFields.packageDurationDays = packageInfo.durationDays;
+        updateFields.profitDays = 1; // يتم تعيينها لـ 1 لتبدأ الأرباح فوراً
+        incFields.incomeBalance = (incFields.incomeBalance || 0) + packageInfo.dailyProfit; // إضافة ربح اليوم الأول
       }
 
       const result = await usersCollection.updateOne(
         {
           email,
-          "operations.status": "pending"
+          "operations.status": "pending",
+          "operations.packageName": packageName // البحث عن العملية المعلقة لنفس الباقة
         },
         {
           $set: updateFields,
@@ -1433,8 +1431,9 @@ app.post("/webhook", async (req,res)=>{
             dailyProfit: packageInfo.dailyProfit,
             packageStart: new Date().toISOString(),
             lastProfitAt: new Date().toISOString(),
-            packageDurationDays: 280,
-            profitDays: 0
+            packageDurationDays: packageInfo.durationDays,
+            profitDays: 1,
+            incomeBalance: packageInfo.dailyProfit
           };
         }
 
