@@ -78,6 +78,10 @@ border-radius:8px;
 padding:25px;
 color:#777;
 }
+
+img{
+border-radius:6px;
+}
 </style>
 </head>
 
@@ -96,7 +100,8 @@ color:#777;
 <th>المستخدم</th>
 <th>البريد</th>
 <th>المبلغ</th>
-<th>العملة</th>
+<th>TXID</th>
+<th>الصورة</th>
 <th>الحالة</th>
 <th>التحكم</th>
 </tr>
@@ -119,7 +124,7 @@ window.location.href="login.html";
 
 async function loadDeposits(){
 
-document.getElementById("depositTable").innerHTML="<tr><td colspan='6'>جاري التحميل...</td></tr>";
+document.getElementById("depositTable").innerHTML="<tr><td colspan='7'>جاري التحميل...</td></tr>";
 
 try{
 
@@ -140,8 +145,8 @@ let html="";
 
 (data.deposits||[]).forEach(dep=>{
 
-// إظهار الطلبات التي حالتها pending فقط
 if(dep.status === "pending") {
+
 html+=`
 <tr>
 
@@ -151,7 +156,15 @@ html+=`
 
 <td>${dep.amount||0}</td>
 
-<td>${dep.currency||"USDT"}</td>
+<td>${dep.txid || "-"}</td>
+
+<td>
+  ${
+    dep.proof 
+    ? `<img src="${API}${dep.proof}" width="70">`
+    : "-"
+  }
+</td>
 
 <td>${dep.status||"pending"}</td>
 
@@ -170,11 +183,11 @@ html+=`
 });
 
 document.getElementById("depositTable").innerHTML=
-html || "<tr><td colspan='6' class='empty'>لا توجد طلبات معلقة</td></tr>";
+html || "<tr><td colspan='7' class='empty'>لا توجد طلبات معلقة</td></tr>";
 
 }catch(err){
 
-document.getElementById("depositTable").innerHTML="<tr><td colspan='6'>تعذر الاتصال بالسيرفر</td></tr>";
+document.getElementById("depositTable").innerHTML="<tr><td colspan='7'>تعذر الاتصال بالسيرفر</td></tr>";
 
 }
 
