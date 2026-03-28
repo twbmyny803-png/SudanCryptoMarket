@@ -2,63 +2,72 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>الدفع</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<title>صفحة الدفع</title>
 
 <style>
 body{
-  font-family:Arial;
-  background:#f5f6fa;
-  text-align:center;
-  padding:20px;
+  font-family: Arial;
+  background:#0f172a;
+  color:#fff;
+  margin:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
 }
 
-.card{
-  background:#fff;
+.container{
+  width:95%;
+  max-width:400px;
+  background:#1e293b;
   padding:20px;
   border-radius:12px;
-  box-shadow:0 5px 15px rgba(0,0,0,0.1);
-  max-width:400px;
-  margin:auto;
+  text-align:center;
 }
 
-button{
-  padding:10px;
+h2{
+  margin-bottom:10px;
+}
+
+.timer{
+  color:#ff4d4d;
+  font-size:22px;
+  margin-bottom:15px;
+}
+
+select, input{
   width:100%;
-  border:none;
+  padding:10px;
+  margin:8px 0;
   border-radius:8px;
-  margin-top:10px;
+  border:none;
+}
+
+.btn{
+  width:100%;
+  padding:12px;
+  background:#22c55e;
+  border:none;
+  color:#fff;
+  border-radius:8px;
+  font-size:16px;
   cursor:pointer;
 }
 
 .copy{
-  background:#3498db;
-  color:white;
+  background:#3b82f6;
+  margin-top:5px;
 }
 
-.pay{
-  background:#27ae60;
-  color:white;
+.qr{
+  margin:15px 0;
 }
 
-input{
-  width:100%;
-  padding:10px;
+.status{
   margin-top:10px;
-  border-radius:8px;
-  border:1px solid #ccc;
-}
-
-select{
-  width:100%;
-  padding:10px;
-  border-radius:8px;
-}
-
-#timer{
-  color:red;
-  font-size:24px;
+  font-size:14px;
 }
 </style>
 
@@ -66,103 +75,117 @@ select{
 
 <body>
 
-<div class="card">
+<div class="container">
 
-<h2><i class="fa-solid fa-credit-card"></i> صفحة الدفع</h2>
+<h2>صفحة الدفع</h2>
 
-<h1 id="timer">
-<i class="fa-regular fa-clock"></i> 15:00
-</h1>
+<div id="timer" class="timer">15:00</div>
 
-<label><i class="fa-solid fa-network-wired"></i> اختر الشبكة</label>
-<select id="network" onchange="updateWallet()">
+<select id="network" onchange="startTimer()">
+  <option value="">اختر الشبكة</option>
   <option value="TRC20">USDT TRC20</option>
   <option value="BEP20">USDT BEP20</option>
 </select>
 
-<br><br>
+<div id="addressBox"></div>
 
-<p><i class="fa-solid fa-location-dot"></i> العنوان</p>
-
-<div style="background:#eee;padding:10px;border-radius:8px;">
-  <b id="wallet"></b>
+<div class="qr">
+  <canvas id="qrcode"></canvas>
 </div>
 
-<button class="copy" onclick="copyAddress()">
-  <i class="fa-regular fa-copy"></i> نسخ العنوان
-</button>
-
-<br><br>
-
-<p><i class="fa-solid fa-qrcode"></i> QR Code</p>
-<img id="qr" width="180">
-
-<hr>
-
-<input id="txid" placeholder="رقم العملية (TXID)">
-
-<label><i class="fa-solid fa-upload"></i> رفع صورة التحويل</label>
+<input type="text" id="txid" placeholder="رقم العملية (TXID)">
 <input type="file" id="proof">
 
-<button class="pay" onclick="submitPayment()">
-  <i class="fa-solid fa-check"></i> تأكيد الدفع
-</button>
+<button class="btn" onclick="submitPayment()">تأكيد الدفع</button>
 
-<p id="status">
-  <i class="fa-solid fa-hourglass-half"></i> بانتظار الدفع
-</p>
+<div id="status" class="status">بانتظار الدفع...</div>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
 <script>
 
-// المحافظ
-const wallets = {
-  TRC20: "TLPZEoW71BNe6mHPK8XRJ5PkN5Agqqpa5n",
-  BEP20: "0x990635c24b47a3ebbc14efadf0355e26ec706385"
-};
+const TRC20 = "TLPZEoW71BNe6mHPK8XRJ5PkN5Agqqpa5n";
+const BEP20 = "0x990635c24b47a3ebbc14efadf0355e26ec706385";
 
-// تحديث العنوان + QR
-function updateWallet(){
-  const net = document.getElementById("network").value;
-  const address = wallets[net];
+let timerStarted = false;
+let time = 900;
+let sent = false;
+let approvedOnce = false;
 
-  document.getElementById("wallet").innerText = address;
+// صوت
+const successSound = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
 
-  document.getElementById("qr").src =
-    "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + address;
+// Popup
+function showPopup(message,color){
+  let popup = document.createElement("div");
+
+  popup.innerText = message;
+  popup.style.position="fixed";
+  popup.style.bottom="20px";
+  popup.style.left="50%";
+  popup.style.transform="translateX(-50%)";
+  popup.style.background=color;
+  popup.style.color="#fff";
+  popup.style.padding="12px 20px";
+  popup.style.borderRadius="8px";
+
+  document.body.appendChild(popup);
+
+  setTimeout(()=>popup.remove(),3000);
 }
 
-updateWallet();
+// اختيار الشبكة
+function startTimer(){
+
+  if(timerStarted) return;
+
+  timerStarted = true;
+
+  const net = document.getElementById("network").value;
+  let address = "";
+
+  if(net === "TRC20") address = TRC20;
+  if(net === "BEP20") address = BEP20;
+
+  document.getElementById("addressBox").innerHTML = `
+    <div>${address}</div>
+    <button class="btn copy" onclick="copyAddress('${address}')">نسخ العنوان</button>
+  `;
+
+  QRCode.toCanvas(document.getElementById("qrcode"), address);
+
+  setInterval(()=>{
+    time--;
+
+    let min = Math.floor(time/60);
+    let sec = time % 60;
+
+    document.getElementById("timer").innerText =
+      `${min}:${sec < 10 ? "0"+sec : sec}`;
+
+    if(time <= 0){
+      document.getElementById("status").innerText="انتهى الوقت";
+    }
+
+  },1000);
+
+}
 
 // نسخ
-function copyAddress(){
-  navigator.clipboard.writeText(document.getElementById("wallet").innerText);
-  alert("تم النسخ");
+function copyAddress(addr){
+  navigator.clipboard.writeText(addr);
+  showPopup("تم النسخ", "blue");
 }
 
-// العداد 15 دقيقة
-let time = 900;
-
-setInterval(()=>{
-  time--;
-
-  let m = Math.floor(time/60);
-  let s = time%60;
-
-  document.getElementById("timer").innerHTML =
-    '<i class="fa-regular fa-clock"></i> ' + m + ":" + (s<10?"0":"") + s;
-
-  if(time <= 0){
-    document.getElementById("status").innerHTML =
-      '<i class="fa-solid fa-xmark"></i> انتهى الوقت';
-  }
-
-},1000);
-
-
-// إرسال الدفع
+// إرسال
 async function submitPayment(){
+
+  if(sent){
+    showPopup("تم الإرسال بالفعل","red");
+    return;
+  }
 
   const email = localStorage.getItem("email");
   const amount = localStorage.getItem("amount");
@@ -172,18 +195,20 @@ async function submitPayment(){
   const file = document.getElementById("proof").files[0];
 
   if(!txid || !file){
-    alert("أدخل رقم العملية وارفع الصورة");
+    showPopup("أدخل البيانات كاملة","red");
     return;
   }
 
-  // تسجيل العملية
+  sent = true;
+
+  document.getElementById("status").innerText="جاري الإرسال...";
+
   await fetch("/manual-deposit",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body: JSON.stringify({email,amount,packageName})
   });
 
-  // رفع الإثبات
   const formData = new FormData();
   formData.append("email",email);
   formData.append("txid",txid);
@@ -194,13 +219,11 @@ async function submitPayment(){
     body:formData
   });
 
-  document.getElementById("status").innerHTML =
-    '<i class="fa-solid fa-paper-plane"></i> تم الإرسال، في انتظار المراجعة';
+  showPopup("تم الإرسال","orange");
 
 }
 
-
-// تحديث الحالة تلقائي
+// تحديث الحالة
 setInterval(async ()=>{
 
   const res = await fetch("/user-data",{
@@ -212,21 +235,30 @@ setInterval(async ()=>{
   });
 
   const data = await res.json();
-
   const op = data.operations[0];
 
-  if(op){
+  if(!op) return;
 
-    if(op.status === "approved"){
-      document.getElementById("status").innerHTML =
-        '<i class="fa-solid fa-circle-check"></i> تم قبول الدفع';
-    }
+  if(op.status === "approved" && !approvedOnce){
 
-    if(op.status === "rejected"){
-      document.getElementById("status").innerHTML =
-        '<i class="fa-solid fa-circle-xmark"></i> تم رفض الدفع';
-    }
+    approvedOnce = true;
 
+    document.getElementById("status").innerText="✔ تم القبول";
+    document.getElementById("status").style.color="green";
+
+    successSound.play();
+
+    showPopup("تم القبول بنجاح","green");
+
+    setTimeout(()=>{
+      window.location.href="dashboard.html";
+    },3000);
+
+  }
+
+  if(op.status === "rejected"){
+    document.getElementById("status").innerText="❌ مرفوض";
+    showPopup("تم الرفض","red");
   }
 
 },3000);
