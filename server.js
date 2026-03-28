@@ -554,6 +554,8 @@ app.post("/user-data", async (req,res)=>{
       dailyProfit:user.dailyProfit || 0,
       packageStart:user.packageStart || null,
       packageDurationDays:user.packageDurationDays || 0,
+      profitDays:user.profitDays || 0,
+      lastProfitAt:user.lastProfitAt || null,
       accruedProfit: calculateDailyAccruedProfit(user)
     });
 
