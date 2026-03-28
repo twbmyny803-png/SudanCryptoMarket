@@ -744,9 +744,7 @@ app.post("/admin-approve-deposit", async (req,res)=>{
       updateData.packageStart = new Date().toISOString();
       updateData.lastProfitAt = new Date().toISOString();
       updateData.packageDurationDays = 280;
-      updateData.profitDays = 0;
-
-
+      updateData.profitCreditedDays = 0;
 
       await distributeReferralCommission(user, op.amount);
     }
@@ -1496,7 +1494,7 @@ app.post("/create-payment", async (req, res) => {
       body: JSON.stringify({
         price_amount: amount,
         price_currency: "usd",
-        pay_currency: "usdttrc20",
+        pay_currency: "usdt",
         ipn_callback_url: "https://sudan-crypto-api.onrender.com/webhook",
         order_id: orderId,
         order_description: packageName
@@ -1504,6 +1502,7 @@ app.post("/create-payment", async (req, res) => {
     });
 
     const data = await response.json();
+    console.log("🔥 NOWPAY FULL:", data);
 
     if (data.payment_id) {
       res.json({
@@ -1514,7 +1513,10 @@ app.post("/create-payment", async (req, res) => {
         order_id: orderId
       });
     } else {
-      res.json({ success: false, message: "فشل إنشاء الدفع" });
+      res.json({ 
+        success: false, 
+        message: data.message || "فشل من مزود الدفع" 
+      });
     }
 
   } catch (e) {
