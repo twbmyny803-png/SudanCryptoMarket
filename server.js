@@ -1460,9 +1460,9 @@ app.post("/create-payment", async (req, res) => {
 
     const email = req.body.email;
     const amount = Number(req.body.amount);
-    const packageName = cleanText(req.body.packageName);
+    const packageName = cleanText(req.body.packageName || "starter");
 
-    if (!email || !amount || !packageName) {
+    if (!email || !amount) {
       return res.json({ success: false, message: "بيانات ناقصة" });
     }
 
