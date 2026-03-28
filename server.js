@@ -498,7 +498,23 @@ app.post("/login", async (req,res)=>{
     }
 
     user = await applyPendingDailyProfit(user);
-    res.json({success:true,user});
+
+    res.json({
+      success:true,
+      user:{
+        name:user.name,
+        email:user.email,
+        phone:user.phone,
+        refCode:user.refCode,
+        balance:user.balance,
+        incomeBalance:user.incomeBalance,
+        packageName:user.packageName,
+        packagePrice:user.packagePrice,
+        dailyProfit:user.dailyProfit,
+        packageStart:user.packageStart,
+        packageDurationDays:user.packageDurationDays
+      }
+    });
 
   }catch(e){
     console.log(e);
@@ -1072,9 +1088,8 @@ app.post("/admin-set-package", async (req,res)=>{
     if(!requireAdmin(req,res)) return;
 
     const email = normalizeEmail(req.body.email);
-    const pack = cleanText(req.body.package);
-
-    const info = getPackageInfo(pack);
+    const packageName = cleanText(req.body.packageName);
+    const info = getPackageInfo(packageName);
 
     if(!info){
       return res.json({success:false,message:"الباقة غير صحيحة"});
@@ -1363,18 +1378,18 @@ app.post("/webhook", async (req,res)=>{
         updateFields.packageName = packageInfo.name;
         updateFields.packagePrice = packageInfo.price;
         updateFields.dailyProfit = packageInfo.dailyProfit;
+
         updateFields.packageStart = new Date().toISOString();
         updateFields.lastProfitAt = new Date().toISOString();
-        updateFields.packageDurationDays = packageInfo.durationDays;
-        updateFields.profitDays = 1; // يتم تعيينها لـ 1 لتبدأ الأرباح فوراً
-        incFields.incomeBalance = (incFields.incomeBalance || 0) + packageInfo.dailyProfit; // إضافة ربح اليوم الأول
+
+        updateFields.packageDurationDays = 280; // ✅ مهم
+        updateFields.profitDays = 0;
       }
 
       const result = await usersCollection.updateOne(
         {
           email,
-          "operations.status": "pending",
-          "operations.packageName": packageName // البحث عن العملية المعلقة لنفس الباقة
+          "operations.status": "pending"
         },
         {
           $set: updateFields,
@@ -1416,9 +1431,8 @@ app.post("/webhook", async (req,res)=>{
             dailyProfit: packageInfo.dailyProfit,
             packageStart: new Date().toISOString(),
             lastProfitAt: new Date().toISOString(),
-            packageDurationDays: packageInfo.durationDays,
-            profitDays: 1,
-            incomeBalance: packageInfo.dailyProfit
+            packageDurationDays: 280,
+            profitDays: 0
           };
         }
 
@@ -1460,9 +1474,8 @@ app.post("/create-payment", async (req, res) => {
               type:"package_deposit",
               amount,
               network:"USDT-TRC20",
-              status:"pending",
               packageName,
-              dailyProfit: getPackageInfo(packageName)?.dailyProfit || 0,
+              status:"pending",
               date:new Date().toISOString()
             }],
             $position:0
@@ -1471,7 +1484,9 @@ app.post("/create-payment", async (req, res) => {
       }
     );
 
-    const response = await fetch("https://api.nowpayments.io/v1/invoice", {
+    const orderId = email + "_" + Date.now();
+
+    const response = await fetch("https://api.nowpayments.io/v1/payment", {
       method: "POST",
       headers: {
         "x-api-key": process.env.NOWPAYMENTS_API_KEY,
@@ -1481,112 +1496,57 @@ app.post("/create-payment", async (req, res) => {
         price_amount: amount,
         price_currency: "usd",
         pay_currency: "usdttrc20",
-        order_id: email + "_" + Date.now(),
-        order_description: packageName,
-        success_url: "https://sudancryptomarket.onrender.com/success.html",
-        cancel_url: "https://sudancryptomarket.onrender.com/deposit.html"
+        ipn_callback_url: "https://sudan-crypto-api.onrender.com/webhook",
+        order_id: orderId,
+        order_description: packageName
       })
     });
 
     const data = await response.json();
 
-    console.log("NOWPAY RESPONSE:", data); // 🔥 مهم
-
-    if (!data.invoice_url) {
-      return res.json({
-        success: false,
-        message: "فشل من مزود الدفع"
+    if (data.payment_id) {
+      res.json({
+        success: true,
+        payment_id: data.payment_id,
+        pay_address: data.pay_address,
+        pay_amount: data.pay_amount,
+        order_id: orderId
       });
+    } else {
+      res.json({ success: false, message: "فشل إنشاء الدفع" });
     }
-
-    res.json({
-      success: true,
-      url: data.invoice_url
-    });
 
   } catch (e) {
-    console.log("ERROR CREATE PAYMENT:", e);
-    res.json({ success: false });
-  }
-});
-
-
-
-app.get('/payments', (req, res) => {
-    res.json(payments);
-});
-
-app.post("/my-team", async (req,res)=>{
-  try{
-    const email = normalizeEmail(req.body.email);
-
-    const user = await usersCollection.findOne({ email });
-
-    if(!user){
-      return res.json({success:false,message:"المستخدم غير موجود"});
-    }
-
-    const team = [];
-
-    for(const refEmail of user.referrals || []){
-      const refUser = await usersCollection.findOne({ email: refEmail });
-
-      if(refUser){
-        team.push({
-          name: refUser.name,
-          email: refUser.email,
-          phone: refUser.phone || "",
-          createdAt: refUser.createdAt
-        });
-      }
-    }
-
-    res.json({
-      success:true,
-      count: team.length,
-      team
-    });
-
-  }catch(e){
     console.log(e);
-    res.json({success:false,message:"فشل تحميل الفريق"});
+    res.json({ success: false, message: "خطأ في السيرفر" });
   }
 });
 
-/* ---------------- START SERVER ---------------- */
+/* ---------------- DATABASE CONNECT ---------------- */
 
-async function startServer(){
+async function connectDB(){
   try{
     await client.connect();
-
-    db = client.db("sudancrypto");
+    db = client.db("sudan_crypto");
     usersCollection = db.collection("users");
-    otpCollection = db.collection("otp_codes");
+    otpCollection = db.collection("otps");
     verifyCollection = db.collection("verifications");
 
-    await usersCollection.createIndex({ email:1 }, { unique:true });
-    await otpCollection.createIndex({ email:1 }, { unique:true });
+    console.log("Connected to MongoDB");
 
-    console.log("MongoDB connected");
-
-    cron.schedule("5 * * * *", async ()=>{
-      await runDailyProfitForAllUsers();
-    });
-
-    cron.schedule("*/5 * * * *", async ()=>{
-      await cancelExpiredDeposits();
-    });
-
-    const PORT = process.env.PORT || 10000;
-
-    app.listen(PORT,()=>{
-      console.log("Server running on port " + PORT);
+    // Start cron jobs
+    cron.schedule("0 0 * * *", () => {
+      runDailyProfitForAllUsers();
+      cancelExpiredDeposits();
     });
 
   }catch(e){
-    console.log("MongoDB connection error:", e);
-    process.exit(1);
+    console.log("DB Connection Error:", e);
   }
 }
 
-startServer();
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, async ()=>{
+  await connectDB();
+  console.log("Server running on port", PORT);
+});
