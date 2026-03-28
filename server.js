@@ -1326,204 +1326,9 @@ async function distributeReferralCommission(user, price){
 
 /* ---------------- NOWPAYMENTS WEBHOOK ---------------- */
 
-app.post("/webhook", async (req,res)=>{
-  try{
 
-    const IPN_SECRET = process.env.IPN_SECRET;
-    const receivedHmac = req.headers["x-nowpayments-sig"];
 
-    const hmac = crypto.createHmac("sha512", IPN_SECRET);
-    hmac.update(JSON.stringify(req.body));
-    const calculated = hmac.digest("hex");
 
-    if(calculated !== receivedHmac){
-      return res.status(400).send("Invalid signature");
-    }
-
-    console.log("🔥 WEBHOOK DATA:", req.body);
-
-    const payment = req.body;
-
-    if(payment.payment_status === "finished"){
-
-      const orderId = payment.order_id || "";
-      const email = normalizeEmail(orderId.split("_")[0]);
-      const packageName = payment.order_description || "";
-      const packageInfo = getPackageInfo(packageName);
-
-      if (!email) {
-        console.log("❌ Email not found in order_id:", orderId);
-        return res.send("No email");
-      }
-      const amount = Number(payment.pay_amount || 0);
-      const txid = String(payment.payment_id || "");
-
-      const user = await usersCollection.findOne({ email });
-
-      if(!user){
-        return res.send("User not found");
-      }
-
-      // تحديث حالة العملية من pending إلى approved
-      // البحث عن العملية المعلقة وتحديثها
-      const updateFields = {
-        "operations.$.status": "approved",
-        "operations.$.txid": txid,
-      };
-      const incFields = { balance: amount };
-
-      if (packageInfo) {
-        updateFields.packageName = packageInfo.name;
-        updateFields.packagePrice = packageInfo.price;
-        updateFields.dailyProfit = packageInfo.dailyProfit;
-        updateFields.packageStart = new Date().toISOString();
-        updateFields.lastProfitAt = new Date().toISOString();
-        updateFields.packageDurationDays = packageInfo.durationDays;
-        updateFields.profitDays = 1; // يتم تعيينها لـ 1 لتبدأ الأرباح فوراً
-        incFields.incomeBalance = (incFields.incomeBalance || 0) + packageInfo.dailyProfit; // إضافة ربح اليوم الأول
-      }
-
-      const result = await usersCollection.updateOne(
-        {
-          email,
-          "operations.status": "pending",
-          "operations.packageName": packageName // البحث عن العملية المعلقة لنفس الباقة
-        },
-        {
-          $set: updateFields,
-          $inc: incFields
-        }
-      );
-
-      if (result.matchedCount === 0) {
-        console.log("⚠️ No pending package deposit found for:", email, amount, packageName);
-        // إذا لم يتم العثور على عملية معلقة، نقوم بإضافة عملية جديدة كـ package_deposit
-        const newOperation = {
-          type: packageInfo ? "package_deposit" : "deposit",
-          amount,
-          network: "USDT-TRC20",
-          txid,
-          status: "approved",
-          date: new Date().toISOString()
-        };
-
-        if (packageInfo) {
-          newOperation.packageName = packageInfo.name;
-          newOperation.dailyProfit = packageInfo.dailyProfit;
-        }
-
-        const updateDoc = {
-          $inc: { balance: amount },
-          $push: {
-            operations: {
-              $each: [newOperation],
-              $position: 0
-            }
-          }
-        };
-
-        if (packageInfo) {
-          updateDoc.$set = {
-            packageName: packageInfo.name,
-            packagePrice: packageInfo.price,
-            dailyProfit: packageInfo.dailyProfit,
-            packageStart: new Date().toISOString(),
-            lastProfitAt: new Date().toISOString(),
-            packageDurationDays: packageInfo.durationDays,
-            profitDays: 1,
-            incomeBalance: packageInfo.dailyProfit
-          };
-        }
-
-        await usersCollection.updateOne(
-          { email },
-          updateDoc
-        );
-      }
-
-      console.log("✅ Deposit added:", email, amount);
-    }
-
-    res.send("OK");
-
-  }catch(e){
-    console.log(e);
-    res.send("ERROR");
-  }
-});
-
-app.post("/create-payment", async (req, res) => {
-  try {
-
-    const email = req.body.email;
-    const amount = Number(req.body.amount);
-    const packageName = cleanText(req.body.packageName || "starter");
-
-    if (!email || !amount) {
-      return res.json({ success: false, message: "بيانات ناقصة" });
-    }
-
-    // ✅ سجل الطلب أولاً
-    await usersCollection.updateOne(
-      { email },
-      {
-        $push:{
-          operations:{
-            $each:[{
-              type:"package_deposit",
-              amount,
-              network:"USDT-TRC20",
-              packageName,
-              status:"pending",
-              date:new Date().toISOString()
-            }],
-            $position:0
-          }
-        }
-      }
-    );
-
-    const orderId = email + "_" + Date.now();
-
-    const response = await fetch("https://api.nowpayments.io/v1/payment", {
-      method: "POST",
-      headers: {
-        "x-api-key": process.env.NOWPAYMENTS_API_KEY,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        price_amount: amount,
-        price_currency: "usd",
-        pay_currency: "usdt",
-        ipn_callback_url: "https://sudan-crypto-api.onrender.com/webhook",
-        order_id: orderId,
-        order_description: packageName
-      })
-    });
-
-    const data = await response.json();
-    console.log("🔥 NOWPAY FULL:", data);
-
-    if (data.payment_id) {
-      res.json({
-        success: true,
-        payment_id: data.payment_id,
-        pay_address: data.pay_address,
-        pay_amount: data.pay_amount,
-        order_id: orderId
-      });
-    } else {
-      res.json({ 
-        success: false, 
-        message: data.message || "فشل من مزود الدفع" 
-      });
-    }
-
-  } catch (e) {
-    console.log(e);
-    res.json({ success: false, message: "خطأ في السيرفر" });
-  }
-});
 
 /* ---------------- DATABASE CONNECT ---------------- */
 
@@ -1552,4 +1357,75 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, async ()=>{
   await connectDB();
   console.log("Server running on port", PORT);
+});
+app.post("/manual-deposit", async (req,res)=>{
+  try{
+
+    const email = normalizeEmail(req.body.email);
+    const amount = Number(req.body.amount);
+    const packageName = cleanText(req.body.packageName);
+
+    const packageInfo = getPackageInfo(packageName);
+
+    await usersCollection.updateOne(
+      { email },
+      {
+        $push:{
+          operations:{
+            $each:[{
+              type:"package_deposit",
+              amount,
+              network:"USDT-TRC20",
+              status:"pending",
+              packageName,
+              dailyProfit: packageInfo?.dailyProfit || 0,
+              txid:"",
+              proofImage:"",
+              expiresAt: Date.now() + (30 * 60 * 1000),
+              date:new Date().toISOString()
+            }],
+            $position:0
+          }
+        }
+      }
+    );
+
+    res.json({success:true});
+
+  }catch(e){
+    console.log(e);
+    res.json({success:false});
+  }
+});
+
+app.post("/upload-proof", upload.single("file"), async (req,res)=>{
+  try{
+    const email = normalizeEmail(req.body.email);
+    const txid = cleanText(req.body.txid);
+
+    const fileUrl = "/uploads/" + req.file.filename;
+
+    const user = await usersCollection.findOne({ email });
+
+    const operations = user.operations || [];
+
+    for(let i=0;i<operations.length;i++){
+      if(operations[i].status === "pending"){
+        operations[i].txid = txid;
+        operations[i].proofImage = fileUrl;
+        break;
+      }
+    }
+
+    await usersCollection.updateOne(
+      { email },
+      { $set:{ operations } }
+    );
+
+    res.json({success:true});
+
+  }catch(e){
+    console.log(e);
+    res.json({success:false});
+  }
 });
