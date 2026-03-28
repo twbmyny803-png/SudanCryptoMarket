@@ -380,9 +380,10 @@ color:#f59e0b;
 	</div>
 
 <div class="stat-card">
-<div class="stat-label">الباقة الحالية</div>
-<div class="stat-value" id="packageName">لا توجد</div>
-<div class="stat-sub">الباقة النشطة</div>
+  <div class="stat-label">الباقة الحالية</div>
+  <div class="stat-value" id="packageName">لا توجد</div>
+  <div class="stat-sub" id="packageInfoText">الباقة النشطة</div>
+  <div id="profitTimer" style="margin-top:8px;font-size:12px;color:#0f4ea8;font-weight:bold;"></div>
 </div>
 
 <div class="stat-card">
@@ -443,6 +444,45 @@ const API="https://sudancryptomarket-api.onrender.com"
 
 const email=localStorage.getItem("userEmail")
 
+let profitTimerInterval = null;
+
+function startProfitTimer(lastProfitAt){
+  const timerBox = document.getElementById("profitTimer");
+
+  if(!lastProfitAt){
+    timerBox.innerText = "";
+    return;
+  }
+
+  if(profitTimerInterval){
+    clearInterval(profitTimerInterval);
+  }
+
+  function updateTimer(){
+    const nextProfitTime = new Date(lastProfitAt).getTime() + (24 * 60 * 60 * 1000);
+    const now = Date.now();
+    const diff = nextProfitTime - now;
+
+    if(diff <= 0){
+      timerBox.innerText = "⏳ جاري إضافة الربح...";
+      return;
+    }
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    const h = String(hours).padStart(2, "0");
+    const m = String(minutes).padStart(2, "0");
+    const s = String(seconds).padStart(2, "0");
+
+    timerBox.innerText = `الربح القادم خلال: ${h}:${m}:${s}`;
+  }
+
+  updateTimer();
+  profitTimerInterval = setInterval(updateTimer, 1000);
+}
+
 if(!email){
 location.href="login.html"
 }else{
@@ -462,19 +502,29 @@ location.href="login.html"
 return
 }
 
-document.getElementById("userName").innerText=data.name||"مستخدم"
-document.getElementById("balance").innerText=(data.balance||0)+" USDT"
-	document.getElementById("dailyIncome").innerText=(data.incomeBalance||0)+" USDT"
-document.getElementById("packageName").innerText=data.packageName||"لا توجد"
-	document.getElementById("refCount").innerText=data.referralCount||0
-	
-	document.getElementById("myRefCode").value = data.refCode || ""
-	const refLink = window.location.origin + "/index.html?ref=" + (data.refCode || "")
-	document.getElementById("myRefLink").value = refLink
-	
-	})
-	
-	}
+document.getElementById("userName").innerText = data.name || "مستخدم";
+document.getElementById("balance").innerText = (data.balance || 0) + " USDT";
+document.getElementById("dailyIncome").innerText = (data.incomeBalance || 0) + " USDT";
+document.getElementById("packageName").innerText = data.packageName || "لا توجد";
+document.getElementById("refCount").innerText = (data.referrals || []).length;
+
+if(data.packageName){
+  const remainingDays = Math.max((data.packageDurationDays || 0) - (data.profitDays || 0), 0);
+  document.getElementById("packageInfoText").innerText =
+    "المدة المتبقية: " + remainingDays + " يوم";
+  startProfitTimer(data.lastProfitAt);
+}else{
+  document.getElementById("packageInfoText").innerText = "لا توجد باقة نشطة";
+  document.getElementById("profitTimer").innerText = "";
+}
+
+document.getElementById("myRefCode").value = data.refCode || ""
+const refLink = window.location.origin + "/index.html?ref=" + (data.refCode || "")
+document.getElementById("myRefLink").value = refLink
+
+})
+
+}
 
 		function copyRefCode(){
 		  const text = document.getElementById("myRefCode").value
@@ -499,17 +549,16 @@ document.getElementById("packageName").innerText=data.packageName||"لا توج�
 	      email:localStorage.getItem("userEmail")
 	    })
 	  })
-	  .then(res=>res.json())
+	  .then(r=>r.json())
 	  .then(data=>{
 	    if(data.success){
 	      alert("تم تحويل الأرباح بنجاح")
 	      location.reload()
 	    }else{
-	      alert(data.message || "فشل التحويل")
+	      alert(data.message || "فشل تحويل الأرباح")
 	    }
 	  })
 	}
 </script>
-
 </body>
-	</html>
+</html>
