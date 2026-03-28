@@ -79,7 +79,6 @@ select, input{
 
 <h2>صفحة الدفع</h2>
 
-<!-- 🔥 بيانات الطلب -->
 <div style="background:#334155;padding:10px;border-radius:8px;margin-bottom:10px;">
   <div>رقم الطلب: <b id="orderId"></b></div>
   <div>الباقة: <b id="packageName"></b></div>
@@ -113,12 +112,15 @@ select, input{
 
 <script>
 
-// 🔥 بيانات من الخطوات السابقة
+// ✅ البيانات الصح
 const orderId = localStorage.getItem("orderId");
 const packageName = localStorage.getItem("selectedPackage");
 const amount = localStorage.getItem("selectedPrice");
 
-// 🔴 حماية
+// 🔥 أهم تعديل (حل المشكلة)
+const email = localStorage.getItem("userEmail");
+
+// حماية
 if(!orderId){
   alert("لا يوجد طلب");
   window.location.href = "packages.html";
@@ -156,7 +158,7 @@ function showPopup(message,color){
   setTimeout(()=>popup.remove(),3000);
 }
 
-// 🔥 يبدأ بعد اختيار الشبكة فقط
+// اختيار الشبكة
 function startTimer(){
 
   if(timerStarted) return;
@@ -196,15 +198,13 @@ function copyAddress(addr){
   showPopup("تم النسخ", "blue");
 }
 
-// 🔥 إرسال بدون تخريب
+// إرسال
 async function submitPayment(){
 
   if(sent){
     showPopup("تم الإرسال بالفعل","red");
     return;
   }
-
-  const email = localStorage.getItem("userEmail");
 
   const txid = document.getElementById("txid").value;
   const file = document.getElementById("proof").files[0];
@@ -231,18 +231,21 @@ async function submitPayment(){
   showPopup("تم الإرسال","orange");
 }
 
-// 🔥 تحديث الحالة مباشر
+// 🔥 التحديث الصحيح بعد التعديل
 setInterval(async ()=>{
 
   const res = await fetch("/user-data",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body: JSON.stringify({
-      email: localStorage.getItem("userEmail")
+      email: email // ✅ تم التصحيح هنا
     })
   });
 
   const data = await res.json();
+
+  if(!data.success) return;
+
   const op = data.operations[0];
 
   if(!op) return;
@@ -255,7 +258,6 @@ setInterval(async ()=>{
     document.getElementById("status").style.color="green";
 
     successSound.play();
-
     showPopup("تم القبول بنجاح","green");
 
     setTimeout(()=>{
