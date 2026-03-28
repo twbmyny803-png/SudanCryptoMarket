@@ -1408,11 +1408,11 @@ app.post("/upload-proof", upload.single("file"), async (req,res)=>{
     const fileUrl = "/uploads/" + req.file.filename;
 
     await usersCollection.updateOne(
-      { email, "operations.status":"pending" },
+      { email },
       {
         $set:{
-          "operations.$.txid": txid,
-          "operations.$.proof": fileUrl
+          "operations.0.txid": txid,
+          "operations.0.proof": fileUrl
         }
       }
     );
