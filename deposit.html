@@ -1,299 +1,236 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>إيداع | سودان كربتو</title>
+<title>الدفع</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
 body{
-margin:0;
-font-family:Tahoma;
-background:#f2f5fa;
-}
-
-.header{
-background:#0b1f3a;
-color:white;
-padding:18px;
-text-align:center;
-font-size:20px;
-font-weight:bold;
-}
-
-.container{
-max-width:600px;
-margin:auto;
-padding:20px;
+  font-family:Arial;
+  background:#f5f6fa;
+  text-align:center;
+  padding:20px;
 }
 
 .card{
-background:white;
-border-radius:12px;
-padding:18px;
-margin-bottom:16px;
-box-shadow:0 6px 16px rgba(0,0,0,0.08);
+  background:#fff;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.1);
+  max-width:400px;
+  margin:auto;
 }
 
-.title{
-font-weight:bold;
-margin-bottom:10px;
-}
-
-select,input{
-width:100%;
-padding:12px;
-border-radius:8px;
-border:1px solid #ddd;
-margin-top:6px;
-}
-
-.address{
-background:#f7f9fc;
-padding:12px;
-border-radius:8px;
-word-break:break-all;
-margin-top:8px;
-font-size:14px;
+button{
+  padding:10px;
+  width:100%;
+  border:none;
+  border-radius:8px;
+  margin-top:10px;
+  cursor:pointer;
 }
 
 .copy{
-background:#2D6AF6;
-color:white;
-border:none;
-padding:10px;
-margin-top:10px;
-border-radius:6px;
-cursor:pointer;
-width:100%;
+  background:#3498db;
+  color:white;
 }
 
-.timer{
-text-align:center;
-font-size:34px;
-font-weight:bold;
-color:#e74c3c;
-margin-top:10px;
+.pay{
+  background:#27ae60;
+  color:white;
 }
 
-.status{
-text-align:center;
-font-size:22px;
-font-weight:bold;
-color:#ff9800;
-margin-top:10px;
+input{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
 }
 
-.note{
-font-size:13px;
-color:#666;
-margin-top:6px;
+select{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
 }
 
-.submit{
-background:#10B981;
-color:white;
-border:none;
-padding:12px;
-border-radius:8px;
-width:100%;
-margin-top:12px;
-font-size:16px;
-cursor:pointer;
-}
-
-.warning{
-color:#e74c3c;
-font-size:13px;
-margin-top:8px;
-}
-
-.package-box{
-background:#eef5ff;
-border:1px solid #d7e7ff;
-border-radius:10px;
-padding:14px;
-line-height:1.9;
-}
-
-.package-row{
-font-size:14px;
-color:#1f2937;
-}
-
-.package-row b{
-color:#0b1f3a;
+#timer{
+  color:red;
+  font-size:24px;
 }
 </style>
+
 </head>
 
 <body>
 
-<div class="header">
-إيداع العملات
-</div>
-
-<div class="container">
-
-<div class="card" id="selectedPackageCard" style="display:none;">
-<div class="title">تفاصيل الباقة المختارة</div>
-
-<div class="package-box">
-<div class="package-row">اسم الباقة: <b id="packageName">-</b></div>
-<div class="package-row">سعر الباقة: <b id="packagePrice">-</b></div>
-<div class="package-row">الربح اليومي: <b id="packageDailyProfit">-</b></div>
-<div class="package-row">مدة الباقة: <b id="packageDuration">-</b></div>
-</div>
-
-<div class="note">
-بعد إتمام الإيداع وإرسال الطلب، ستتم مراجعة العملية ثم اعتماد الباقة.
-</div>
-</div>
-
 <div class="card">
 
-<div class="title">📥 بيانات الإيداع</div>
+<h2><i class="fa-solid fa-credit-card"></i> صفحة الدفع</h2>
 
-<div style="margin-bottom:16px;">
-  <label style="display:block;margin-bottom:8px;font-weight:bold;">اختر الشبكة:</label>
-  <select id="network" onchange="updateWallet()" style="margin-top:0;">
-    <option value="TRC20">USDT TRC20</option>
-    <option value="BEP20">USDT BEP20</option>
-  </select>
+<h1 id="timer">
+<i class="fa-regular fa-clock"></i> 15:00
+</h1>
+
+<label><i class="fa-solid fa-network-wired"></i> اختر الشبكة</label>
+<select id="network" onchange="updateWallet()">
+  <option value="TRC20">USDT TRC20</option>
+  <option value="BEP20">USDT BEP20</option>
+</select>
+
+<br><br>
+
+<p><i class="fa-solid fa-location-dot"></i> العنوان</p>
+
+<div style="background:#eee;padding:10px;border-radius:8px;">
+  <b id="wallet"></b>
 </div>
 
-<div style="margin-bottom:16px;">
-  <p style="margin:0 0 8px 0;font-weight:bold;">📌 العنوان:</p>
-  <div class="address" style="background:#f7f9fc;padding:12px;border-radius:8px;word-break:break-all;">
-    <b id="walletAddress">-</b>
-  </div>
-  <button class="copy" onclick="copyAddress()" style="margin-top:10px;">📋 نسخ العنوان</button>
-</div>
-
-<div style="margin-bottom:16px;">
-  <p style="margin:0 0 8px 0;font-weight:bold;">📷 امسح الباركود:</p>
-  <div style="text-align:center;">
-    <img id="qrCode" width="200" style="border-radius:8px;">
-  </div>
-</div>
-
-<hr style="border:none;border-top:1px solid #ddd;margin:16px 0;">
-
-<div class="title">الإيداع</div>
-
-<input type="number" id="amount" placeholder="أدخل مبلغ الإيداع">
-
-<button class="submit" onclick="payNow()">
-ادفع الآن 💳
+<button class="copy" onclick="copyAddress()">
+  <i class="fa-regular fa-copy"></i> نسخ العنوان
 </button>
 
-<div class="note">
-سيتم تحويلك مباشرة لصفحة الدفع الآمنة (NowPayments)
-</div>
+<br><br>
 
-</div>
+<p><i class="fa-solid fa-qrcode"></i> QR Code</p>
+<img id="qr" width="180">
+
+<hr>
+
+<input id="txid" placeholder="رقم العملية (TXID)">
+
+<label><i class="fa-solid fa-upload"></i> رفع صورة التحويل</label>
+<input type="file" id="proof">
+
+<button class="pay" onclick="submitPayment()">
+  <i class="fa-solid fa-check"></i> تأكيد الدفع
+</button>
+
+<p id="status">
+  <i class="fa-solid fa-hourglass-half"></i> بانتظار الدفع
+</p>
 
 </div>
 
 <script>
-const API="https://sudancryptomarket-api.onrender.com"
 
-const email=localStorage.getItem("userEmail")
-
-if(!email){
-  window.location.href="login.html"
-}
-
-const selectedPackage=localStorage.getItem("selectedPackage")
-const selectedPrice=localStorage.getItem("selectedPrice")
-const selectedDailyProfit=localStorage.getItem("selectedDailyProfit")
-const selectedDuration=localStorage.getItem("selectedDuration")
-
-if(selectedPackage && selectedPrice){
-  document.getElementById("selectedPackageCard").style.display="block"
-  document.getElementById("packageName").innerText=selectedPackage
-  document.getElementById("packagePrice").innerText=selectedPrice+" USDT"
-  document.getElementById("packageDailyProfit").innerText=selectedDailyProfit+" USDT"
-  document.getElementById("packageDuration").innerText=selectedDuration+" يوم"
-  document.getElementById("amount").value=selectedPrice
-}
-
-// 🔥 بيانات المحافظ حسب الشبكة
+// المحافظ
 const wallets = {
-  TRC20: "TLvwBXpVKVvjfvVJwMqDRKdqF8Kx1Qs1Aq",
-  BEP20: "0x1234567890abcdef1234567890abcdef12345678"
+  TRC20: "TLPZEoW71BNe6mHPK8XRJ5PkN5Agqqpa5n",
+  BEP20: "0x990635c24b47a3ebbc14efadf0355e26ec706385"
 };
 
-// 🔥 تحديث عنوان المحفظة والباركود عند تغيير الشبكة
+// تحديث العنوان + QR
 function updateWallet(){
-  const network = document.getElementById("network").value;
-  const address = wallets[network];
-  document.getElementById("walletAddress").innerText = address;
-  generateQRCode(address);
+  const net = document.getElementById("network").value;
+  const address = wallets[net];
+
+  document.getElementById("wallet").innerText = address;
+
+  document.getElementById("qr").src =
+    "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + address;
 }
 
-// 🔥 نسخ العنوان إلى الحافظة
+updateWallet();
+
+// نسخ
 function copyAddress(){
-  const address = document.getElementById("walletAddress").innerText;
-  navigator.clipboard.writeText(address).then(()=>{
-    alert("✅ تم نسخ العنوان بنجاح");
-  }).catch(()=>{
-    alert("❌ فشل النسخ");
+  navigator.clipboard.writeText(document.getElementById("wallet").innerText);
+  alert("تم النسخ");
+}
+
+// العداد 15 دقيقة
+let time = 900;
+
+setInterval(()=>{
+  time--;
+
+  let m = Math.floor(time/60);
+  let s = time%60;
+
+  document.getElementById("timer").innerHTML =
+    '<i class="fa-regular fa-clock"></i> ' + m + ":" + (s<10?"0":"") + s;
+
+  if(time <= 0){
+    document.getElementById("status").innerHTML =
+      '<i class="fa-solid fa-xmark"></i> انتهى الوقت';
+  }
+
+},1000);
+
+
+// إرسال الدفع
+async function submitPayment(){
+
+  const email = localStorage.getItem("email");
+  const amount = localStorage.getItem("amount");
+  const packageName = localStorage.getItem("packageName");
+
+  const txid = document.getElementById("txid").value;
+  const file = document.getElementById("proof").files[0];
+
+  if(!txid || !file){
+    alert("أدخل رقم العملية وارفع الصورة");
+    return;
+  }
+
+  // تسجيل العملية
+  await fetch("/manual-deposit",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({email,amount,packageName})
   });
+
+  // رفع الإثبات
+  const formData = new FormData();
+  formData.append("email",email);
+  formData.append("txid",txid);
+  formData.append("file",file);
+
+  await fetch("/upload-proof",{
+    method:"POST",
+    body:formData
+  });
+
+  document.getElementById("status").innerHTML =
+    '<i class="fa-solid fa-paper-plane"></i> تم الإرسال، في انتظار المراجعة';
+
 }
 
-// 🔥 إنشاء باركود QR باستخدام API مجاني
-function generateQRCode(address){
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(address)}`;
-  document.getElementById("qrCode").src = qrUrl;
-}
 
-// 🔥 تحديث المحفظة عند تحميل الصفحة
-window.addEventListener("load", ()=>{
-  updateWallet();
-});
+// تحديث الحالة تلقائي
+setInterval(async ()=>{
 
-async function payNow(){
+  const res = await fetch("/user-data",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({
+      email: localStorage.getItem("email")
+    })
+  });
 
-  const amount = Number(document.getElementById("amount").value);
-  const packageName = localStorage.getItem("selectedPackage"); // 🔥 جلب اسم الباقة من التخزين المحلي
+  const data = await res.json();
 
-  if(!amount || amount <= 0){
-    alert("أدخل مبلغ صحيح");
-    return;
-  }
+  const op = data.operations[0];
 
-  if(!packageName){
-    alert("يرجى اختيار باقة أولاً");
-    return;
-  }
+  if(op){
 
-  try {
-
-    const res = await fetch(API + "/create-payment", {
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body: JSON.stringify({
-        email: email,
-        amount: amount,
-        packageName: packageName // 🔥 إرسال اسم الباقة للسيرفر
-      })
-    });
-
-    const data = await res.json();
-
-    if(data.success && data.url){
-      window.location.href = data.url; // 🔥 تحويل مباشر لصفحة الدفع
-    }else{
-      alert("فشل إنشاء الدفع: " + (data.message || "خطأ غير معروف"));
+    if(op.status === "approved"){
+      document.getElementById("status").innerHTML =
+        '<i class="fa-solid fa-circle-check"></i> تم قبول الدفع';
     }
 
-  } catch (e) {
-    alert("حدث خطأ في الاتصال بالسيرفر");
+    if(op.status === "rejected"){
+      document.getElementById("status").innerHTML =
+        '<i class="fa-solid fa-circle-xmark"></i> تم رفض الدفع';
+    }
+
   }
-}
+
+},3000);
+
 </script>
 
 </body>
