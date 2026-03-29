@@ -250,7 +250,7 @@ email:email,
 amount:amount,
 network:network,
 wallet:wallet,
-withdrawPassword:pass
+password:pass // 🔥 تم التصحيح هنا
 })
 })
 .then(res=>res.json())
@@ -269,7 +269,6 @@ location.reload();
 
 }else{
 
-// 🔥 أهم تعديل هنا
 if(data.message && data.message.includes("كلمة السحب")){
 window.location.href="set-withdraw-password.html";
 }else{
@@ -285,4 +284,4 @@ showPopup(data.message || "فشل العملية","red");
 </script>
 
 </body>
-</html>
+  </html>
