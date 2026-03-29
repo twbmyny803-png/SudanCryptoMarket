@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,159 +7,97 @@
 
 <style>
 body{
-margin:0;
-font-family:Tahoma, Arial;
+font-family:Tahoma;
 background:#0f172a;
 color:#fff;
-min-height:100vh;
+margin:0;
 display:flex;
 justify-content:center;
 align-items:center;
-padding:20px;
+height:100vh;
 }
 
 .box{
-width:100%;
-max-width:420px;
+width:90%;
+max-width:400px;
 background:#1e293b;
-border-radius:14px;
 padding:20px;
+border-radius:12px;
 text-align:center;
 }
 
-h2{
-margin-bottom:15px;
-}
-
-.info{
-background:#0b1220;
-padding:12px;
-border-radius:10px;
-margin-bottom:15px;
-text-align:right;
-}
-
-.warning{
-background:#3b2f0a;
-color:#ffd76a;
-padding:12px;
-border-radius:10px;
-margin-bottom:15px;
-text-align:right;
-}
-
-.network-btn{
+button{
 width:100%;
 padding:14px;
 margin-top:10px;
 border:none;
-border-radius:10px;
-background:#334155;
-color:#fff;
+border-radius:8px;
 font-size:16px;
 cursor:pointer;
 }
 
-.network-btn:hover{
-background:#2563eb;
-}
+.trc{background:#22c55e;color:#fff;}
+.bep{background:#3b82f6;color:#fff;}
 </style>
+
 </head>
 
 <body>
 
 <div class="box">
 
-<h2>اختيار الشبكة</h2>
+<h2>اختيار شبكة الدفع</h2>
 
-<div class="info">
-<div>اسم الباقة: <b id="packageName"></b></div>
-<div>المبلغ: <b id="amount"></b> USDT</div>
-<div>الربح اليومي: <b id="dailyProfit"></b> USDT</div>
-<div>مدة الباقة: <b id="duration"></b> يوم</div>
-</div>
+<p>اختر الشبكة المناسبة قبل المتابعة</p>
 
-<div class="warning">
-⚠ لا يمكن إنشاء أكثر من طلب مفتوح
-</div>
+<button class="trc" onclick="selectNetwork('TRC20')">
+USDT TRC20
+</button>
 
-<button class="network-btn" onclick="selectNetwork('TRC20')">USDT TRC20</button>
-<button class="network-btn" onclick="selectNetwork('BEP20')">USDT BEP20</button>
+<button class="bep" onclick="selectNetwork('BEP20')">
+USDT BEP20
+</button>
 
 </div>
 
 <script>
 
-const API="https://sudancryptomarket-api.onrender.com";
-const email=localStorage.getItem("userEmail");
-
-// عرض البيانات
-document.getElementById("packageName").innerText = localStorage.getItem("selectedPackage") || "-";
-document.getElementById("amount").innerText = localStorage.getItem("selectedPrice") || "-";
-document.getElementById("dailyProfit").innerText = localStorage.getItem("selectedDailyProfit") || "-";
-document.getElementById("duration").innerText = localStorage.getItem("selectedDuration") || "-";
-
-// 🔥 أهم دالة (فحص الطلب من السيرفر)
-async function checkPending(){
-
-const res = await fetch(API+"/user-data",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body: JSON.stringify({email})
-});
-
-const data = await res.json();
-
-if(!data.success) return false;
-
-const pending = (data.operations || []).find(op =>
-(op.type==="package_deposit" || op.type==="deposit") &&
-op.status==="pending"
-);
-
-return pending || false;
-
-}
-
-
-// 🔥 اختيار الشبكة
-async function selectNetwork(network){
-
-const pending = await checkPending();
-
-if(pending){
-
-// 🔥 لو في طلب → رجعو لصفحة الدفع
-localStorage.setItem("selectedNetwork", pending.network || "TRC20");
-
+// منع الطلب المتكرر
+if(localStorage.getItem("activeOrder")){
+alert("عندك طلب قيد التنفيذ");
 window.location.href="deposit.html";
-return;
-
 }
 
-// 🔥 إنشاء طلب جديد
-const res = await fetch(API+"/manual-deposit",{
+function generateOrderId(){
+return "ORD-" + Date.now();
+}
+
+function selectNetwork(net){
+
+// حفظ الشبكة
+localStorage.setItem("selectedNetwork", net);
+
+// إنشاء رقم طلب
+const orderId = generateOrderId();
+localStorage.setItem("orderId", orderId);
+
+// قفل الطلب
+localStorage.setItem("activeOrder", "true");
+
+// 🔥 إنشاء الطلب في السيرفر
+fetch("https://sudancryptomarket-api.onrender.com/manual-deposit",{
 method:"POST",
-headers:{"Content-Type":"application/json"},
+headers:{
+"Content-Type":"application/json"
+},
 body: JSON.stringify({
-email:email,
-amount:localStorage.getItem("selectedPrice"),
-packageName:localStorage.getItem("selectedPackage")
+email: localStorage.getItem("userEmail"),
+amount: localStorage.getItem("selectedPrice"),
+packageName: localStorage.getItem("selectedPackage")
 })
 });
 
-const data = await res.json();
-
-if(!data.success){
-alert(data.message);
-return;
-}
-
-localStorage.setItem("selectedNetwork", network);
-
-// 🔥 orderId بسيط
-localStorage.setItem("orderId","ORD"+Date.now());
-
+// تحويل
 window.location.href="deposit.html";
 
 }
