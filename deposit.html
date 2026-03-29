@@ -12,34 +12,35 @@ body{
   background:#0f172a;
   color:#fff;
   margin:0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
 }
 
 .container{
-  width:95%;
-  max-width:400px;
+  width:100%;
+  max-width:420px;
+  margin:auto;
+  min-height:100vh;
+  padding:20px;
+}
+
+.box{
   background:#1e293b;
   padding:20px;
   border-radius:12px;
   text-align:center;
 }
 
-h2{
-  margin-bottom:10px;
-}
+h2{margin-bottom:10px;}
 
 .timer{
   color:#ff4d4d;
-  font-size:22px;
+  font-size:26px;
   margin-bottom:15px;
+  font-weight:bold;
 }
 
 select, input{
   width:100%;
-  padding:10px;
+  padding:12px;
   margin:8px 0;
   border-radius:8px;
   border:none;
@@ -47,7 +48,7 @@ select, input{
 
 .btn{
   width:100%;
-  padding:12px;
+  padding:14px;
   background:#22c55e;
   border:none;
   color:#fff;
@@ -58,7 +59,7 @@ select, input{
 
 .copy{
   background:#3b82f6;
-  margin-top:5px;
+  margin-top:8px;
 }
 
 .qr{
@@ -67,7 +68,7 @@ select, input{
 
 .status{
   margin-top:10px;
-  font-size:14px;
+  font-size:15px;
 }
 </style>
 
@@ -77,9 +78,11 @@ select, input{
 
 <div class="container">
 
+<div class="box">
+
 <h2>صفحة الدفع</h2>
 
-<div style="background:#334155;padding:10px;border-radius:8px;margin-bottom:10px;">
+<div style="background:#334155;padding:12px;border-radius:8px;margin-bottom:10px;">
   <div>رقم الطلب: <b id="orderId"></b></div>
   <div>الباقة: <b id="packageName"></b></div>
   <div>المبلغ: <b id="amount"></b> USDT</div>
@@ -108,22 +111,24 @@ select, input{
 
 </div>
 
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
 <script>
 
-// ✅ البيانات الصح
+const API = "https://sudancryptomarket-api.onrender.com";
+
+// البيانات
 const orderId = localStorage.getItem("orderId");
 const packageName = localStorage.getItem("selectedPackage");
 const amount = localStorage.getItem("selectedPrice");
-
-// 🔥 أهم تعديل (حل المشكلة)
 const email = localStorage.getItem("userEmail");
 
 // حماية
 if(!orderId){
   alert("لا يوجد طلب");
-  window.location.href = "packages.html";
+  window.location.href="packages.html";
 }
 
 // عرض البيانات
@@ -131,6 +136,7 @@ document.getElementById("orderId").innerText = orderId || "-";
 document.getElementById("packageName").innerText = packageName || "-";
 document.getElementById("amount").innerText = amount || "-";
 
+// العناوين
 const TRC20 = "TLPZEoW71BNe6mHPK8XRJ5PkN5Agqqpa5n";
 const BEP20 = "0x990635c24b47a3ebbc14efadf0355e26ec706385";
 
@@ -141,6 +147,7 @@ let approvedOnce = false;
 
 const successSound = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
 
+// popup
 function showPopup(message,color){
   let popup = document.createElement("div");
 
@@ -164,14 +171,17 @@ function startTimer(){
   if(timerStarted) return;
 
   const net = document.getElementById("network").value;
-  if(!net) return;
+  if(!net){
+    showPopup("اختر الشبكة أولاً","red");
+    return;
+  }
 
   timerStarted = true;
 
   let address = net === "TRC20" ? TRC20 : BEP20;
 
   document.getElementById("addressBox").innerHTML = `
-    <div>${address}</div>
+    <div style="word-break:break-all;">${address}</div>
     <button class="btn copy" onclick="copyAddress('${address}')">نسخ العنوان</button>
   `;
 
@@ -188,14 +198,16 @@ function startTimer(){
 
     if(time <= 0){
       document.getElementById("status").innerText="انتهى الوقت";
+      sent = true;
     }
 
   },1000);
 }
 
+// نسخ
 function copyAddress(addr){
   navigator.clipboard.writeText(addr);
-  showPopup("تم النسخ", "blue");
+  showPopup("تم النسخ","blue");
 }
 
 // إرسال
@@ -215,7 +227,6 @@ async function submitPayment(){
   }
 
   sent = true;
-
   document.getElementById("status").innerText="جاري الإرسال...";
 
   const formData = new FormData();
@@ -223,31 +234,32 @@ async function submitPayment(){
   formData.append("txid",txid);
   formData.append("file",file);
 
-  await fetch("/upload-proof",{
+  // 🔥 رفع الصورة + جلب الرابط
+  const uploadRes = await fetch(API+"/upload-proof",{
     method:"POST",
     body:formData
   });
 
-  showPopup("تم الإرسال","orange");
+  const uploadData = await uploadRes.json();
+
+  console.log("IMAGE LINK:", API + uploadData.file);
+
+  showPopup("تم إرسال الطلب","orange");
 }
 
-// 🔥 التحديث الصحيح بعد التعديل
+// تحديث الحالة
 setInterval(async ()=>{
 
-  const res = await fetch("/user-data",{
+  const res = await fetch(API+"/user-data",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({
-      email: email // ✅ تم التصحيح هنا
-    })
+    body: JSON.stringify({email})
   });
 
   const data = await res.json();
-
   if(!data.success) return;
 
   const op = data.operations[0];
-
   if(!op) return;
 
   if(op.status === "approved" && !approvedOnce){
@@ -263,7 +275,6 @@ setInterval(async ()=>{
     setTimeout(()=>{
       window.location.href="dashboard.html";
     },3000);
-
   }
 
   if(op.status === "rejected"){
@@ -276,4 +287,4 @@ setInterval(async ()=>{
 </script>
 
 </body>
-</html>
+  </html>
