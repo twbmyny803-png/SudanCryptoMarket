@@ -1408,16 +1408,20 @@ app.post("/upload-proof", upload.single("file"), async (req,res)=>{
     const fileUrl = "/uploads/" + req.file.filename;
 
     await usersCollection.updateOne(
-      { email },
+      { email, "operations.status":"pending" },
       {
         $set:{
-          "operations.0.txid": txid,
-          "operations.0.proof": fileUrl
+          "operations.$.txid": txid,
+          "operations.$.proof": fileUrl
         }
       }
     );
 
-    res.json({success:true});
+    // 👇 أهم سطر (ضيفو)
+    res.json({
+      success:true,
+      file:fileUrl
+    });
 
   }catch(e){
     console.log(e);
