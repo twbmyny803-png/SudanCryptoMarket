@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>اختيار الشبكة</title>
+
+  <style>
+    body{
+      margin:0;
+      font-family:Tahoma, Arial, sans-serif;
+      background:#0f172a;
+      color:#fff;
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:20px;
+      box-sizing:border-box;
+    }
+
+    .box{
+      width:100%;
+      max-width:420px;
+      background:#1e293b;
+      border-radius:14px;
+      padding:20px;
+      box-shadow:0 8px 20px rgba(0,0,0,0.25);
+      text-align:center;
+    }
+
+    h2{
+      margin:0 0 18px;
+      font-size:22px;
+    }
+
+    .info{
+      background:#0b1220;
+      border-radius:10px;
+      padding:12px;
+      margin-bottom:16px;
+      text-align:right;
+      line-height:1.9;
+      font-size:15px;
+    }
+
+    .warning{
+      background:#3b2f0a;
+      color:#ffd76a;
+      border-radius:10px;
+      padding:12px;
+      margin-bottom:16px;
+      text-align:right;
+      line-height:1.8;
+      font-size:14px;
+    }
+
+    .network-btn{
+      width:100%;
+      border:none;
+      border-radius:10px;
+      padding:14px;
+      margin-top:10px;
+      background:#334155;
+      color:#fff;
+      font-size:16px;
+      cursor:pointer;
+    }
+
+    .network-btn:hover{
+      background:#2563eb;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+    <h2>اختيار شبكة الدفع</h2>
+
+    <div class="info">
+      <div>اسم الباقة: <b id="packageName">-</b></div>
+      <div>المبلغ: <b id="amount">-</b> USDT</div>
+      <div>الربح اليومي: <b id="dailyProfit">-</b> USDT</div>
+      <div>مدة الباقة: <b id="duration">-</b> يوم</div>
+    </div>
+
+    <div class="warning">
+      الحد الأدنى للإيداع 10 USDT<br>
+      اختر الشبكة الصحيحة قبل المتابعة<br>
+      لا يمكن إنشاء أكثر من طلب مفتوح في نفس الوقت
+    </div>
+
+    <button class="network-btn" onclick="selectNetwork('TRC20')">USDT TRC20</button>
+    <button class="network-btn" onclick="selectNetwork('BEP20')">USDT BEP20</button>
+  </div>
+
+  <script>
+    const packageName = localStorage.getItem("selectedPackage");
+    const amount = localStorage.getItem("selectedPrice");
+    const dailyProfit = localStorage.getItem("selectedDailyProfit");
+    const duration = localStorage.getItem("selectedDuration");
+
+    if(!packageName || !amount){
+      alert("لا توجد باقة مختارة");
+      window.location.href = "packages.html";
+    }
+
+    document.getElementById("packageName").innerText = packageName || "-";
+    document.getElementById("amount").innerText = amount || "-";
+    document.getElementById("dailyProfit").innerText = dailyProfit || "-";
+    document.getElementById("duration").innerText = duration || "-";
+
+    function selectNetwork(network){
+      const activeOrder = localStorage.getItem("activeOrder");
+
+      if(activeOrder === "true"){
+        alert("عندك طلب مفتوح بالفعل");
+        window.location.href = "deposit.html";
+        return;
+      }
+
+      localStorage.setItem("selectedNetwork", network);
+
+      const orderId = "ORD" + Date.now();
+      localStorage.setItem("orderId", orderId);
+      localStorage.setItem("activeOrder", "true");
+
+      window.location.href = "deposit.html";
+    }
+  </script>
+
+</body>
+</html>
