@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>صفحة الدفع</title>
+<title>الدفع</title>
 
 <style>
 body{
@@ -29,16 +29,14 @@ body{
   text-align:center;
 }
 
-h2{margin-bottom:10px;}
-
 .timer{
   color:#ff4d4d;
-  font-size:26px;
+  font-size:28px;
   margin-bottom:15px;
   font-weight:bold;
 }
 
-select, input{
+input{
   width:100%;
   padding:12px;
   margin:8px 0;
@@ -80,21 +78,16 @@ select, input{
 
 <div class="box">
 
-<h2>صفحة الدفع</h2>
+<h2>تفاصيل الدفع</h2>
 
 <div style="background:#334155;padding:12px;border-radius:8px;margin-bottom:10px;">
   <div>رقم الطلب: <b id="orderId"></b></div>
   <div>الباقة: <b id="packageName"></b></div>
   <div>المبلغ: <b id="amount"></b> USDT</div>
+  <div>الشبكة: <b id="networkText"></b></div>
 </div>
 
 <div id="timer" class="timer">15:00</div>
-
-<select id="network" onchange="startTimer()">
-  <option value="">اختر الشبكة</option>
-  <option value="TRC20">USDT TRC20</option>
-  <option value="BEP20">USDT BEP20</option>
-</select>
 
 <div id="addressBox"></div>
 
@@ -117,104 +110,89 @@ select, input{
 
 <script>
 
-const API = "https://sudancryptomarket-api.onrender.com";
+const API="https://sudancryptomarket-api.onrender.com";
 
 // البيانات
 const orderId = localStorage.getItem("orderId");
 const packageName = localStorage.getItem("selectedPackage");
 const amount = localStorage.getItem("selectedPrice");
 const email = localStorage.getItem("userEmail");
+const network = localStorage.getItem("selectedNetwork");
 
 // حماية
-if(!orderId){
-  alert("لا يوجد طلب");
-  window.location.href="packages.html";
+if(!orderId || !network){
+  alert("ابدأ من اختيار الشبكة");
+  window.location.href="choose-network.html";
 }
 
-// عرض البيانات
-document.getElementById("orderId").innerText = orderId || "-";
-document.getElementById("packageName").innerText = packageName || "-";
-document.getElementById("amount").innerText = amount || "-";
+// عرض
+document.getElementById("orderId").innerText = orderId;
+document.getElementById("packageName").innerText = packageName;
+document.getElementById("amount").innerText = amount;
+document.getElementById("networkText").innerText = network;
 
 // العناوين
 const TRC20 = "TLPZEoW71BNe6mHPK8XRJ5PkN5Agqqpa5n";
 const BEP20 = "0x990635c24b47a3ebbc14efadf0355e26ec706385";
 
-let timerStarted = false;
+let address = network === "TRC20" ? TRC20 : BEP20;
+
+// عرض العنوان
+document.getElementById("addressBox").innerHTML = `
+<div style="word-break:break-all;">${address}</div>
+<button class="btn copy" onclick="copyAddress('${address}')">نسخ العنوان</button>
+`;
+
+// QR حقيقي
+QRCode.toCanvas(document.getElementById("qrcode"), address, {width:220});
+
+// متغيرات
 let time = 900;
 let sent = false;
 let approvedOnce = false;
 
+// صوت
 const successSound = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
 
-// popup
-function showPopup(message,color){
-  let popup = document.createElement("div");
+// 🔥 تحذير احترافي
+setTimeout(()=>{
+  alert(`تنبيه مهم:
 
-  popup.innerText = message;
-  popup.style.position="fixed";
-  popup.style.bottom="20px";
-  popup.style.left="50%";
-  popup.style.transform="translateX(-50%)";
-  popup.style.background=color;
-  popup.style.color="#fff";
-  popup.style.padding="12px 20px";
-  popup.style.borderRadius="8px";
+- تأكد من الشبكة (${network})
+- أرسل المبلغ الصحيح (${amount} USDT)
+- أي خطأ يؤدي لفقدان الأموال
 
-  document.body.appendChild(popup);
-  setTimeout(()=>popup.remove(),3000);
-}
-
-// اختيار الشبكة
-function startTimer(){
-
-  if(timerStarted) return;
-
-  const net = document.getElementById("network").value;
-  if(!net){
-    showPopup("اختر الشبكة أولاً","red");
-    return;
-  }
-
-  timerStarted = true;
-
-  let address = net === "TRC20" ? TRC20 : BEP20;
-
-  document.getElementById("addressBox").innerHTML = `
-    <div style="word-break:break-all;">${address}</div>
-    <button class="btn copy" onclick="copyAddress('${address}')">نسخ العنوان</button>
-  `;
-
-  QRCode.toCanvas(document.getElementById("qrcode"), address);
-
-  setInterval(()=>{
-    time--;
-
-    let min = Math.floor(time/60);
-    let sec = time % 60;
-
-    document.getElementById("timer").innerText =
-      `${min}:${sec < 10 ? "0"+sec : sec}`;
-
-    if(time <= 0){
-      document.getElementById("status").innerText="انتهى الوقت";
-      sent = true;
-    }
-
-  },1000);
-}
+لن يتم استرجاع أي تحويل خاطئ`);
+},500);
 
 // نسخ
 function copyAddress(addr){
   navigator.clipboard.writeText(addr);
-  showPopup("تم النسخ","blue");
+  alert("تم النسخ");
 }
+
+// التايمر
+setInterval(()=>{
+  time--;
+
+  let m = Math.floor(time/60);
+  let s = time % 60;
+
+  document.getElementById("timer").innerText =
+  `${m}:${s<10?"0"+s:s}`;
+
+  if(time <= 0){
+    document.getElementById("status").innerText="انتهى الوقت";
+    sent = true;
+  }
+
+},1000);
 
 // إرسال
 async function submitPayment(){
 
   if(sent){
-    showPopup("تم الإرسال بالفعل","red");
+    alert("تم الإرسال بالفعل");
     return;
   }
 
@@ -222,7 +200,7 @@ async function submitPayment(){
   const file = document.getElementById("proof").files[0];
 
   if(!txid || !file){
-    showPopup("أدخل البيانات كاملة","red");
+    alert("أدخل البيانات كاملة");
     return;
   }
 
@@ -234,17 +212,12 @@ async function submitPayment(){
   formData.append("txid",txid);
   formData.append("file",file);
 
-  // 🔥 رفع الصورة + جلب الرابط
-  const uploadRes = await fetch(API+"/upload-proof",{
+  await fetch(API+"/upload-proof",{
     method:"POST",
     body:formData
   });
 
-  const uploadData = await uploadRes.json();
-
-  console.log("IMAGE LINK:", API + uploadData.file);
-
-  showPopup("تم إرسال الطلب","orange");
+  alert("تم إرسال الطلب");
 }
 
 // تحديث الحالة
@@ -270,7 +243,6 @@ setInterval(async ()=>{
     document.getElementById("status").style.color="green";
 
     successSound.play();
-    showPopup("تم القبول بنجاح","green");
 
     setTimeout(()=>{
       window.location.href="dashboard.html";
@@ -279,7 +251,6 @@ setInterval(async ()=>{
 
   if(op.status === "rejected"){
     document.getElementById("status").innerText="مرفوض";
-    showPopup("تم الرفض","red");
   }
 
 },3000);
@@ -287,4 +258,4 @@ setInterval(async ()=>{
 </script>
 
 </body>
-  </html>
+</html>
