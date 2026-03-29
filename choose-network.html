@@ -1,133 +1,170 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>اختيار الشبكة</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اختيار الشبكة</title>
 
-  <style>
-    body{
-      margin:0;
-      font-family:Tahoma, Arial, sans-serif;
-      background:#0f172a;
-      color:#fff;
-      min-height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      padding:20px;
-      box-sizing:border-box;
-    }
+<style>
+body{
+margin:0;
+font-family:Tahoma, Arial;
+background:#0f172a;
+color:#fff;
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:20px;
+}
 
-    .box{
-      width:100%;
-      max-width:420px;
-      background:#1e293b;
-      border-radius:14px;
-      padding:20px;
-      box-shadow:0 8px 20px rgba(0,0,0,0.25);
-      text-align:center;
-    }
+.box{
+width:100%;
+max-width:420px;
+background:#1e293b;
+border-radius:14px;
+padding:20px;
+text-align:center;
+}
 
-    h2{
-      margin:0 0 18px;
-      font-size:22px;
-    }
+h2{
+margin-bottom:15px;
+}
 
-    .info{
-      background:#0b1220;
-      border-radius:10px;
-      padding:12px;
-      margin-bottom:16px;
-      text-align:right;
-      line-height:1.9;
-      font-size:15px;
-    }
+.info{
+background:#0b1220;
+padding:12px;
+border-radius:10px;
+margin-bottom:15px;
+text-align:right;
+}
 
-    .warning{
-      background:#3b2f0a;
-      color:#ffd76a;
-      border-radius:10px;
-      padding:12px;
-      margin-bottom:16px;
-      text-align:right;
-      line-height:1.8;
-      font-size:14px;
-    }
+.warning{
+background:#3b2f0a;
+color:#ffd76a;
+padding:12px;
+border-radius:10px;
+margin-bottom:15px;
+text-align:right;
+}
 
-    .network-btn{
-      width:100%;
-      border:none;
-      border-radius:10px;
-      padding:14px;
-      margin-top:10px;
-      background:#334155;
-      color:#fff;
-      font-size:16px;
-      cursor:pointer;
-    }
+.network-btn{
+width:100%;
+padding:14px;
+margin-top:10px;
+border:none;
+border-radius:10px;
+background:#334155;
+color:#fff;
+font-size:16px;
+cursor:pointer;
+}
 
-    .network-btn:hover{
-      background:#2563eb;
-    }
-  </style>
+.network-btn:hover{
+background:#2563eb;
+}
+</style>
 </head>
+
 <body>
 
-  <div class="box">
-    <h2>اختيار شبكة الدفع</h2>
+<div class="box">
 
-    <div class="info">
-      <div>اسم الباقة: <b id="packageName">-</b></div>
-      <div>المبلغ: <b id="amount">-</b> USDT</div>
-      <div>الربح اليومي: <b id="dailyProfit">-</b> USDT</div>
-      <div>مدة الباقة: <b id="duration">-</b> يوم</div>
-    </div>
+<h2>اختيار الشبكة</h2>
 
-    <div class="warning">
-      الحد الأدنى للإيداع 10 USDT<br>
-      اختر الشبكة الصحيحة قبل المتابعة<br>
-      لا يمكن إنشاء أكثر من طلب مفتوح في نفس الوقت
-    </div>
+<div class="info">
+<div>اسم الباقة: <b id="packageName"></b></div>
+<div>المبلغ: <b id="amount"></b> USDT</div>
+<div>الربح اليومي: <b id="dailyProfit"></b> USDT</div>
+<div>مدة الباقة: <b id="duration"></b> يوم</div>
+</div>
 
-    <button class="network-btn" onclick="selectNetwork('TRC20')">USDT TRC20</button>
-    <button class="network-btn" onclick="selectNetwork('BEP20')">USDT BEP20</button>
-  </div>
+<div class="warning">
+⚠ لا يمكن إنشاء أكثر من طلب مفتوح
+</div>
 
-  <script>
-    const packageName = localStorage.getItem("selectedPackage");
-    const amount = localStorage.getItem("selectedPrice");
-    const dailyProfit = localStorage.getItem("selectedDailyProfit");
-    const duration = localStorage.getItem("selectedDuration");
+<button class="network-btn" onclick="selectNetwork('TRC20')">USDT TRC20</button>
+<button class="network-btn" onclick="selectNetwork('BEP20')">USDT BEP20</button>
 
-    if(!packageName || !amount){
-      alert("لا توجد باقة مختارة");
-      window.location.href = "packages.html";
-    }
+</div>
 
-    document.getElementById("packageName").innerText = packageName || "-";
-    document.getElementById("amount").innerText = amount || "-";
-    document.getElementById("dailyProfit").innerText = dailyProfit || "-";
-    document.getElementById("duration").innerText = duration || "-";
+<script>
 
-    function selectNetwork(network){
-      const activeOrder = localStorage.getItem("activeOrder");
+const API="https://sudancryptomarket-api.onrender.com";
+const email=localStorage.getItem("userEmail");
 
-      if(activeOrder === "true"){
-        alert("عندك طلب مفتوح بالفعل");
-        window.location.href = "deposit.html";
-        return;
-      }
+// عرض البيانات
+document.getElementById("packageName").innerText = localStorage.getItem("selectedPackage") || "-";
+document.getElementById("amount").innerText = localStorage.getItem("selectedPrice") || "-";
+document.getElementById("dailyProfit").innerText = localStorage.getItem("selectedDailyProfit") || "-";
+document.getElementById("duration").innerText = localStorage.getItem("selectedDuration") || "-";
 
-      localStorage.setItem("selectedNetwork", network);
+// 🔥 أهم دالة (فحص الطلب من السيرفر)
+async function checkPending(){
 
-      const orderId = "ORD" + Date.now();
-      localStorage.setItem("orderId", orderId);
-      localStorage.setItem("activeOrder", "true");
+const res = await fetch(API+"/user-data",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body: JSON.stringify({email})
+});
 
-      window.location.href = "deposit.html";
-    }
-  </script>
+const data = await res.json();
+
+if(!data.success) return false;
+
+const pending = (data.operations || []).find(op =>
+(op.type==="package_deposit" || op.type==="deposit") &&
+op.status==="pending"
+);
+
+return pending || false;
+
+}
+
+
+// 🔥 اختيار الشبكة
+async function selectNetwork(network){
+
+const pending = await checkPending();
+
+if(pending){
+
+// 🔥 لو في طلب → رجعو لصفحة الدفع
+localStorage.setItem("selectedNetwork", pending.network || "TRC20");
+
+window.location.href="deposit.html";
+return;
+
+}
+
+// 🔥 إنشاء طلب جديد
+const res = await fetch(API+"/manual-deposit",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body: JSON.stringify({
+email:email,
+amount:localStorage.getItem("selectedPrice"),
+packageName:localStorage.getItem("selectedPackage")
+})
+});
+
+const data = await res.json();
+
+if(!data.success){
+alert(data.message);
+return;
+}
+
+localStorage.setItem("selectedNetwork", network);
+
+// 🔥 orderId بسيط
+localStorage.setItem("orderId","ORD"+Date.now());
+
+window.location.href="deposit.html";
+
+}
+
+</script>
 
 </body>
 </html>
