@@ -6,7 +6,6 @@
 <title>سحب | سودان كربتو</title>
 
 <style>
-
 body{
 margin:0;
 font-family:Tahoma;
@@ -61,17 +60,6 @@ font-size:16px;
 cursor:pointer;
 }
 
-.send{
-background:#2D6AF6;
-color:white;
-border:none;
-padding:12px;
-border-radius:8px;
-width:100%;
-margin-top:12px;
-cursor:pointer;
-}
-
 .save{
 background:#2D6AF6;
 color:white;
@@ -85,16 +73,9 @@ cursor:pointer;
 
 .status{
 text-align:center;
-font-size:22px;
+font-size:20px;
 font-weight:bold;
-color:#ff9800;
 margin-top:10px;
-}
-
-.note{
-font-size:13px;
-color:#666;
-margin-top:6px;
 }
 
 .warning{
@@ -108,14 +89,11 @@ margin-top:8px;
 
 <body>
 
-<div class="header">
-سحب العملات
-</div>
+<div class="header">سحب العملات</div>
 
 <div class="container">
 
 <div class="card">
-
 <div class="title">عناوين محفظة السحب</div>
 
 <label>USDT TRC20</label>
@@ -124,18 +102,14 @@ margin-top:8px;
 <label>USDT BEP20</label>
 <input type="text" id="bep20" placeholder="أدخل عنوان BEP20">
 
-<button class="save" onclick="saveWallets()">
-حفظ العناوين
-</button>
+<button class="save" onclick="saveWallets()">حفظ العناوين</button>
 
 <div class="warning">
-يمكنك إدخال عنوان واحد أو العنوانين. بعد الحفظ لا يمكن تعديلهم.
+بعد الحفظ لا يمكن تعديل العنوان
 </div>
-
 </div>
 
 <div class="card">
-
 <div class="title">اختيار الشبكة</div>
 
 <select id="network">
@@ -143,216 +117,162 @@ margin-top:8px;
 <option value="USDT TRC20">USDT TRC20</option>
 <option value="USDT BEP20">USDT BEP20</option>
 </select>
-
 </div>
 
 <div class="card">
-
 <div class="title">المبلغ</div>
 <input type="number" id="amount" placeholder="أدخل مبلغ السحب">
-
 </div>
 
 <div class="card">
-
-<div class="title">كود التحقق</div>
-
-<button class="send" onclick="sendCode()">
-إرسال كود التحقق
-</button>
-
-<input type="text" id="code" placeholder="أدخل الكود المرسل للبريد">
-
+<div class="title">كلمة مرور السحب</div>
+<input type="password" id="withdrawPass" placeholder="أدخل كلمة السحب (6 أرقام)">
 </div>
 
 <div class="card">
-
-<button class="submit" onclick="submitWithdraw()">
-إرسال طلب السحب
-</button>
-
+<button class="submit" onclick="submitWithdraw()">إرسال طلب السحب</button>
 <div class="status" id="status"></div>
-
-<div class="note">
-سيتم مراجعة الطلب خلال دقائق
-</div>
-
 </div>
 
 </div>
 
 <script>
 
-const API="https://sudancryptomarket-api.onrender.com"
-
-const email=localStorage.getItem("userEmail")
+const API="https://sudancryptomarket-api.onrender.com";
+const email=localStorage.getItem("userEmail");
 
 if(!email){
-window.location.href="login.html"
+window.location.href="login.html";
+}
+
+/* Popup */
+function showPopup(msg,color){
+let div=document.createElement("div");
+div.innerText=msg;
+div.style.position="fixed";
+div.style.bottom="20px";
+div.style.left="50%";
+div.style.transform="translateX(-50%)";
+div.style.background=color;
+div.style.color="#fff";
+div.style.padding="12px 20px";
+div.style.borderRadius="8px";
+
+document.body.appendChild(div);
+setTimeout(()=>div.remove(),3000);
 }
 
 /* حفظ العناوين */
-
 function saveWallets(){
 
-const trc=document.getElementById("trc20").value
-const bep=document.getElementById("bep20").value
+const trc=document.getElementById("trc20").value;
+const bep=document.getElementById("bep20").value;
 
 if(!trc && !bep){
-
-alert("يرجى إدخال عنوان محفظة واحد على الأقل")
-
-return
+alert("أدخل عنوان واحد على الأقل");
+return;
 }
 
-const wallets={
+localStorage.setItem("userWallets",JSON.stringify({
 trc20:trc,
 bep20:bep
+}));
+
+alert("تم الحفظ");
+lockWalletInputs();
 }
 
-localStorage.setItem("userWallets",JSON.stringify(wallets))
-
-alert("تم حفظ العناوين بنجاح")
-
-lockWalletInputs()
-
-}
-
-/* قفل التعديل */
-
+/* قفل */
 function lockWalletInputs(){
 
-const saved=JSON.parse(localStorage.getItem("userWallets"))
+const saved=JSON.parse(localStorage.getItem("userWallets"));
+if(!saved) return;
 
-if(!saved) return
+document.getElementById("trc20").value=saved.trc20 || "";
+document.getElementById("bep20").value=saved.bep20 || "";
 
-document.getElementById("trc20").value=saved.trc20 || ""
-document.getElementById("bep20").value=saved.bep20 || ""
-
-document.getElementById("trc20").disabled=true
-document.getElementById("bep20").disabled=true
-
+document.getElementById("trc20").disabled=true;
+document.getElementById("bep20").disabled=true;
 }
 
-window.onload=lockWalletInputs
+window.onload=lockWalletInputs;
 
-
-/* إرسال الكود */
-
-function sendCode(){
-
-fetch(API+"/send-code",{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-
-email:email,
-purpose:"withdraw"
-
-})
-
-})
-
-.then(res=>res.json())
-
-.then(data=>{
-
-alert(data.message)
-
-})
-
-}
-
-
-/* إرسال السحب */
-
+/* السحب */
 function submitWithdraw(){
 
-const network=document.getElementById("network").value
-const amount=parseFloat(document.getElementById("amount").value)
-const code=document.getElementById("code").value
+const network=document.getElementById("network").value;
+const amount=parseFloat(document.getElementById("amount").value);
+const pass=document.getElementById("withdrawPass").value;
 
-const wallets=JSON.parse(localStorage.getItem("userWallets"))
+const wallets=JSON.parse(localStorage.getItem("userWallets"));
 
 if(!wallets){
-
-alert("يرجى إدخال عناوين المحفظة أولاً")
-return
+alert("احفظ العناوين أولاً");
+return;
 }
 
 if(network===""){
-alert("اختر الشبكة")
-return
+alert("اختر الشبكة");
+return;
 }
 
 if(!amount || amount<=0){
-alert("أدخل مبلغ صحيح")
-return
+alert("مبلغ غير صحيح");
+return;
 }
 
-if(code===""){
-alert("أدخل كود التحقق")
-return
+if(pass.length!==6){
+alert("كلمة السحب يجب تكون 6 أرقام");
+return;
 }
 
-let wallet=""
+let wallet="";
 
 if(network==="USDT TRC20"){
-wallet=wallets.trc20
+wallet=wallets.trc20;
 }
 
 if(network==="USDT BEP20"){
-wallet=wallets.bep20
+wallet=wallets.bep20;
 }
 
 if(!wallet){
-
-alert("لا يوجد عنوان محفوظ لهذه الشبكة")
-return
-
+alert("لا يوجد عنوان لهذه الشبكة");
+return;
 }
 
 fetch(API+"/withdraw",{
-
 method:"POST",
-
 headers:{
 "Content-Type":"application/json"
 },
-
 body:JSON.stringify({
-
 email:email,
 amount:amount,
 network:network,
 wallet:wallet,
-code:code
-
+withdrawPassword:pass
 })
-
 })
-
 .then(res=>res.json())
-
 .then(data=>{
 
 if(data.success){
 
-document.getElementById("status").innerText="تم إرسال طلب السحب"
+document.getElementById("status").innerText="تم إرسال الطلب";
+document.getElementById("status").style.color="green";
+
+showPopup("تم إرسال طلب السحب","green");
+
+setTimeout(()=>{
+location.reload();
+},1500);
 
 }else{
-
-alert(data.message)
-
+showPopup(data.message || "فشل العملية","red");
 }
 
-})
-
+});
 }
 
 </script>
