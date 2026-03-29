@@ -414,9 +414,12 @@ app.post("/register", async (req,res)=>{
     const saved = await otpCollection.findOne({ email });
     const existingUser = await usersCollection.findOne({ email });
 
+    // OTP verification disabled
+    /*
     if(!saved || saved.verified !== true){
       return res.json({success:false,message:"يجب التحقق من البريد"});
     }
+    */
 
     if(existingUser){
       return res.json({success:false,message:"البريد مسجل"});
@@ -427,6 +430,7 @@ app.post("/register", async (req,res)=>{
       email,
       phone,
       password,
+      withdrawPassword: "",
 
       refCode: generateRefCode(),
       referrer: req.body.referrer || null,
@@ -465,6 +469,30 @@ app.post("/register", async (req,res)=>{
   }catch(e){
     console.log(e);
     res.json({success:false,message:"فشل إنشاء الحساب"});
+  }
+});
+
+/* ---------------- SET WITHDRAW PASSWORD ---------------- */
+
+app.post("/set-withdraw-password", async (req,res)=>{
+  try{
+
+    const email = normalizeEmail(req.body.email);
+    const pass = cleanText(req.body.password);
+
+    if(pass.length !== 6){
+      return res.json({success:false,message:"كلمة السحب يجب تكون 6 أرقام"});
+    }
+
+    await usersCollection.updateOne(
+      { email },
+      { $set:{ withdrawPassword: pass } }
+    );
+
+    res.json({success:true});
+
+  }catch(e){
+    res.json({success:false});
   }
 });
 
@@ -572,11 +600,20 @@ app.post("/withdraw", async (req,res)=>{
     const email = normalizeEmail(req.body.email);
     const amount = Number(req.body.amount);
     const network = cleanText(req.body.network);
+    const withdrawPass = cleanText(req.body.withdrawPassword);
 
     let user = await usersCollection.findOne({ email });
 
     if(!user || user.isDeleted){
       return res.json({success:false});
+    }
+
+    if(!user.withdrawPassword){
+      return res.json({success:false,message:"قم بتعيين كلمة السحب أولاً"});
+    }
+
+    if(user.withdrawPassword !== withdrawPass){
+      return res.json({success:false,message:"كلمة السحب غير صحيحة"});
     }
 
     user = await applyPendingDailyProfit(user);
