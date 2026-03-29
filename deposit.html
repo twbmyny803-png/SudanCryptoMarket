@@ -13,7 +13,6 @@ body{
   color:#fff;
   margin:0;
 }
-
 .container{
   width:100%;
   max-width:420px;
@@ -21,21 +20,18 @@ body{
   min-height:100vh;
   padding:20px;
 }
-
 .box{
   background:#1e293b;
   padding:20px;
   border-radius:12px;
   text-align:center;
 }
-
 .timer{
   color:#ff4d4d;
   font-size:28px;
   margin-bottom:15px;
   font-weight:bold;
 }
-
 input{
   width:100%;
   padding:12px;
@@ -43,7 +39,6 @@ input{
   border-radius:8px;
   border:none;
 }
-
 .btn{
   width:100%;
   padding:14px;
@@ -54,16 +49,13 @@ input{
   font-size:16px;
   cursor:pointer;
 }
-
 .copy{
   background:#3b82f6;
   margin-top:8px;
 }
-
 .qr{
   margin:15px 0;
 }
-
 .status{
   margin-top:10px;
   font-size:15px;
@@ -110,16 +102,16 @@ input{
 
 const API="https://sudancryptomarket-api.onrender.com";
 
-// 🔥 البيانات
+// ✅ البيانات
 const orderId = localStorage.getItem("orderId");
 const packageName = localStorage.getItem("selectedPackage");
 const amount = localStorage.getItem("selectedPrice");
 const email = localStorage.getItem("userEmail");
 
-// 🔥 حل مشكلة الشبكة نهائي
+// 🔥 حل مشكلة الشبكة
 let network = localStorage.getItem("selectedNetwork") || sessionStorage.getItem("selectedNetwork");
 
-// حماية
+// حماية قوية
 if(!orderId){
   alert("ابدأ من الباقات");
   window.location.href="packages.html";
@@ -219,7 +211,7 @@ async function submitPayment(){
   alert("تم إرسال الطلب");
 }
 
-// 🔥 إصلاح القبول الوهمي
+// 🔥🔥 الحل الحقيقي هنا (مهم جداً)
 setInterval(async ()=>{
 
   const res = await fetch(API+"/user-data",{
@@ -231,20 +223,21 @@ setInterval(async ()=>{
   const data = await res.json();
   if(!data.success) return;
 
-  // نجيب آخر طلب pending فقط
-  const op = (data.operations || []).find(o =>
-    (o.type === "package_deposit") &&
-    (o.status === "pending" || o.status === "approved" || o.status === "rejected")
-  );
+  // ✅ نجيب أحدث عملية فقط
+  const op = (data.operations || [])[0];
 
-  if(!op) return;
+  // تأكد إنها عملية إيداع
+  if(!op || (op.type !== "package_deposit" && op.type !== "deposit")) return;
 
+  // انتظار
   if(op.status === "pending"){
     document.getElementById("status").innerText="في انتظار المراجعة...";
     return;
   }
 
+  // قبول
   if(op.status === "approved" && !approvedOnce){
+
     approvedOnce = true;
 
     document.getElementById("status").innerText="تم القبول";
@@ -252,14 +245,20 @@ setInterval(async ()=>{
 
     successSound.play();
 
+    // 🔥 نلغي الطلب المفتوح
+    localStorage.removeItem("activeOrder");
+
     setTimeout(()=>{
       window.location.href="dashboard.html";
     },3000);
   }
 
+  // رفض
   if(op.status === "rejected"){
     document.getElementById("status").innerText="مرفوض";
     document.getElementById("status").style.color="red";
+
+    localStorage.removeItem("activeOrder");
   }
 
 },3000);
