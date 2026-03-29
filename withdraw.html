@@ -83,7 +83,6 @@ color:#e74c3c;
 font-size:13px;
 margin-top:8px;
 }
-
 </style>
 </head>
 
@@ -169,7 +168,7 @@ const trc=document.getElementById("trc20").value;
 const bep=document.getElementById("bep20").value;
 
 if(!trc && !bep){
-alert("أدخل عنوان واحد على الأقل");
+showPopup("أدخل عنوان واحد على الأقل","red");
 return;
 }
 
@@ -178,7 +177,7 @@ trc20:trc,
 bep20:bep
 }));
 
-alert("تم الحفظ");
+showPopup("تم حفظ العناوين","green");
 lockWalletInputs();
 }
 
@@ -207,22 +206,22 @@ const pass=document.getElementById("withdrawPass").value;
 const wallets=JSON.parse(localStorage.getItem("userWallets"));
 
 if(!wallets){
-alert("احفظ العناوين أولاً");
+showPopup("احفظ العناوين أولاً","red");
 return;
 }
 
 if(network===""){
-alert("اختر الشبكة");
+showPopup("اختر الشبكة","red");
 return;
 }
 
 if(!amount || amount<=0){
-alert("مبلغ غير صحيح");
+showPopup("مبلغ غير صحيح","red");
 return;
 }
 
 if(pass.length!==6){
-alert("كلمة السحب يجب تكون 6 أرقام");
+showPopup("كلمة السحب يجب تكون 6 أرقام","red");
 return;
 }
 
@@ -237,7 +236,7 @@ wallet=wallets.bep20;
 }
 
 if(!wallet){
-alert("لا يوجد عنوان لهذه الشبكة");
+showPopup("لا يوجد عنوان لهذه الشبكة","red");
 return;
 }
 
@@ -269,10 +268,18 @@ location.reload();
 },1500);
 
 }else{
+
+// 🔥 أهم تعديل هنا
+if(data.message && data.message.includes("كلمة السحب")){
+window.location.href="set-withdraw-password.html";
+}else{
 showPopup(data.message || "فشل العملية","red");
 }
 
+}
+
 });
+
 }
 
 </script>
