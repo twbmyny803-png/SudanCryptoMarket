@@ -492,7 +492,8 @@ app.post("/set-withdraw-password", async (req,res)=>{
     res.json({success:true});
 
   }catch(e){
-    res.json({success:false});
+    console.log(e);
+    res.json({success:false,message:"فشل حفظ كلمة السحب"});
   }
 });
 
