@@ -110,16 +110,23 @@ input{
 
 const API="https://sudancryptomarket-api.onrender.com";
 
-// البيانات
+// 🔥 البيانات
 const orderId = localStorage.getItem("orderId");
 const packageName = localStorage.getItem("selectedPackage");
 const amount = localStorage.getItem("selectedPrice");
 const email = localStorage.getItem("userEmail");
-const network = localStorage.getItem("selectedNetwork");
+
+// 🔥 حل مشكلة الشبكة نهائي
+let network = localStorage.getItem("selectedNetwork") || sessionStorage.getItem("selectedNetwork");
 
 // حماية
-if(!orderId || !network){
-  alert("ابدأ من اختيار الشبكة");
+if(!orderId){
+  alert("ابدأ من الباقات");
+  window.location.href="packages.html";
+}
+
+if(!network){
+  alert("اختار الشبكة أولاً");
   window.location.href="choose-network.html";
 }
 
@@ -141,7 +148,6 @@ document.getElementById("addressBox").innerHTML = `
 <button class="btn copy" onclick="copyAddress('${address}')">نسخ العنوان</button>
 `;
 
-// QR
 QRCode.toCanvas(document.getElementById("qrcode"), address, {width:220});
 
 // متغيرات
@@ -151,13 +157,11 @@ let approvedOnce = false;
 
 const successSound = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
 
-// تحذير
+// تنبيه
 setTimeout(()=>{
   alert(`تنبيه مهم:
-
 - تأكد من الشبكة (${network})
-- أرسل المبلغ الصحيح (${amount} USDT)
-- أي خطأ يؤدي لفقدان الأموال`);
+- أرسل ${amount} USDT`);
 },500);
 
 // نسخ
@@ -166,7 +170,7 @@ function copyAddress(addr){
   alert("تم النسخ");
 }
 
-// التايمر
+// تايمر
 setInterval(()=>{
   time--;
 
@@ -215,7 +219,7 @@ async function submitPayment(){
   alert("تم إرسال الطلب");
 }
 
-// 🔥 الإصلاح النهائي
+// 🔥 إصلاح القبول الوهمي
 setInterval(async ()=>{
 
   const res = await fetch(API+"/user-data",{
@@ -227,23 +231,20 @@ setInterval(async ()=>{
   const data = await res.json();
   if(!data.success) return;
 
-  // ✅ نجيب آخر طلب فقط
+  // نجيب آخر طلب pending فقط
   const op = (data.operations || []).find(o =>
-    (o.type === "package_deposit" || o.type === "deposit") &&
+    (o.type === "package_deposit") &&
     (o.status === "pending" || o.status === "approved" || o.status === "rejected")
   );
 
   if(!op) return;
 
-  // ✅ لو لسه pending → ما تعمل حاجة
   if(op.status === "pending"){
     document.getElementById("status").innerText="في انتظار المراجعة...";
     return;
   }
 
-  // ✅ قبول حقيقي فقط
   if(op.status === "approved" && !approvedOnce){
-
     approvedOnce = true;
 
     document.getElementById("status").innerText="تم القبول";
@@ -256,7 +257,6 @@ setInterval(async ()=>{
     },3000);
   }
 
-  // ❌ رفض
   if(op.status === "rejected"){
     document.getElementById("status").innerText="مرفوض";
     document.getElementById("status").style.color="red";
