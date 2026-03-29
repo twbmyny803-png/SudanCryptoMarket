@@ -1,72 +1,70 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>الدفع</title>
 
 <style>
 body{
-  font-family: Arial;
-  background:#0f172a;
-  color:#fff;
-  margin:0;
+margin:0;
+font-family:Tahoma;
+background:#0f172a;
+color:#fff;
 }
 
 .container{
-  width:100%;
-  max-width:420px;
-  margin:auto;
-  min-height:100vh;
-  padding:20px;
+max-width:420px;
+margin:auto;
+padding:20px;
+min-height:100vh;
 }
 
 .box{
-  background:#1e293b;
-  padding:20px;
-  border-radius:12px;
-  text-align:center;
+background:#1e293b;
+padding:20px;
+border-radius:12px;
+text-align:center;
 }
 
 .timer{
-  color:#ff4d4d;
-  font-size:28px;
-  margin-bottom:15px;
-  font-weight:bold;
+font-size:28px;
+color:#ff4d4d;
+font-weight:bold;
+margin:10px 0;
 }
 
 input{
-  width:100%;
-  padding:12px;
-  margin:8px 0;
-  border-radius:8px;
-  border:none;
+width:100%;
+padding:12px;
+margin:8px 0;
+border-radius:8px;
+border:none;
 }
 
 .btn{
-  width:100%;
-  padding:14px;
-  background:#22c55e;
-  border:none;
-  color:#fff;
-  border-radius:8px;
-  font-size:16px;
-  cursor:pointer;
+width:100%;
+padding:14px;
+background:#22c55e;
+border:none;
+color:#fff;
+border-radius:8px;
+font-size:16px;
+cursor:pointer;
 }
 
 .copy{
-  background:#3b82f6;
-  margin-top:8px;
-}
-
-.qr{
-  margin:15px 0;
+background:#3b82f6;
+margin-top:10px;
 }
 
 .status{
-  margin-top:10px;
-  font-size:15px;
+margin-top:10px;
+font-size:14px;
+}
+
+.qr{
+margin:15px 0;
 }
 </style>
 
@@ -75,15 +73,16 @@ input{
 <body>
 
 <div class="container">
+
 <div class="box">
 
 <h2>تفاصيل الدفع</h2>
 
-<div style="background:#334155;padding:12px;border-radius:8px;margin-bottom:10px;">
-  <div>رقم الطلب: <b id="orderId"></b></div>
-  <div>الباقة: <b id="packageName"></b></div>
-  <div>المبلغ: <b id="amount"></b> USDT</div>
-  <div>الشبكة: <b id="networkText"></b></div>
+<div style="background:#334155;padding:10px;border-radius:8px;margin-bottom:10px;">
+<div>رقم الطلب: <b id="orderId"></b></div>
+<div>الباقة: <b id="packageName"></b></div>
+<div>المبلغ: <b id="amount"></b> USDT</div>
+<div>الشبكة: <b id="networkText"></b></div>
 </div>
 
 <div id="timer" class="timer">15:00</div>
@@ -91,10 +90,10 @@ input{
 <div id="addressBox"></div>
 
 <div class="qr">
-  <canvas id="qrcode"></canvas>
+<canvas id="qrcode"></canvas>
 </div>
 
-<input type="text" id="txid" placeholder="رقم العملية (TXID)">
+<input type="text" id="txid" placeholder="رقم العملية">
 <input type="file" id="proof">
 
 <button class="btn" onclick="submitPayment()">تأكيد الدفع</button>
@@ -102,6 +101,7 @@ input{
 <div id="status" class="status">في انتظار الدفع...</div>
 
 </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
@@ -115,25 +115,25 @@ const orderId = localStorage.getItem("orderId");
 const packageName = localStorage.getItem("selectedPackage");
 const amount = localStorage.getItem("selectedPrice");
 const email = localStorage.getItem("userEmail");
-const network = localStorage.getItem("selectedNetwork");
+const net = localStorage.getItem("selectedNetwork");
 
 // حماية
-if(!orderId || !network){
-  alert("ابدأ من اختيار الشبكة");
-  window.location.href="choose-network.html";
+if(!orderId || !net){
+alert("اختار الشبكة أولاً");
+window.location.href="choose-network.html";
 }
 
-// عرض
+// عرض البيانات
 document.getElementById("orderId").innerText = orderId;
 document.getElementById("packageName").innerText = packageName;
 document.getElementById("amount").innerText = amount;
-document.getElementById("networkText").innerText = network;
+document.getElementById("networkText").innerText = net;
 
 // العناوين
-const TRC20 = "TLPZEoW71BNe6mHPK8XRJ5PkN5Agqqpa5n";
-const BEP20 = "0x990635c24b47a3ebbc14efadf0355e26ec706385";
+const TRC20="TLPZEoW71BNe6mHPK8XRJ5PkN5Agqqpa5n";
+const BEP20="0x990635c24b47a3ebbc14efadf0355e26ec706385";
 
-let address = network === "TRC20" ? TRC20 : BEP20;
+let address = net==="TRC20" ? TRC20 : BEP20;
 
 // عرض العنوان
 document.getElementById("addressBox").innerHTML = `
@@ -145,116 +145,121 @@ document.getElementById("addressBox").innerHTML = `
 QRCode.toCanvas(document.getElementById("qrcode"), address, {width:220});
 
 // متغيرات
-let time = 900;
-let sent = false;
-let approvedOnce = false;
+let time=900;
+let sent=false;
+let approvedOnce=false;
 
 // صوت
-const successSound = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
+const successSound=new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
 
 // تحذير
-setTimeout(()=>{
-  alert(`تنبيه مهم:
+function showWarning(){
+return confirm(`تنبيه مهم
 
-- تأكد من الشبكة (${network})
-- أرسل المبلغ الصحيح (${amount} USDT)
-- أي خطأ يؤدي لفقدان الأموال`);
-},500);
+تأكد من:
+- الشبكة صحيحة
+- المبلغ صحيح
+- أي خطأ يؤدي لفقدان الأموال
+
+هل تريد المتابعة؟`);
+}
+
+// أول دخول
+if(!showWarning()){
+window.location.href="packages.html";
+}
 
 // نسخ
 function copyAddress(addr){
-  navigator.clipboard.writeText(addr);
-  alert("تم النسخ");
+navigator.clipboard.writeText(addr);
+alert("تم النسخ");
 }
 
 // التايمر
 setInterval(()=>{
-  time--;
+time--;
 
-  let m = Math.floor(time/60);
-  let s = time % 60;
+let m=Math.floor(time/60);
+let s=time%60;
 
-  document.getElementById("timer").innerText =
-  `${m}:${s<10?"0"+s:s}`;
+document.getElementById("timer").innerText=
+`${m}:${s<10?"0"+s:s}`;
 
-  if(time <= 0){
-    document.getElementById("status").innerText="انتهى الوقت";
-    sent = true;
-  }
-
+if(time<=0){
+document.getElementById("status").innerText="انتهى الوقت";
+localStorage.removeItem("activeOrder");
+sent=true;
+}
 },1000);
 
 // إرسال
 async function submitPayment(){
 
-  if(sent){
-    alert("تم الإرسال بالفعل");
-    return;
-  }
-
-  const txid = document.getElementById("txid").value;
-  const file = document.getElementById("proof").files[0];
-
-  if(!txid || !file){
-    alert("أدخل البيانات كاملة");
-    return;
-  }
-
-  sent = true;
-  document.getElementById("status").innerText="جاري الإرسال...";
-
-  const formData = new FormData();
-  formData.append("email",email);
-  formData.append("txid",txid);
-  formData.append("file",file);
-
-  await fetch(API+"/upload-proof",{
-    method:"POST",
-    body:formData
-  });
-
-  alert("تم إرسال الطلب");
+if(sent){
+alert("تم الإرسال بالفعل");
+return;
 }
 
-// 🔥 الإصلاح الحقيقي هنا
+const txid=document.getElementById("txid").value;
+const file=document.getElementById("proof").files[0];
+
+if(!txid || !file){
+alert("أدخل البيانات كاملة");
+return;
+}
+
+sent=true;
+document.getElementById("status").innerText="جاري الإرسال...";
+
+const formData=new FormData();
+formData.append("email",email);
+formData.append("txid",txid);
+formData.append("file",file);
+
+await fetch(API+"/upload-proof",{
+method:"POST",
+body:formData
+});
+
+localStorage.removeItem("activeOrder");
+
+alert("تم إرسال الطلب");
+}
+
+// تحديث الحالة
 setInterval(async ()=>{
 
-  const res = await fetch(API+"/user-data",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({email})
-  });
+const res=await fetch(API+"/user-data",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({email})
+});
 
-  const data = await res.json();
-  if(!data.success) return;
+const data=await res.json();
+if(!data.success) return;
 
-  // ✅ نجيب فقط طلب الإيداع
-  const op = data.operations.find(o =>
-    o.type === "package_deposit" || o.type === "deposit"
-  );
+const op=data.operations[0];
+if(!op) return;
 
-  if(!op) return;
+if(op.status==="approved" && !approvedOnce){
 
-  // ✅ قبول
-  if(op.status === "approved" && !approvedOnce){
+approvedOnce=true;
 
-    approvedOnce = true;
+document.getElementById("status").innerText="تم القبول";
+document.getElementById("status").style.color="green";
 
-    document.getElementById("status").innerText="تم القبول";
-    document.getElementById("status").style.color="green";
+successSound.play();
 
-    successSound.play();
+setTimeout(()=>{
+window.location.href="dashboard.html";
+},3000);
 
-    setTimeout(()=>{
-      window.location.href="dashboard.html";
-    },3000);
-  }
+}
 
-  // ❌ رفض
-  if(op.status === "rejected"){
-    document.getElementById("status").innerText="مرفوض";
-    document.getElementById("status").style.color="red";
-  }
+if(op.status==="rejected"){
+document.getElementById("status").innerText="مرفوض";
+localStorage.removeItem("activeOrder");
+}
 
 },3000);
 
