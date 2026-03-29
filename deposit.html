@@ -141,7 +141,7 @@ document.getElementById("addressBox").innerHTML = `
 <button class="btn copy" onclick="copyAddress('${address}')">نسخ العنوان</button>
 `;
 
-// QR حقيقي
+// QR
 QRCode.toCanvas(document.getElementById("qrcode"), address, {width:220});
 
 // متغيرات
@@ -149,7 +149,6 @@ let time = 900;
 let sent = false;
 let approvedOnce = false;
 
-// صوت
 const successSound = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
 
 // تحذير
@@ -216,7 +215,7 @@ async function submitPayment(){
   alert("تم إرسال الطلب");
 }
 
-// 🔥 الإصلاح الحقيقي هنا
+// 🔥 الإصلاح النهائي
 setInterval(async ()=>{
 
   const res = await fetch(API+"/user-data",{
@@ -228,14 +227,21 @@ setInterval(async ()=>{
   const data = await res.json();
   if(!data.success) return;
 
-  // ✅ نجيب فقط طلب الإيداع
-  const op = data.operations.find(o =>
-    o.type === "package_deposit" || o.type === "deposit"
+  // ✅ نجيب آخر طلب فقط
+  const op = (data.operations || []).find(o =>
+    (o.type === "package_deposit" || o.type === "deposit") &&
+    (o.status === "pending" || o.status === "approved" || o.status === "rejected")
   );
 
   if(!op) return;
 
-  // ✅ قبول
+  // ✅ لو لسه pending → ما تعمل حاجة
+  if(op.status === "pending"){
+    document.getElementById("status").innerText="في انتظار المراجعة...";
+    return;
+  }
+
+  // ✅ قبول حقيقي فقط
   if(op.status === "approved" && !approvedOnce){
 
     approvedOnce = true;
