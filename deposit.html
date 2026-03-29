@@ -75,7 +75,6 @@ input{
 <body>
 
 <div class="container">
-
 <div class="box">
 
 <h2>تفاصيل الدفع</h2>
@@ -103,7 +102,6 @@ input{
 <div id="status" class="status">في انتظار الدفع...</div>
 
 </div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
@@ -154,15 +152,13 @@ let approvedOnce = false;
 // صوت
 const successSound = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
 
-// 🔥 تحذير احترافي
+// تحذير
 setTimeout(()=>{
   alert(`تنبيه مهم:
 
 - تأكد من الشبكة (${network})
 - أرسل المبلغ الصحيح (${amount} USDT)
-- أي خطأ يؤدي لفقدان الأموال
-
-لن يتم استرجاع أي تحويل خاطئ`);
+- أي خطأ يؤدي لفقدان الأموال`);
 },500);
 
 // نسخ
@@ -220,7 +216,7 @@ async function submitPayment(){
   alert("تم إرسال الطلب");
 }
 
-// تحديث الحالة
+// 🔥 الإصلاح الحقيقي هنا
 setInterval(async ()=>{
 
   const res = await fetch(API+"/user-data",{
@@ -232,9 +228,14 @@ setInterval(async ()=>{
   const data = await res.json();
   if(!data.success) return;
 
-  const op = data.operations[0];
+  // ✅ نجيب فقط طلب الإيداع
+  const op = data.operations.find(o =>
+    o.type === "package_deposit" || o.type === "deposit"
+  );
+
   if(!op) return;
 
+  // ✅ قبول
   if(op.status === "approved" && !approvedOnce){
 
     approvedOnce = true;
@@ -249,8 +250,10 @@ setInterval(async ()=>{
     },3000);
   }
 
+  // ❌ رفض
   if(op.status === "rejected"){
     document.getElementById("status").innerText="مرفوض";
+    document.getElementById("status").style.color="red";
   }
 
 },3000);
