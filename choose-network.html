@@ -1,107 +1,155 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>اختيار الشبكة</title>
+<title>الباقات الاستثمارية | سودان كربتو</title>
 
 <style>
 body{
-font-family:Tahoma;
-background:#0f172a;
-color:#fff;
 margin:0;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
+font-family:Tahoma, Arial, sans-serif;
+background:#f2f5fa;
 }
 
-.box{
-width:90%;
-max-width:400px;
-background:#1e293b;
+.header{
+background:#0b1f3a;
+color:#fff;
+padding:18px;
+text-align:center;
+font-size:20px;
+font-weight:bold;
+}
+
+.container{
+max-width:600px;
+margin:auto;
 padding:20px;
-border-radius:12px;
+}
+
+.package{
+background:#fff;
+border-radius:14px;
+padding:20px;
+margin-bottom:16px;
+box-shadow:0 6px 16px rgba(0,0,0,0.08);
 text-align:center;
 }
 
-button{
-width:100%;
-padding:14px;
-margin-top:10px;
+.package h2{
+margin:0 0 10px;
+font-size:28px;
+color:#111827;
+}
+
+.price{
+font-size:26px;
+color:#2D6AF6;
+font-weight:bold;
+margin-bottom:8px;
+}
+
+.profit{
+color:#10B981;
+font-weight:bold;
+margin-bottom:6px;
+font-size:20px;
+}
+
+.duration{
+color:#777;
+margin-bottom:16px;
+font-size:15px;
+}
+
+.buy-btn{
+background:#2D6AF6;
+color:#fff;
 border:none;
+padding:12px;
+width:100%;
 border-radius:8px;
 font-size:16px;
 cursor:pointer;
 }
 
-.trc{background:#22c55e;color:#fff;}
-.bep{background:#3b82f6;color:#fff;}
+.buy-btn:hover{
+opacity:0.9;
+}
 </style>
-
 </head>
 
 <body>
 
-<div class="box">
+<div class="header">
+الباقات الاستثمارية
+</div>
 
-<h2>اختيار شبكة الدفع</h2>
+<div class="container">
 
-<p>اختر الشبكة المناسبة قبل المتابعة</p>
-
-<button class="trc" onclick="selectNetwork('TRC20')">
-USDT TRC20
+<div class="package">
+<h2>Starter</h2>
+<div class="price">USDT 50</div>
+<div class="profit">ربح يومي 2.5 USDT</div>
+<div class="duration">مدة الباقة 280 يوم</div>
+<button class="buy-btn" onclick="buyPackage('Starter',50,2.5,280)">
+انقر للشراء
 </button>
+</div>
 
-<button class="bep" onclick="selectNetwork('BEP20')">
-USDT BEP20
+<div class="package">
+<h2>Silver</h2>
+<div class="price">USDT 100</div>
+<div class="profit">ربح يومي 5 USDT</div>
+<div class="duration">مدة الباقة 280 يوم</div>
+<button class="buy-btn" onclick="buyPackage('Silver',100,5,280)">
+انقر للشراء
 </button>
+</div>
+
+<div class="package">
+<h2>Gold</h2>
+<div class="price">USDT 250</div>
+<div class="profit">ربح يومي 8 USDT</div>
+<div class="duration">مدة الباقة 280 يوم</div>
+<button class="buy-btn" onclick="buyPackage('Gold',250,8,280)">
+انقر للشراء
+</button>
+</div>
+
+<div class="package">
+<h2>Diamond</h2>
+<div class="price">USDT 500</div>
+<div class="profit">ربح يومي 12 USDT</div>
+<div class="duration">مدة الباقة 280 يوم</div>
+<button class="buy-btn" onclick="buyPackage('Diamond',500,12,280)">
+انقر للشراء
+</button>
+</div>
+
+<div class="package">
+<h2>Platinum</h2>
+<div class="price">USDT 1000</div>
+<div class="profit">ربح يومي 25 USDT</div>
+<div class="duration">مدة الباقة 280 يوم</div>
+<button class="buy-btn" onclick="buyPackage('Platinum',1000,25,280)">
+انقر للشراء
+</button>
+</div>
 
 </div>
 
 <script>
+function buyPackage(name, price, dailyProfit, durationDays){
 
-// منع الطلب المتكرر
-if(localStorage.getItem("activeOrder")){
-alert("عندك طلب قيد التنفيذ");
-window.location.href="deposit.html";
+  localStorage.setItem("selectedPackage", name);
+  localStorage.setItem("selectedPrice", price);
+  localStorage.setItem("selectedDailyProfit", dailyProfit);
+  localStorage.setItem("selectedDuration", durationDays);
+
+  // ✅ الصحيح
+  window.location.href = "choose-network.html";
 }
-
-function generateOrderId(){
-return "ORD-" + Date.now();
-}
-
-function selectNetwork(net){
-
-// حفظ الشبكة
-localStorage.setItem("selectedNetwork", net);
-
-// إنشاء رقم طلب
-const orderId = generateOrderId();
-localStorage.setItem("orderId", orderId);
-
-// قفل الطلب
-localStorage.setItem("activeOrder", "true");
-
-// 🔥 إنشاء الطلب في السيرفر
-fetch("https://sudancryptomarket-api.onrender.com/manual-deposit",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body: JSON.stringify({
-email: localStorage.getItem("userEmail"),
-amount: localStorage.getItem("selectedPrice"),
-packageName: localStorage.getItem("selectedPackage")
-})
-});
-
-// تحويل
-window.location.href="deposit.html";
-
-}
-
 </script>
 
 </body>
