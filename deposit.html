@@ -13,6 +13,7 @@ body{
   color:#fff;
   margin:0;
 }
+
 .container{
   width:100%;
   max-width:420px;
@@ -20,18 +21,21 @@ body{
   min-height:100vh;
   padding:20px;
 }
+
 .box{
   background:#1e293b;
   padding:20px;
   border-radius:12px;
   text-align:center;
 }
+
 .timer{
   color:#ff4d4d;
   font-size:28px;
   margin-bottom:15px;
   font-weight:bold;
 }
+
 input{
   width:100%;
   padding:12px;
@@ -39,6 +43,7 @@ input{
   border-radius:8px;
   border:none;
 }
+
 .btn{
   width:100%;
   padding:14px;
@@ -49,13 +54,16 @@ input{
   font-size:16px;
   cursor:pointer;
 }
+
 .copy{
   background:#3b82f6;
   margin-top:8px;
 }
+
 .qr{
   margin:15px 0;
 }
+
 .status{
   margin-top:10px;
   font-size:15px;
@@ -102,23 +110,16 @@ input{
 
 const API="https://sudancryptomarket-api.onrender.com";
 
-// ✅ البيانات
+// البيانات
 const orderId = localStorage.getItem("orderId");
 const packageName = localStorage.getItem("selectedPackage");
 const amount = localStorage.getItem("selectedPrice");
 const email = localStorage.getItem("userEmail");
+const network = localStorage.getItem("selectedNetwork");
 
-// 🔥 حل مشكلة الشبكة
-let network = localStorage.getItem("selectedNetwork") || sessionStorage.getItem("selectedNetwork");
-
-// حماية قوية
-if(!orderId){
-  alert("ابدأ من الباقات");
-  window.location.href="packages.html";
-}
-
-if(!network){
-  alert("اختار الشبكة أولاً");
+// حماية
+if(!orderId || !network){
+  alert("ابدأ من اختيار الشبكة");
   window.location.href="choose-network.html";
 }
 
@@ -140,6 +141,7 @@ document.getElementById("addressBox").innerHTML = `
 <button class="btn copy" onclick="copyAddress('${address}')">نسخ العنوان</button>
 `;
 
+// QR حقيقي
 QRCode.toCanvas(document.getElementById("qrcode"), address, {width:220});
 
 // متغيرات
@@ -147,13 +149,16 @@ let time = 900;
 let sent = false;
 let approvedOnce = false;
 
+// صوت
 const successSound = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
 
-// تنبيه
+// تحذير
 setTimeout(()=>{
   alert(`تنبيه مهم:
+
 - تأكد من الشبكة (${network})
-- أرسل ${amount} USDT`);
+- أرسل المبلغ الصحيح (${amount} USDT)
+- أي خطأ يؤدي لفقدان الأموال`);
 },500);
 
 // نسخ
@@ -162,7 +167,7 @@ function copyAddress(addr){
   alert("تم النسخ");
 }
 
-// تايمر
+// التايمر
 setInterval(()=>{
   time--;
 
@@ -211,7 +216,7 @@ async function submitPayment(){
   alert("تم إرسال الطلب");
 }
 
-// 🔥🔥 الحل الحقيقي هنا (مهم جداً)
+// 🔥 الإصلاح الحقيقي هنا
 setInterval(async ()=>{
 
   const res = await fetch(API+"/user-data",{
@@ -223,19 +228,14 @@ setInterval(async ()=>{
   const data = await res.json();
   if(!data.success) return;
 
-  // ✅ نجيب أحدث عملية فقط
-  const op = (data.operations || [])[0];
+  // ✅ نجيب فقط طلب الإيداع
+  const op = data.operations.find(o =>
+    o.type === "package_deposit" || o.type === "deposit"
+  );
 
-  // تأكد إنها عملية إيداع
-  if(!op || (op.type !== "package_deposit" && op.type !== "deposit")) return;
+  if(!op) return;
 
-  // انتظار
-  if(op.status === "pending"){
-    document.getElementById("status").innerText="في انتظار المراجعة...";
-    return;
-  }
-
-  // قبول
+  // ✅ قبول
   if(op.status === "approved" && !approvedOnce){
 
     approvedOnce = true;
@@ -245,20 +245,15 @@ setInterval(async ()=>{
 
     successSound.play();
 
-    // 🔥 نلغي الطلب المفتوح
-    localStorage.removeItem("activeOrder");
-
     setTimeout(()=>{
       window.location.href="dashboard.html";
     },3000);
   }
 
-  // رفض
+  // ❌ رفض
   if(op.status === "rejected"){
     document.getElementById("status").innerText="مرفوض";
     document.getElementById("status").style.color="red";
-
-    localStorage.removeItem("activeOrder");
   }
 
 },3000);
