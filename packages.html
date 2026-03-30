@@ -142,12 +142,27 @@ opacity:0.9;
 <script>
 function buyPackage(name, price, dailyProfit, durationDays){
 
+  // 🔥 تنظيف أي بيانات قديمة (مهم جداً)
+  localStorage.removeItem("activeOrder");
+  localStorage.removeItem("orderId");
+  localStorage.removeItem("selectedNetwork");
+
+  // 🔥 تخزين بيانات الباقة
   localStorage.setItem("selectedPackage", name);
   localStorage.setItem("selectedPrice", price);
   localStorage.setItem("selectedDailyProfit", dailyProfit);
   localStorage.setItem("selectedDuration", durationDays);
 
-  // ✅ الصحيح
+  // 🔥 إنشاء رقم طلب جديد
+  const orderId = "ORD" + Date.now();
+  localStorage.setItem("orderId", orderId);
+
+  // 🔥 تفعيل الطلب
+  localStorage.setItem("activeOrder", "true");
+
+  console.log("تم إنشاء الطلب:", orderId);
+
+  // 🚀 الانتقال لصفحة اختيار الشبكة
   window.location.href = "choose-network.html";
 }
 </script>
