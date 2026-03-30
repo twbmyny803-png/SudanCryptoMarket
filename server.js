@@ -1413,6 +1413,7 @@ app.post("/manual-deposit", async (req,res)=>{
           operations:{
             $each:[{
               type:"package_deposit",
+              orderId: "ORD" + Date.now(),
               amount,
               network:"USDT-TRC20",
               status:"pending",
@@ -1442,11 +1443,22 @@ app.post("/upload-proof", upload.single("file"), async (req,res)=>{
 
     const email = req.body.email;
     const txid = req.body.txid;
+    const orderId = req.body.orderId;
 
     const fileUrl = "/uploads/" + req.file.filename;
 
+    const user = await usersCollection.findOne({ email });
+    if (!user) {
+      return res.json({ success: false, message: "المستخدم غير موجود" });
+    }
+
+    const op = user.operations.find(o => o.orderId === orderId);
+    if (op && op.txid) {
+      return res.json({ success: false, message: "تم الإرسال مسبقاً" });
+    }
+
     await usersCollection.updateOne(
-      { email, "operations.status":"pending" },
+      { email, "operations.orderId": orderId },
       {
         $set:{
           "operations.$.txid": txid,
