@@ -181,7 +181,6 @@ async function applyPendingDailyProfit(user){
   }
 
   let daysToAdd = Math.floor(hoursPassed / 24);
-
   const totalDays = Number(user.profitDays || 0);
   const maxDays = Number(user.packageDurationDays || 280);
 
@@ -193,6 +192,7 @@ async function applyPendingDailyProfit(user){
 
   let actualDays = Math.min(daysToAdd, remainingDays);
 
+  // التأكد من عدم إضافة ربح لليوم الأول إذا كان قد تم احتسابه بالفعل
   if (totalDays === 0 && actualDays > 0) {
     actualDays = 1;
   }
@@ -214,6 +214,7 @@ async function applyPendingDailyProfit(user){
           $each:[{
             type:"daily_profit",
             amount: totalProfit,
+            days: actualDays,
             status:"approved",
             date:new Date().toISOString()
           }],
@@ -522,7 +523,6 @@ app.post("/register", async (req,res)=>{
     const phone = cleanText(req.body.phone);
     const password = cleanText(req.body.password);
 
-    const saved = await otpCollection.findOne({ email });
     const existingUser = await usersCollection.findOne({ email });
 
     if(existingUser){
@@ -686,6 +686,8 @@ app.post("/user-data", async (req,res)=>{
       dailyProfit:user.dailyProfit || 0,
       packageStart:user.packageStart || null,
       packageDurationDays:user.packageDurationDays || 0,
+      profitDays: user.profitDays || 0,
+      lastProfitAt: user.lastProfitAt || null,
       accruedProfit: calculateDailyAccruedProfit(user)
     });
 
@@ -708,12 +710,6 @@ app.post("/my-team", async (req, res) => {
     
     // جلب جميع المستخدمين
     const allUsers = await usersCollection.find({ isDeleted: { $ne: true } }).toArray();
-    
-    // إنشاء خريطة للوصول السريع
-    const userMap = {};
-    allUsers.forEach(u => {
-      userMap[u.email] = u;
-    });
     
     // دالة لجلب المستوى لكل مستخدم
     function getUserLevel(targetEmail, referrerCode, currentLevel = 1) {
@@ -958,10 +954,11 @@ app.post("/admin-approve-deposit", async (req,res)=>{
       updateData.packagePrice = Number(op.amount || 0);
       updateData.dailyProfit = Number(op.dailyProfit || 0);
       updateData.packageStart = new Date().toISOString();
-      updateData.lastProfitAt = new Date().toISOString();
+      updateData.lastProfitAt = new Date().toISOString();  // 👈 مهم للربح اليومي
       updateData.packageDurationDays = 280;
       updateData.profitDays = 0;
 
+      // توزيع العمولات على المستويات
       await distributeReferralCommission(user, op.amount);
     }
 
@@ -1317,6 +1314,7 @@ app.post("/admin-set-package", async (req,res)=>{
           packagePrice:info.price,
           dailyProfit:info.dailyProfit,
           packageStart:new Date().toISOString(),
+          lastProfitAt: new Date().toISOString(),
           packageDurationDays:info.durationDays,
           profitDays:0
         },
@@ -1584,10 +1582,17 @@ async function connectDB(){
 
     console.log("Connected to MongoDB");
 
+    // تشغيل المهمة كل يوم في منتصف الليل
     cron.schedule("0 0 * * *", () => {
+      console.log("Running daily profit job...");
       runDailyProfitForAllUsers();
       cancelExpiredDeposits();
     });
+
+    // تشغيل مرة عند بدء التشغيل لحساب الأرباح المتراكمة
+    setTimeout(() => {
+      runDailyProfitForAllUsers();
+    }, 5000);
 
   }catch(e){
     console.log("DB Connection Error:", e);
