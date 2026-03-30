@@ -146,6 +146,33 @@ QRCode.toCanvas(document.getElementById("qrcode"), address, {width:220});
 // متغيرات
 let time = 900;
 let approvedOnce = false;
+let orderCreated = false;
+let sent = false;
+
+// 🔥 1. إنشاء الطلب فور فتح الصفحة
+async function createOrder(){
+
+  if(orderCreated) return;
+
+  try {
+    await fetch(API+"/manual-deposit",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        email,
+        amount,
+        packageName,
+        orderId
+      })
+    });
+
+    orderCreated = true;
+  } catch(err) {
+    console.error("خطأ في إنشاء الطلب:", err);
+  }
+}
+
+createOrder();
 
 // تايمر
 setInterval(()=>{
@@ -157,8 +184,11 @@ setInterval(()=>{
   document.getElementById("timer").innerText =
   `${m}:${s<10?"0"+s:s}`;
 
+  // 🔥 4. حل مشكلة "الزمن انتهى ولسه يرسل"
   if(time <= 0){
     document.getElementById("status").innerText="انتهى الوقت";
+    sent = true;
+    localStorage.removeItem("paymentSent");
   }
 
 },1000);
@@ -169,8 +199,13 @@ function copyAddress(addr){
   alert("تم النسخ");
 }
 
-// إرسال
+// 🔥 3. خلي submitPayment بس للرفع
 async function submitPayment(){
+
+  if(sent){
+    alert("انتهى الوقت");
+    return;
+  }
 
   if(localStorage.getItem("paymentSent") === "true"){
     alert("تم الإرسال مسبقاً");
@@ -187,33 +222,28 @@ async function submitPayment(){
 
   document.getElementById("status").innerText="جاري الإرسال...";
 
-  // 🔥 1. إنشاء الطلب في السيرفر
-  await fetch(API+"/manual-deposit",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({
-      email,
-      amount,
-      packageName,
-      orderId
-    })
-  });
+  // 🔥 2. امسح الكود ده من submitPayment (تم حذفه)
+  // لا نرسل طلب manual-deposit هنا
 
-  // 🔥 2. رفع الصورة + txid
+  // رفع الصورة + txid فقط
   const formData = new FormData();
   formData.append("email",email);
   formData.append("txid",txid);
   formData.append("file",file);
   formData.append("orderId",orderId);
 
-  await fetch(API+"/upload-proof",{
-    method:"POST",
-    body:formData
-  });
+  try {
+    await fetch(API+"/upload-proof",{
+      method:"POST",
+      body:formData
+    });
 
-  localStorage.setItem("paymentSent","true");
-
-  document.getElementById("status").innerText="تم إرسال الطلب";
+    localStorage.setItem("paymentSent","true");
+    document.getElementById("status").innerText="تم إرسال الطلب";
+  } catch(err) {
+    console.error("خطأ في رفع الإثبات:", err);
+    document.getElementById("status").innerText="حدث خطأ في الإرسال";
+  }
 }
 
 // ✅ متابعة الطلب الصحيح فقط
