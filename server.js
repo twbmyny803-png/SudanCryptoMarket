@@ -180,24 +180,22 @@ async function applyPendingDailyProfit(user){
     return user;
   }
 
-  const daysToAdd = Math.floor(hoursPassed / 24);
+  let daysToAdd = Math.floor(hoursPassed / 24);
 
-      const totalDays = Number(user.profitDays || 0);
-      const maxDays = Number(user.packageDurationDays || 280);
+  const totalDays = Number(user.profitDays || 0);
+  const maxDays = Number(user.packageDurationDays || 280);
 
-      const remainingDays = maxDays - totalDays;
+  const remainingDays = maxDays - totalDays;
 
-      if(remainingDays <= 0){
-        return user;
-      }
+  if(remainingDays <= 0){
+    return user;
+  }
 
-      const actualDays = Math.min(daysToAdd, remainingDays);
+  let actualDays = Math.min(daysToAdd, remainingDays);
 
-      // التأكد من عدم إضافة ربح لليوم الأول إذا كان قد تم احتسابه بالفعل
-      if (totalDays === 0 && actualDays > 0) {
-        // إذا كان هذا هو اليوم الأول ولم يتم احتساب الربح بعد، يتم احتساب ربح يوم واحد فقط
-        actualDays = 1;
-      }
+  if (totalDays === 0 && actualDays > 0) {
+    actualDays = 1;
+  }
 
   const totalProfit = actualDays * Number(user.dailyProfit || 0);
 
@@ -247,6 +245,119 @@ async function runDailyProfitForAllUsers(){
 
   }catch(e){
     console.log("Daily profit job error:", e);
+  }
+}
+
+/* ---------------- REFERRAL FUNCTIONS WITH LEVELS ---------------- */
+
+// جدول العمولات حسب الباقة والمستوى (3 مستويات فقط)
+function getCommissionByPackageAndLevel(packageAmount, level) {
+  const commissionTable = {
+    50: { level1: 5, level2: 2, level3: 1 },
+    100: { level1: 7, level2: 3, level3: 2 },
+    250: { level1: 10, level2: 5, level3: 3 },
+    500: { level1: 12, level2: 7, level3: 4 },
+    1000: { level1: 15, level2: 10, level3: 5 }
+  };
+  
+  const pkg = commissionTable[packageAmount];
+  if (!pkg) return 0;
+  
+  if (level === 1) return pkg.level1;
+  if (level === 2) return pkg.level2;
+  if (level === 3) return pkg.level3;
+  return 0;
+}
+
+async function distributeReferralCommission(user, price) {
+  if (!user.referrer) return;
+  
+  // المستوى 1: اللي دعاه مباشرة
+  const level1User = await usersCollection.findOne({ refCode: user.referrer });
+  if (level1User) {
+    const commission = getCommissionByPackageAndLevel(price, 1);
+    if (commission > 0) {
+      await usersCollection.updateOne(
+        { email: level1User.email },
+        {
+          $inc: { incomeBalance: commission },
+          $push: {
+            operations: {
+              $each: [{
+                type: "referral_bonus",
+                amount: commission,
+                level: 1,
+                from: user.email,
+                packageAmount: price,
+                status: "approved",
+                date: new Date().toISOString()
+              }],
+              $position: 0
+            }
+          }
+        }
+      );
+    }
+    
+    // المستوى 2: اللي دعاه اللي دعاه
+    if (level1User.referrer) {
+      const level2User = await usersCollection.findOne({ refCode: level1User.referrer });
+      if (level2User) {
+        const commission2 = getCommissionByPackageAndLevel(price, 2);
+        if (commission2 > 0) {
+          await usersCollection.updateOne(
+            { email: level2User.email },
+            {
+              $inc: { incomeBalance: commission2 },
+              $push: {
+                operations: {
+                  $each: [{
+                    type: "referral_bonus",
+                    amount: commission2,
+                    level: 2,
+                    from: user.email,
+                    packageAmount: price,
+                    status: "approved",
+                    date: new Date().toISOString()
+                  }],
+                  $position: 0
+                }
+              }
+            }
+          );
+        }
+        
+        // المستوى 3: اللي دعاه اللي دعاه اللي دعاه
+        if (level2User.referrer) {
+          const level3User = await usersCollection.findOne({ refCode: level2User.referrer });
+          if (level3User) {
+            const commission3 = getCommissionByPackageAndLevel(price, 3);
+            if (commission3 > 0) {
+              await usersCollection.updateOne(
+                { email: level3User.email },
+                {
+                  $inc: { incomeBalance: commission3 },
+                  $push: {
+                    operations: {
+                      $each: [{
+                        type: "referral_bonus",
+                        amount: commission3,
+                        level: 3,
+                        from: user.email,
+                        packageAmount: price,
+                        status: "approved",
+                        date: new Date().toISOString()
+                      }],
+                      $position: 0
+                    }
+                  }
+                }
+              );
+            }
+          }
+        }
+      }
+    }
   }
 }
 
@@ -414,13 +525,6 @@ app.post("/register", async (req,res)=>{
     const saved = await otpCollection.findOne({ email });
     const existingUser = await usersCollection.findOne({ email });
 
-    // OTP verification disabled
-    /*
-    if(!saved || saved.verified !== true){
-      return res.json({success:false,message:"يجب التحقق من البريد"});
-    }
-    */
-
     if(existingUser){
       return res.json({success:false,message:"البريد مسجل"});
     }
@@ -444,7 +548,8 @@ app.post("/register", async (req,res)=>{
       dailyProfit:0,
       packageStart:null,
       packageDurationDays:0,
-      profitCreditedDays:0,
+      profitDays:0,
+      lastProfitAt: null,
       isBanned:false,
       isFrozen:false,
       isDeleted:false,
@@ -452,14 +557,12 @@ app.post("/register", async (req,res)=>{
     });
 
     if(req.body.referrer){
-
       await usersCollection.updateOne(
         { refCode:req.body.referrer },
         {
           $push:{ referrals:email }
         }
       )
-
     }
 
     await otpCollection.deleteOne({ email });
@@ -592,7 +695,84 @@ app.post("/user-data", async (req,res)=>{
   }
 });
 
+/* ---------------- MY TEAM WITH LEVELS ---------------- */
 
+app.post("/my-team", async (req, res) => {
+  try {
+    const email = normalizeEmail(req.body.email);
+    
+    const user = await usersCollection.findOne({ email });
+    if (!user || user.isDeleted) {
+      return res.json({ success: false, message: "المستخدم غير موجود" });
+    }
+    
+    // جلب جميع المستخدمين
+    const allUsers = await usersCollection.find({ isDeleted: { $ne: true } }).toArray();
+    
+    // إنشاء خريطة للوصول السريع
+    const userMap = {};
+    allUsers.forEach(u => {
+      userMap[u.email] = u;
+    });
+    
+    // دالة لجلب المستوى لكل مستخدم
+    function getUserLevel(targetEmail, referrerCode, currentLevel = 1) {
+      if (!referrerCode || currentLevel > 3) return null;
+      
+      // البحث عن المستخدم صاحب الـ referrerCode
+      const referrerUser = allUsers.find(u => u.refCode === referrerCode);
+      if (!referrerUser) return null;
+      
+      if (referrerUser.email === targetEmail) {
+        return currentLevel;
+      }
+      
+      // البحث في المستوى الأعلى
+      if (referrerUser.referrer) {
+        return getUserLevel(targetEmail, referrerUser.referrer, currentLevel + 1);
+      }
+      
+      return null;
+    }
+    
+    // بناء قائمة الفريق مع المستويات
+    const teamWithLevels = [];
+    
+    for (const u of allUsers) {
+      if (u.email === email) continue;
+      
+      const level = getUserLevel(email, u.referrer, 1);
+      if (level && level <= 3) {
+        teamWithLevels.push({
+          name: u.name,
+          email: u.email,
+          phone: u.phone || "",
+          package: u.packagePrice || 0,
+          level: level,
+          registeredAt: u.createdAt
+        });
+      }
+    }
+    
+    // إحصائيات حسب المستوى
+    const level1Count = teamWithLevels.filter(m => m.level === 1).length;
+    const level2Count = teamWithLevels.filter(m => m.level === 2).length;
+    const level3Count = teamWithLevels.filter(m => m.level === 3).length;
+    
+    res.json({
+      success: true,
+      team: teamWithLevels,
+      count: teamWithLevels.length,
+      level1Count: level1Count,
+      level2Count: level2Count,
+      level3Count: level3Count
+    });
+    
+  } catch(e) {
+    console.log(e);
+    res.json({ success: false, message: "فشل تحميل الفريق" });
+  }
+});
 
 /* ---------------- WITHDRAW ---------------- */
 
@@ -773,17 +953,14 @@ app.post("/admin-approve-deposit", async (req,res)=>{
     }
 
     if(op.type === "package_deposit"){
-
       updateData.balance = Number(user.balance || 0) + Number(op.amount || 0);
       updateData.packageName = op.packageName || "";
       updateData.packagePrice = Number(op.amount || 0);
       updateData.dailyProfit = Number(op.dailyProfit || 0);
-
-      // 👇 دي مهمة
       updateData.packageStart = new Date().toISOString();
       updateData.lastProfitAt = new Date().toISOString();
       updateData.packageDurationDays = 280;
-      updateData.profitCreditedDays = 0;
+      updateData.profitDays = 0;
 
       await distributeReferralCommission(user, op.amount);
     }
@@ -1141,7 +1318,7 @@ app.post("/admin-set-package", async (req,res)=>{
           dailyProfit:info.dailyProfit,
           packageStart:new Date().toISOString(),
           packageDurationDays:info.durationDays,
-          profitCreditedDays:0
+          profitDays:0
         },
         $push:{
           operations:{
@@ -1262,7 +1439,6 @@ app.post("/admin-reject-verification", async (req,res)=>{
   }
 });
 
-
 /* ---------------- MY VERIFICATION ---------------- */
 
 app.post("/my-verification", async (req,res)=>{
@@ -1309,94 +1485,8 @@ app.post("/my-verification", async (req,res)=>{
   }
 });
 
-/* ---------------- REFERRAL FUNCTIONS ---------------- */
+/* ---------------- MANUAL DEPOSIT ---------------- */
 
-async function distributeReferralCommission(user, price){
-
-  const commissions = {
-    50:[5,3,2,1,1,0.5,0.5],
-    100:[10,6,4,3,2,1,1],
-    250:[30,18,10,7,5,3,2],
-    500:[50,30,20,15,10,7,5],
-    1000:[70,40,25,20,15,10,7]
-  };
-
-  let currentRef = user.referrer;
-
-  for(let level=0; level<7; level++){
-
-    if(!currentRef) break;
-
-    const refUser = await usersCollection.findOne({ refCode: currentRef });
-
-    if(!refUser) break;
-
-    const reward = commissions[price]?.[level] || 0;
-
-    if(reward > 0){
-      await usersCollection.updateOne(
-        { email: refUser.email },
-        {
-          $inc:{ incomeBalance: reward },
-          $push:{
-            operations:{
-              $each:[{
-                type:"referral_bonus",
-                amount:reward,
-                level:level+1,
-                from:user.email,
-                status:"approved",
-                date:new Date().toISOString()
-              }],
-              $position:0
-            }
-          }
-        }
-      );
-    }
-
-    currentRef = refUser.referrer;
-  }
-}
-
-/* ---------------- CREATE PAYMENT LINK ---------------- */
-
-
-
-/* ---------------- NOWPAYMENTS WEBHOOK ---------------- */
-
-
-
-
-
-/* ---------------- DATABASE CONNECT ---------------- */
-
-async function connectDB(){
-  try{
-    await client.connect();
-    db = client.db("sudan_crypto");
-    usersCollection = db.collection("users");
-    otpCollection = db.collection("otps");
-    verifyCollection = db.collection("verifications");
-
-    console.log("Connected to MongoDB");
-
-    // Start cron jobs
-    cron.schedule("0 0 * * *", () => {
-      runDailyProfitForAllUsers();
-      cancelExpiredDeposits();
-    });
-
-  }catch(e){
-    console.log("DB Connection Error:", e);
-  }
-}
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, async ()=>{
-  await connectDB();
-  console.log("Server running on port", PORT);
-});
 app.post("/manual-deposit", async (req,res)=>{
   try{
 
@@ -1406,7 +1496,6 @@ app.post("/manual-deposit", async (req,res)=>{
 
     const packageInfo = getPackageInfo(packageName);
 
-    // 🔥 نفس orderId الجاي من الفرونت
     const orderId = req.body.orderId;
 
     await usersCollection.updateOne(
@@ -1415,7 +1504,7 @@ app.post("/manual-deposit", async (req,res)=>{
         $push:{
           operations:{
             $each:[{
-              orderId, // 🔥 أهم سطر
+              orderId,
               type:"package_deposit",
               amount,
               network:"USDT-TRC20",
@@ -1440,6 +1529,8 @@ app.post("/manual-deposit", async (req,res)=>{
     res.json({success:false});
   }
 });
+
+/* ---------------- UPLOAD PROOF ---------------- */
 
 app.post("/upload-proof", upload.single("file"), async (req,res)=>{
   try{
@@ -1470,7 +1561,6 @@ app.post("/upload-proof", upload.single("file"), async (req,res)=>{
       }
     );
 
-    // 👇 أهم سطر (ضيفو)
     res.json({
       success:true,
       file:fileUrl
@@ -1480,4 +1570,32 @@ app.post("/upload-proof", upload.single("file"), async (req,res)=>{
     console.log(e);
     res.json({success:false});
   }
+});
+
+/* ---------------- DATABASE CONNECT ---------------- */
+
+async function connectDB(){
+  try{
+    await client.connect();
+    db = client.db("sudan_crypto");
+    usersCollection = db.collection("users");
+    otpCollection = db.collection("otps");
+    verifyCollection = db.collection("verifications");
+
+    console.log("Connected to MongoDB");
+
+    cron.schedule("0 0 * * *", () => {
+      runDailyProfitForAllUsers();
+      cancelExpiredDeposits();
+    });
+
+  }catch(e){
+    console.log("DB Connection Error:", e);
+  }
+}
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, async ()=>{
+  await connectDB();
+  console.log("Server running on port", PORT);
 });
