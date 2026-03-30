@@ -124,7 +124,7 @@ padding:10px;
 
 <div class="actions">
 
-<div class="card" onclick="openPage('deposit.html')">
+<div class="card" onclick="goToDeposit()">
 <div class="card-title">إيداع</div>
 <div class="card-desc">إضافة رصيد إلى حسابك</div>
 </div>
@@ -134,10 +134,10 @@ padding:10px;
 <div class="card-desc">سحب الأموال إلى محفظتك</div>
 </div>
 
-	<div class="card" onclick="transferProfit()" style="cursor:pointer;">
-	<div class="card-title">تحويل</div>
-	<div class="card-desc">اضغط لتحويل الأرباح</div>
-	</div>
+<div class="card" onclick="transferProfit()" style="cursor:pointer;">
+<div class="card-title">تحويل</div>
+<div class="card-desc">اضغط لتحويل الأرباح</div>
+</div>
 
 <div class="card" onclick="openPage('transactions.html')">
 <div class="card-title">سجل العمليات</div>
@@ -165,7 +165,6 @@ padding:10px;
 <script>
 
 const API="https://sudancryptomarket-api.onrender.com";
-
 const email=localStorage.getItem("userEmail");
 
 if(!email){
@@ -188,46 +187,32 @@ window.location.href="login.html";
 return;
 }
 
-/* عرض الرصيد */
+// التحقق من وجود باقة نشطة
+// إذا ما فيه باقة، يحول للباقات مباشرة بدون رسالة
+if(!data.packageName || data.packageName === "" || data.packageName === "لا توجد"){
+window.location.href = "packages.html";
+return;
+}
 
+/* عرض الرصيد */
 document.getElementById("balance").innerText=(data.balance||0)+" USDT";
 
 /* عرض آخر النشاط */
-
 const box=document.getElementById("activityBox");
 
 if(!data.operations || data.operations.length===0){
-
-box.innerHTML=`<div class="activity-empty">
-لا توجد عمليات حتى الآن
-</div>`;
-
+box.innerHTML=`<div class="activity-empty">لا توجد عمليات حتى الآن</div>`;
 }else{
-
 let html="";
-
 data.operations.slice(0,5).forEach(op=>{
-
 let text="";
-
-if(op.type==="deposit"){
-text="إيداع";
-}
-
-if(op.type==="withdraw"){
-text="سحب";
-}
-
-html+=`
-<div class="activity-item">
-${text} ${op.amount} USDT
-</div>
-`;
-
+if(op.type==="deposit") text="إيداع";
+if(op.type==="withdraw") text="سحب";
+if(op.type==="daily_profit") text="ربح يومي";
+if(op.type==="referral_bonus") text="مكافأة إحالة";
+html+=`<div class="activity-item">${text} ${op.amount} USDT</div>`;
 });
-
 box.innerHTML=html;
-
 }
 
 })
@@ -235,31 +220,33 @@ box.innerHTML=html;
 window.location.href="login.html";
 });
 
-	function openPage(page){
-	window.location.href=page;
-	}
+function openPage(page){
+window.location.href=page;
+}
 
-	function transferProfit(){
+function goToDeposit(){
+window.location.href = "deposit.html";
+}
 
-	  const email = localStorage.getItem("userEmail")
-
-	  fetch(API + "/transfer-profit",{
-	    method:"POST",
-	    headers:{
-	      "Content-Type":"application/json"
-	    },
-	    body:JSON.stringify({ email })
-	  })
-	  .then(res=>res.json())
-	  .then(data=>{
-	    if(data.success){
-	      alert("تم تحويل الأرباح بنجاح")
-	      location.reload()
-	    }else{
-	      alert(data.message || "فشل التحويل")
-	    }
-	  })
-	}
+function transferProfit(){
+const email = localStorage.getItem("userEmail");
+fetch(API + "/transfer-profit",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({ email })
+})
+.then(res=>res.json())
+.then(data=>{
+if(data.success){
+alert("تم تحويل الأرباح بنجاح");
+location.reload();
+}else{
+alert(data.message || "فشل التحويل");
+}
+});
+}
 
 </script>
 
