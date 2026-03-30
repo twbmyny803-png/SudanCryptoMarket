@@ -2,113 +2,290 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>اختيار الشبكة | سودان كربتو</title>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 <style>
-body{
-  background:#0f172a;
-  color:#fff;
-  font-family:Tahoma, Arial, sans-serif;
-  text-align:center;
-  padding:40px;
-  margin:0;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.box{
-  max-width:400px;
-  margin:auto;
-  background:#1e293b;
-  padding:30px;
-  border-radius:16px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Tahoma', sans-serif;
+  background: linear-gradient(135deg, #0b1f3a 0%, #1a2f4e 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.box {
+  background: white;
+  border-radius: 28px;
+  padding: 24px 20px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+  color: #1e293b;
 }
 
 h2 {
-  margin-bottom: 20px;
-  color: #3b82f6;
+  text-align: center;
+  margin-bottom: 24px;
+  font-size: 22px;
+  color: #0b1f3a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
-#info {
-  background: #334155;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 25px;
-  line-height: 1.8;
-  font-size: 15px;
-  text-align: right;
+h2 i {
+  color: #2D6AF6;
+}
+
+.info-card {
+  background: #f8fafc;
+  border-radius: 20px;
+  padding: 16px;
+  margin-bottom: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+.info-card div {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #eef2f8;
+  font-size: 14px;
+}
+
+.info-card div:last-child {
+  border-bottom: none;
+}
+
+.info-card span:first-child {
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.info-card span:last-child {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.fee-warning {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 20px;
+}
+
+.fee-warning p {
+  color: #b45309;
+  font-size: 13px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fee-warning p i {
+  color: #f59e0b;
+}
+
+.fee-details {
+  background: #fef3c7;
+  border-radius: 12px;
+  padding: 10px;
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.fee-details div {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
 }
 
 .btn-network {
-  width:100%;
-  padding:15px;
-  margin-top:12px;
-  border:none;
-  border-radius:10px;
-  background:#2563eb;
-  color:#fff;
-  font-size:17px;
-  font-weight: bold;
-  cursor:pointer;
-  transition: background 0.3s ease;
+  width: 100%;
+  padding: 16px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-trc20 {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+}
+
+.btn-bep20 {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  color: white;
 }
 
 .btn-network:hover {
-  background: #1d4ed8;
+  transform: scale(0.98);
 }
 
 .btn-back {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   margin-top: 20px;
-  color: #94a3b8;
+  color: #64748b;
   text-decoration: none;
-  font-size: 14px;
+  font-size: 13px;
+  width: 100%;
+  padding: 12px;
+  background: #f1f5f9;
+  border-radius: 40px;
+  transition: all 0.2s;
+}
+
+.btn-back:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* رسوم الشبكات */
+.network-fee {
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 8px;
+  display: none;
+}
+
+.network-fee.active {
+  display: block;
+}
+
+.network-fee div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 5px 0;
+}
+
+.network-fee .total {
+  font-weight: 700;
+  color: #2D6AF6;
+  border-top: 1px solid #cbd5e1;
+  margin-top: 5px;
+  padding-top: 8px;
 }
 </style>
-
 </head>
 
 <body>
 
+<div class="container">
 <div class="box">
 
-<h2>اختر الشبكة</h2>
+<h2>
+<i class="fa-solid fa-network-wired"></i>
+اختر الشبكة
+</h2>
 
-<div id="info">
-  جاري تحميل بيانات الطلب...
+<div class="info-card" id="infoCard">
+  <div><span><i class="fa-solid fa-box"></i> الباقة</span><span id="packageName">...</span></div>
+  <div><span><i class="fa-solid fa-dollar-sign"></i> المبلغ</span><span id="priceAmount">...</span></div>
+  <div><span><i class="fa-solid fa-hashtag"></i> رقم الطلب</span><span id="orderIdText">...</span></div>
 </div>
 
-<button class="btn-network" onclick="selectNetwork('TRC20')">USDT TRC20</button>
-<button class="btn-network" onclick="selectNetwork('BEP20')">USDT BEP20</button>
+<div class="fee-warning">
+  <p><i class="fa-solid fa-circle-info"></i> ملاحظة: رسوم الشبكة</p>
+  <div class="fee-details">
+    <div><span>المبلغ المطلوب</span><span id="requiredAmount">0</span></div>
+    <div><span>رسوم التحويل (تقديرية)</span><span id="feeAmount">0</span></div>
+    <div><span><strong>المبلغ الإجمالي للتحويل</strong></span><span id="totalAmount"><strong>0</strong></span></div>
+  </div>
+  <p style="margin-top: 8px; font-size: 12px;">
+    <i class="fa-solid fa-triangle-exclamation"></i> الرجاء إرسال المبلغ الإجمالي إلى الشبكة المختارة بدقة
+  </p>
+</div>
 
-<a href="packages.html" class="btn-back">العودة للباقات</a>
+<button class="btn-network btn-trc20" onclick="selectNetwork('TRC20')">
+  <i class="fa-brands fa-tron"></i> USDT TRC20
+</button>
 
+<button class="btn-network btn-bep20" onclick="selectNetwork('BEP20')">
+  <i class="fa-brands fa-ethereum"></i> USDT BEP20
+</button>
+
+<a href="packages.html" class="btn-back">
+  <i class="fa-solid fa-arrow-right"></i> العودة للباقات
+</a>
+
+</div>
 </div>
 
 <script>
+// رسوم الشبكات
+const NETWORK_FEES = {
+  TRC20: 2,    // 2 USDT
+  BEP20: 0.5   // 0.5 USDT
+};
+
 // استرجاع البيانات من localStorage
 const packageName = localStorage.getItem("selectedPackage");
-const price = localStorage.getItem("selectedPrice");
+const price = parseFloat(localStorage.getItem("selectedPrice")) || 0;
 const orderId = localStorage.getItem("orderId");
 
 // حماية: التأكد من وجود بيانات الطلب
-if(!packageName || !orderId){
+if(!packageName || !orderId || price <= 0){
   alert("عذراً، لم يتم العثور على بيانات الطلب. يرجى اختيار باقة أولاً.");
-  window.location.href="packages.html";
+  window.location.href = "packages.html";
 } else {
   // عرض بيانات الطلب
-  document.getElementById("info").innerHTML = `
-    <strong>الباقة:</strong> ${packageName} <br>
-    <strong>المبلغ:</strong> ${price} USDT <br>
-    <strong>رقم الطلب:</strong> ${orderId}
-  `;
+  document.getElementById("packageName").innerText = packageName;
+  document.getElementById("priceAmount").innerText = price + " USDT";
+  document.getElementById("orderIdText").innerText = orderId;
+  
+  // عرض المبلغ الأساسي
+  document.getElementById("requiredAmount").innerText = price + " USDT";
 }
+
+// دالة تحديث الرسوم حسب الشبكة
+function updateFeeDisplay(network){
+  const fee = NETWORK_FEES[network] || 0;
+  const total = price + fee;
+  
+  document.getElementById("feeAmount").innerHTML = fee + " USDT";
+  document.getElementById("totalAmount").innerHTML = total.toFixed(2) + " USDT";
+}
+
+// عرض افتراضي لـ TRC20 (أول اختيار)
+updateFeeDisplay("TRC20");
 
 // دالة اختيار الشبكة
 function selectNetwork(network){
   // تخزين الشبكة المختارة
   localStorage.setItem("selectedNetwork", network);
-
+  
+  // تخزين الرسوم للاستخدام في صفحة الدفع
+  localStorage.setItem("networkFee", NETWORK_FEES[network]);
+  
   // الانتقال لصفحة الإيداع
   window.location.href = "deposit.html";
 }
