@@ -841,41 +841,48 @@ app.get("/admin-users", async (req,res)=>{
   }
 });
 
-/* ---------------- ADMIN DEPOSITS ---------------- */
+/* ---------------- ADMIN DEPOSITS (MODIFIED) ---------------- */
 
 app.get("/admin-deposits", async (req,res)=>{
   try{
     if(!requireAdmin(req,res)) return;
 
-    const users = await usersCollection.find({ isDeleted:{ $ne:true } }).toArray();
+    // جلب كل المستخدمين (بدون فلتر isDeleted لضمان ظهور كل الإيداعات)
+    const users = await usersCollection.find({}).toArray();
 
     const deposits = [];
 
-    users.forEach(user=>{
-      (user.operations || []).forEach((op,index)=>{
-        if(op.type === "deposit" || op.type === "package_deposit"){
+    users.forEach(user => {
+      if (!user.operations) return;
+      
+      user.operations.forEach((op, index) => {
+        // قبول أي عملية نوعها deposit أو package_deposit
+        if (op.type === "deposit" || op.type === "package_deposit") {
           deposits.push({
-            id:user.email + "_" + index,
-            email:user.email,
-            name:user.name,
-            amount:op.amount,
-            currency:"USDT",
-            network:op.network || "",
-            txid:op.txid || "",
-            packageName:op.packageName || "",
-            status:op.status,
+            id: user.email + "_" + index,
+            email: user.email,
+            name: user.name || "غير معروف",
+            amount: op.amount,
+            currency: "USDT",
+            network: op.network || "",
+            txid: op.txid || "",
+            packageName: op.packageName || "",
+            status: op.status,
             proof: op.proof || "",
-            index
+            index: index,
+            date: op.date || ""
           });
         }
       });
     });
 
-    res.json({success:true,deposits});
+    // ترتيب من الأحدث للأقدم
+    deposits.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  }catch(e){
+    res.json({ success: true, deposits });
+  } catch(e){
     console.log(e);
-    res.json({success:false,message:"فشل تحميل طلبات الإيداع"});
+    res.json({ success: false, message: "فشل تحميل طلبات الإيداع" });
   }
 });
 
@@ -954,7 +961,7 @@ app.post("/admin-approve-deposit", async (req,res)=>{
       updateData.packagePrice = Number(op.amount || 0);
       updateData.dailyProfit = Number(op.dailyProfit || 0);
       updateData.packageStart = new Date().toISOString();
-      updateData.lastProfitAt = new Date().toISOString();  // 👈 مهم للربح اليومي
+      updateData.lastProfitAt = new Date().toISOString();
       updateData.packageDurationDays = 280;
       updateData.profitDays = 0;
 
