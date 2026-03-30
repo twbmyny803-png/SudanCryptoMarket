@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>الدفع</title>
 
 <style>
@@ -12,6 +13,7 @@ body{
   color:#fff;
   margin:0;
 }
+
 .container{
   width:100%;
   max-width:420px;
@@ -19,18 +21,21 @@ body{
   min-height:100vh;
   padding:20px;
 }
+
 .box{
   background:#1e293b;
   padding:20px;
   border-radius:12px;
   text-align:center;
 }
+
 .timer{
   color:#ff4d4d;
   font-size:28px;
   margin-bottom:15px;
   font-weight:bold;
 }
+
 input{
   width:100%;
   padding:12px;
@@ -38,6 +43,7 @@ input{
   border-radius:8px;
   border:none;
 }
+
 .btn{
   width:100%;
   padding:14px;
@@ -48,15 +54,22 @@ input{
   font-size:16px;
   cursor:pointer;
 }
+
 .copy{
   background:#3b82f6;
   margin-top:8px;
 }
+
+.qr{
+  margin:15px 0;
+}
+
 .status{
   margin-top:10px;
   font-size:15px;
 }
 </style>
+
 </head>
 
 <body>
@@ -76,6 +89,10 @@ input{
 <div id="timer" class="timer">15:00</div>
 
 <div id="addressBox"></div>
+
+<div class="qr">
+  <canvas id="qrcode"></canvas>
+</div>
 
 <input type="text" id="txid" placeholder="رقم العملية (TXID)">
 <input type="file" id="proof">
@@ -99,17 +116,16 @@ const amount = localStorage.getItem("selectedPrice");
 const email = localStorage.getItem("userEmail");
 const network = localStorage.getItem("selectedNetwork");
 
-// حماية
-if(!orderId || !network){
-  alert("ابدأ من الباقات");
-  window.location.href="packages.html";
+// 🔥 حماية بدون ما يكسر الصفحة
+if(!orderId){
+  document.body.innerHTML = "<h2 style='text-align:center;color:white'>ارجع للباقات</h2>";
 }
 
-// عرض
-document.getElementById("orderId").innerText = orderId;
-document.getElementById("packageName").innerText = packageName;
-document.getElementById("amount").innerText = amount;
-document.getElementById("networkText").innerText = network;
+// عرض البيانات
+document.getElementById("orderId").innerText = orderId || "-";
+document.getElementById("packageName").innerText = packageName || "-";
+document.getElementById("amount").innerText = amount || "-";
+document.getElementById("networkText").innerText = network || "-";
 
 // العناوين
 const TRC20 = "TLPZEoW71BNe6mHPK8XRJ5PkN5Agqqpa5n";
@@ -117,18 +133,17 @@ const BEP20 = "0x990635c24b47a3ebbc14efadf0355e26ec706385";
 
 let address = network === "TRC20" ? TRC20 : BEP20;
 
+// عرض العنوان
 document.getElementById("addressBox").innerHTML = `
 <div style="word-break:break-all;">${address}</div>
 <button class="btn copy" onclick="copyAddress('${address}')">نسخ العنوان</button>
 `;
 
-QRCode.toCanvas(document.createElement("canvas"), address);
+QRCode.toCanvas(document.getElementById("qrcode"), address, {width:220});
 
 // متغيرات
 let time = 900;
 let sent = false;
-let approvedOnce = false;
-let createdOperationIndex = null;
 
 // نسخ
 function copyAddress(addr){
@@ -139,6 +154,7 @@ function copyAddress(addr){
 // تايمر
 setInterval(()=>{
   time--;
+
   let m = Math.floor(time/60);
   let s = time % 60;
 
@@ -149,6 +165,7 @@ setInterval(()=>{
     document.getElementById("status").innerText="انتهى الوقت";
     sent = true;
   }
+
 },1000);
 
 // إرسال
@@ -183,7 +200,7 @@ async function submitPayment(){
   document.getElementById("status").innerText="تم إرسال الطلب";
 }
 
-// 🔥 الحل الحقيقي النهائي (ربط الطلب الصحيح فقط)
+// 🔥 إصلاح القبول الوهمي نهائي
 setInterval(async ()=>{
 
   const res = await fetch(API+"/user-data",{
@@ -195,32 +212,17 @@ setInterval(async ()=>{
   const data = await res.json();
   if(!data.success) return;
 
-  const operations = data.operations || [];
+  const op = (data.operations || []).find(o => o.type === "package_deposit");
 
-  // أول مرة: نحدد الطلب الجديد
-  if(createdOperationIndex === null){
-    const opIndex = operations.findIndex(o => o.type === "package_deposit" && o.status === "pending");
-    if(opIndex !== -1){
-      createdOperationIndex = opIndex;
-    }
-    return;
-  }
-
-  const op = operations[createdOperationIndex];
   if(!op) return;
 
   if(op.status === "pending"){
     document.getElementById("status").innerText="قيد المراجعة...";
   }
 
-  if(op.status === "approved" && !approvedOnce){
-    approvedOnce = true;
+  if(op.status === "approved"){
     document.getElementById("status").innerText="تم القبول";
     document.getElementById("status").style.color="green";
-
-    setTimeout(()=>{
-      window.location.href="dashboard.html";
-    },3000);
   }
 
   if(op.status === "rejected"){
