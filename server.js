@@ -1406,14 +1406,17 @@ app.post("/manual-deposit", async (req,res)=>{
 
     const packageInfo = getPackageInfo(packageName);
 
+    // 🔥 نفس orderId الجاي من الفرونت
+    const orderId = req.body.orderId;
+
     await usersCollection.updateOne(
       { email },
       {
         $push:{
           operations:{
             $each:[{
+              orderId, // 🔥 أهم سطر
               type:"package_deposit",
-              orderId: "ORD" + Date.now(),
               amount,
               network:"USDT-TRC20",
               status:"pending",
