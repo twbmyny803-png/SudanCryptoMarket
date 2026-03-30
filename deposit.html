@@ -1,75 +1,253 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>الدفع | سودان كربتو</title>
 
-<title>الدفع</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
 <style>
-body{
-  font-family: Arial;
-  background:#0f172a;
-  color:#fff;
-  margin:0;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.container{
-  width:100%;
-  max-width:420px;
-  margin:auto;
-  min-height:100vh;
-  padding:20px;
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #0b1f3a 0%, #1a2f4e 100%);
+  min-height: 100vh;
+  padding: 20px;
 }
 
-.box{
-  background:#1e293b;
-  padding:20px;
-  border-radius:12px;
-  text-align:center;
+.container {
+  max-width: 480px;
+  margin: 0 auto;
 }
 
-.timer{
-  color:#ff4d4d;
-  font-size:28px;
-  margin-bottom:15px;
-  font-weight:bold;
+.box {
+  background: white;
+  border-radius: 28px;
+  padding: 24px 20px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+  color: #1e293b;
 }
 
-input{
-  width:100%;
-  padding:12px;
-  margin:8px 0;
-  border-radius:8px;
-  border:none;
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 22px;
+  color: #0b1f3a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
-.btn{
-  width:100%;
-  padding:14px;
-  background:#22c55e;
-  border:none;
-  color:#fff;
-  border-radius:8px;
-  font-size:16px;
-  cursor:pointer;
+h2 i {
+  color: #2D6AF6;
 }
 
-.copy{
-  background:#3b82f6;
-  margin-top:8px;
+.order-details {
+  background: #f8fafc;
+  border-radius: 20px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #e2e8f0;
 }
 
-.qr{
-  margin:15px 0;
+.order-details div {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #eef2f8;
+  font-size: 14px;
 }
 
-.status{
-  margin-top:10px;
-  font-size:15px;
+.order-details div:last-child {
+  border-bottom: none;
+}
+
+.order-details span:first-child {
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.order-details span:last-child {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.timer {
+  background: linear-gradient(135deg, #fee2e2, #ffeded);
+  color: #dc2626;
+  padding: 12px;
+  border-radius: 60px;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 20px;
+  font-family: monospace;
+  letter-spacing: 2px;
+}
+
+.address-box {
+  background: #f1f5f9;
+  border-radius: 16px;
+  padding: 12px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.address-text {
+  word-break: break-all;
+  font-family: monospace;
+  font-size: 13px;
+  background: white;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 12px;
+  color: #2D6AF6;
+  font-weight: 600;
+}
+
+.qr {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  background: white;
+  padding: 12px;
+  border-radius: 20px;
+}
+
+.qr canvas {
+  width: 180px;
+  height: 180px;
+  border-radius: 16px;
+}
+
+.btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: scale(0.98);
+  background: linear-gradient(135deg, #16a34a, #15803d);
+}
+
+.btn-copy {
+  background: #2D6AF6;
+  color: white;
+}
+
+.btn-copy:hover {
+  background: #1e4fcf;
+  transform: scale(0.98);
+}
+
+.btn-outline {
+  background: #f1f5f9;
+  color: #2D6AF6;
+  border: 1px solid #e2e8f0;
+}
+
+.btn-outline:hover {
+  background: #e2e8f0;
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  margin: 8px 0;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  font-size: 14px;
+  background: #f8fafc;
+  transition: all 0.2s;
+}
+
+input:focus {
+  outline: none;
+  border-color: #2D6AF6;
+  box-shadow: 0 0 0 3px rgba(45,106,246,0.1);
+}
+
+.file-input {
+  padding: 10px;
+  background: #f8fafc;
+}
+
+.status {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 16px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.status.success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status.error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status.pending {
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+/* Toast Notification */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 40px;
+  font-size: 14px;
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  white-space: nowrap;
+}
+
+.toast i {
+  font-size: 16px;
 }
 </style>
-
 </head>
 
 <body>
@@ -77,14 +255,12 @@ input{
 <div class="container">
 <div class="box">
 
-<h2>تفاصيل الدفع</h2>
+<h2>
+<i class="fa-solid fa-credit-card"></i>
+تفاصيل الدفع
+</h2>
 
-<div style="background:#334155;padding:12px;border-radius:8px;margin-bottom:10px;">
-  <div>رقم الطلب: <b id="orderId"></b></div>
-  <div>الباقة: <b id="packageName"></b></div>
-  <div>المبلغ: <b id="amount"></b> USDT</div>
-  <div>الشبكة: <b id="networkText"></b></div>
-</div>
+<div class="order-details" id="orderDetails"></div>
 
 <div id="timer" class="timer">15:00</div>
 
@@ -95,20 +271,25 @@ input{
 </div>
 
 <input type="text" id="txid" placeholder="رقم العملية (TXID)">
-<input type="file" id="proof">
+<input type="file" id="proof" class="file-input" accept="image/*">
 
-<button class="btn" onclick="submitPayment()">تأكيد الدفع</button>
+<button class="btn btn-primary" onclick="submitPayment()">
+<i class="fa-solid fa-check-circle"></i> تأكيد الدفع
+</button>
 
 <div id="status" class="status">في انتظار الدفع...</div>
 
 </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<div class="toast" id="toastMessage">
+<i class="fa-solid fa-circle-check"></i>
+<span id="toastText"></span>
+</div>
 
 <script>
 
-const API="https://sudancryptomarket-api.onrender.com";
+const API = "https://sudancryptomarket-api.onrender.com";
 
 // البيانات
 const orderId = localStorage.getItem("orderId");
@@ -119,15 +300,16 @@ const network = localStorage.getItem("selectedNetwork");
 
 // حماية
 if(!orderId || !network){
-  alert("ابدأ من الباقات");
-  window.location.href="packages.html";
+  window.location.href = "packages.html";
 }
 
-// عرض
-document.getElementById("orderId").innerText = orderId;
-document.getElementById("packageName").innerText = packageName;
-document.getElementById("amount").innerText = amount;
-document.getElementById("networkText").innerText = network;
+// عرض تفاصيل الطلب
+document.getElementById("orderDetails").innerHTML = `
+  <div><span><i class="fa-solid fa-hashtag"></i> رقم الطلب</span><span>${orderId}</span></div>
+  <div><span><i class="fa-solid fa-box"></i> الباقة</span><span>${packageName}</span></div>
+  <div><span><i class="fa-solid fa-dollar-sign"></i> المبلغ</span><span>${amount} USDT</span></div>
+  <div><span><i class="fa-solid fa-network-wired"></i> الشبكة</span><span>${network}</span></div>
+`;
 
 // العناوين
 const TRC20 = "TLPZEoW71BNe6mHPK8XRJ5PkN5Agqqpa5n";
@@ -135,13 +317,41 @@ const BEP20 = "0x990635c24b47a3ebbc14efadf0355e26ec706385";
 
 let address = network === "TRC20" ? TRC20 : BEP20;
 
-// عرض العنوان
+// عرض العنوان وزر النسخ
 document.getElementById("addressBox").innerHTML = `
-<div style="word-break:break-all;">${address}</div>
-<button class="btn copy" onclick="copyAddress('${address}')">نسخ العنوان</button>
+  <div class="address-box">
+    <div class="address-text">${address}</div>
+    <button class="btn btn-copy" onclick="copyAddress('${address}')">
+      <i class="fa-regular fa-copy"></i> نسخ العنوان
+    </button>
+  </div>
 `;
 
-QRCode.toCanvas(document.getElementById("qrcode"), address, {width:220});
+// إنشاء QR Code حقيقي
+QRCode.toCanvas(document.getElementById("qrcode"), address, { width: 200, margin: 1 });
+
+// دالة عرض Toast بدل alert
+function showToast(message, isError = false) {
+  const toast = document.getElementById("toastMessage");
+  const toastText = document.getElementById("toastText");
+  const icon = toast.querySelector("i");
+  
+  toastText.innerText = message;
+  
+  if (isError) {
+    icon.className = "fa-solid fa-circle-exclamation";
+    toast.style.background = "#dc2626";
+  } else {
+    icon.className = "fa-solid fa-circle-check";
+    toast.style.background = "#10b981";
+  }
+  
+  toast.style.display = "flex";
+  
+  setTimeout(() => {
+    toast.style.display = "none";
+  }, 2500);
+}
 
 // متغيرات
 let time = 900;
@@ -149,144 +359,142 @@ let approvedOnce = false;
 let orderCreated = false;
 let sent = false;
 
-// 🔥 1. إنشاء الطلب فور فتح الصفحة
+// إنشاء الطلب فور فتح الصفحة
 async function createOrder(){
-
   if(orderCreated) return;
-
   try {
-    await fetch(API+"/manual-deposit",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({
-        email,
-        amount,
-        packageName,
-        orderId
-      })
+    await fetch(API + "/manual-deposit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, amount, packageName, orderId })
     });
-
     orderCreated = true;
   } catch(err) {
     console.error("خطأ في إنشاء الطلب:", err);
   }
 }
-
 createOrder();
 
 // تايمر
-setInterval(()=>{
+const timerInterval = setInterval(() => {
   time--;
-
-  let m = Math.floor(time/60);
+  let m = Math.floor(time / 60);
   let s = time % 60;
-
-  document.getElementById("timer").innerText =
-  `${m}:${s<10?"0"+s:s}`;
-
-  // 🔥 4. حل مشكلة "الزمن انتهى ولسه يرسل"
+  document.getElementById("timer").innerText = `${m}:${s < 10 ? "0" + s : s}`;
+  
   if(time <= 0){
-    document.getElementById("status").innerText="انتهى الوقت";
+    clearInterval(timerInterval);
+    document.getElementById("status").innerHTML = '<i class="fa-solid fa-hourglass-end"></i> انتهى الوقت';
+    document.getElementById("status").className = "status error";
     sent = true;
     localStorage.removeItem("paymentSent");
   }
+}, 1000);
 
-},1000);
-
-// نسخ
+// نسخ العنوان (بدون alert)
 function copyAddress(addr){
   navigator.clipboard.writeText(addr);
-  alert("تم النسخ");
+  showToast("✅ تم نسخ العنوان");
 }
 
-// 🔥 3. خلي submitPayment بس للرفع
+// تأكيد الدفع
 async function submitPayment(){
-
   if(sent){
-    alert("انتهى الوقت");
+    showToast("⚠️ انتهى الوقت", true);
     return;
   }
-
+  
   if(localStorage.getItem("paymentSent") === "true"){
-    alert("تم الإرسال مسبقاً");
+    showToast("⚠️ تم الإرسال مسبقاً", true);
     return;
   }
-
-  const txid = document.getElementById("txid").value;
+  
+  const txid = document.getElementById("txid").value.trim();
   const file = document.getElementById("proof").files[0];
-
-  if(!txid || !file){
-    alert("أدخل البيانات كاملة");
+  
+  if(!txid){
+    showToast("❌ يرجى إدخال رقم العملية (TXID)", true);
     return;
   }
-
-  document.getElementById("status").innerText="جاري الإرسال...";
-
-  // 🔥 2. امسح الكود ده من submitPayment (تم حذفه)
-  // لا نرسل طلب manual-deposit هنا
-
-  // رفع الصورة + txid فقط
+  
+  if(!file){
+    showToast("❌ يرجى رفع صورة الإثبات", true);
+    return;
+  }
+  
+  document.getElementById("status").innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الإرسال...';
+  document.getElementById("status").className = "status pending";
+  
   const formData = new FormData();
-  formData.append("email",email);
-  formData.append("txid",txid);
-  formData.append("file",file);
-  formData.append("orderId",orderId);
-
+  formData.append("email", email);
+  formData.append("txid", txid);
+  formData.append("file", file);
+  formData.append("orderId", orderId);
+  
   try {
-    await fetch(API+"/upload-proof",{
-      method:"POST",
-      body:formData
+    const res = await fetch(API + "/upload-proof", {
+      method: "POST",
+      body: formData
     });
-
-    localStorage.setItem("paymentSent","true");
-    document.getElementById("status").innerText="تم إرسال الطلب";
+    const data = await res.json();
+    
+    if(data.success){
+      localStorage.setItem("paymentSent", "true");
+      document.getElementById("status").innerHTML = '<i class="fa-solid fa-check-circle"></i> تم إرسال الطلب بنجاح';
+      document.getElementById("status").className = "status success";
+      showToast("✅ تم إرسال طلب الدفع");
+    } else {
+      document.getElementById("status").innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> فشل الإرسال';
+      document.getElementById("status").className = "status error";
+      showToast(data.message || "❌ فشل الإرسال", true);
+    }
   } catch(err) {
-    console.error("خطأ في رفع الإثبات:", err);
-    document.getElementById("status").innerText="حدث خطأ في الإرسال";
+    console.error(err);
+    document.getElementById("status").innerHTML = '<i class="fa-solid fa-wifi"></i> خطأ في الاتصال';
+    document.getElementById("status").className = "status error";
+    showToast("❌ خطأ في الاتصال بالخادم", true);
   }
 }
 
-// ✅ متابعة الطلب الصحيح فقط
-setInterval(async ()=>{
-
-  const res = await fetch(API+"/user-data",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({email})
-  });
-
-  const data = await res.json();
-  if(!data.success) return;
-
-  // ✅ ربط الحالة بالطلب الصحيح باستخدام orderId
-  const op = (data.operations || []).find(o => o.orderId === orderId);
-
-  if(!op) return;
-
-  if(op.status === "pending"){
-    document.getElementById("status").innerText="قيد المراجعة...";
+// متابعة حالة الطلب
+setInterval(async () => {
+  try {
+    const res = await fetch(API + "/user-data", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if(!data.success) return;
+    
+    const op = (data.operations || []).find(o => o.orderId === orderId);
+    if(!op) return;
+    
+    if(op.status === "pending"){
+      document.getElementById("status").innerHTML = '<i class="fa-solid fa-hourglass-half"></i> قيد المراجعة...';
+      document.getElementById("status").className = "status pending";
+    }
+    
+    if(op.status === "approved" && !approvedOnce){
+      approvedOnce = true;
+      document.getElementById("status").innerHTML = '<i class="fa-solid fa-check-circle"></i> تم القبول ✓';
+      document.getElementById("status").className = "status success";
+      showToast("✅ تم قبول الدفع! جاري التحويل...");
+      setTimeout(() => {
+        window.location.href = "dashboard.html";
+      }, 3000);
+    }
+    
+    if(op.status === "rejected"){
+      document.getElementById("status").innerHTML = '<i class="fa-solid fa-ban"></i> مرفوض';
+      document.getElementById("status").className = "status error";
+      showToast("❌ تم رفض الطلب", true);
+    }
+    
+  } catch(e) {
+    console.error(e);
   }
-
-  // ✅ منطق القبول
-  if(op.status === "approved" && !approvedOnce){
-
-    approvedOnce = true;
-
-    document.getElementById("status").innerText="تم القبول";
-    document.getElementById("status").style.color="green";
-
-    setTimeout(()=>{
-      window.location.href="dashboard.html";
-    },3000);
-  }
-
-  // ✅ منطق الرفض
-  if(op.status === "rejected"){
-    document.getElementById("status").innerText="مرفوض";
-    document.getElementById("status").style.color="red";
-  }
-
-},3000);
+}, 3000);
 
 </script>
 
