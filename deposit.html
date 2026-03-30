@@ -145,7 +145,6 @@ QRCode.toCanvas(document.getElementById("qrcode"), address, {width:220});
 
 // متغيرات
 let time = 900;
-let sent = false;
 let approvedOnce = false;
 
 // تايمر
@@ -160,7 +159,6 @@ setInterval(()=>{
 
   if(time <= 0){
     document.getElementById("status").innerText="انتهى الوقت";
-    sent = true;
   }
 
 },1000);
@@ -174,8 +172,9 @@ function copyAddress(addr){
 // إرسال
 async function submitPayment(){
 
-  if(sent){
-    alert("تم الإرسال بالفعل");
+  // ✅ منع الإرسال المزدوج باستخدام localStorage
+  if(localStorage.getItem("paymentSent") === "true"){
+    alert("تم الإرسال مسبقاً");
     return;
   }
 
@@ -187,24 +186,26 @@ async function submitPayment(){
     return;
   }
 
-  sent = true;
   document.getElementById("status").innerText="جاري الإرسال...";
 
   const formData = new FormData();
   formData.append("email",email);
   formData.append("txid",txid);
   formData.append("file",file);
-  formData.append("orderId",orderId); // 🔥 أهم سطر
+  formData.append("orderId",orderId); // ✅ إرسال orderId للسيرفر
 
   await fetch(API+"/upload-proof",{
     method:"POST",
     body:formData
   });
 
+  // ✅ تعيين العلم بعد الإرسال
+  localStorage.setItem("paymentSent","true");
+
   document.getElementById("status").innerText="تم إرسال الطلب";
 }
 
-// 🔥 متابعة الطلب الصحيح فقط
+// ✅ متابعة الطلب الصحيح فقط
 setInterval(async ()=>{
 
   const res = await fetch(API+"/user-data",{
@@ -216,7 +217,7 @@ setInterval(async ()=>{
   const data = await res.json();
   if(!data.success) return;
 
-  // 🔥 نجيب نفس الطلب فقط
+  // ✅ ربط الحالة بالطلب الصحيح باستخدام orderId
   const op = (data.operations || []).find(o => o.orderId === orderId);
 
   if(!op) return;
@@ -225,6 +226,7 @@ setInterval(async ()=>{
     document.getElementById("status").innerText="قيد المراجعة...";
   }
 
+  // ✅ منطق القبول
   if(op.status === "approved" && !approvedOnce){
 
     approvedOnce = true;
@@ -237,6 +239,7 @@ setInterval(async ()=>{
     },3000);
   }
 
+  // ✅ منطق الرفض
   if(op.status === "rejected"){
     document.getElementById("status").innerText="مرفوض";
     document.getElementById("status").style.color="red";
@@ -247,4 +250,4 @@ setInterval(async ()=>{
 </script>
 
 </body>
-  </html>
+</html>
