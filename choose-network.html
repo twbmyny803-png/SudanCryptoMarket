@@ -142,12 +142,17 @@ opacity:0.9;
 <script>
 function buyPackage(name, price, dailyProfit, durationDays){
 
+  // 🔥 تنظيف أي بيانات قديمة (أهم إصلاح)
+  localStorage.removeItem("orderId");
+  localStorage.removeItem("selectedNetwork");
+
+  // حفظ البيانات
   localStorage.setItem("selectedPackage", name);
   localStorage.setItem("selectedPrice", price);
   localStorage.setItem("selectedDailyProfit", dailyProfit);
   localStorage.setItem("selectedDuration", durationDays);
 
-  // ✅ الصحيح
+  // انتقال
   window.location.href = "choose-network.html";
 }
 </script>
