@@ -70,6 +70,7 @@
     .orange{background:#f59e0b}
     .sky{background:#0ea5e9}
     .red{background:#ef4444}
+    .gray{background:#6b7280}
     .row-label{
       font-size:15px;
       font-weight:700;
@@ -106,6 +107,10 @@
     }
     .btn-danger{
       background:#ef4444;
+      color:#fff;
+    }
+    .btn-logout{
+      background:#6b7280;
       color:#fff;
     }
     .hidden{display:none}
@@ -225,10 +230,34 @@
     .nav-item.active{
       color:#111827;
     }
+    .support-links{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:flex-start;
+      flex-wrap:wrap;
+    }
+    .support-link{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      background:#f0f4f9;
+      padding:8px 14px;
+      border-radius:30px;
+      text-decoration:none;
+      color:#2563eb;
+      font-size:13px;
+      font-weight:500;
+      transition:all 0.2s;
+    }
+    .support-link:hover{
+      background:#e5eefc;
+      transform:scale(0.98);
+    }
   </style>
 </head>
 
-    <body>
+<body>
   <div class="app">
     <div class="page-title">حسابي</div>
 
@@ -353,19 +382,37 @@
       </div>
     </div>
 
+    <!-- كارد الدعم (واتساب + تليجرام) -->
     <div class="card">
       <div class="row-item">
         <div class="row-right">
           <div class="icon-box orange">
-            <i class="fa-brands fa-whatsapp"></i>
+            <i class="fa-solid fa-headset"></i>
           </div>
-          <div class="row-label">واتساب الدعم</div>
+          <div class="row-label">قنوات الدعم</div>
         </div>
         <div class="row-value">
-          <a href="https://wa.me/16727123329" target="_blank" style="color:#2563eb;text-decoration:none">+16727123329</a>
+          <div class="support-links">
+            <a href="https://wa.me/16727123329" target="_blank" class="support-link">
+              <i class="fa-brands fa-whatsapp" style="color:#25D366;"></i>
+              واتساب
+            </a>
+            <a href="https://t.me/lool0002" target="_blank" class="support-link">
+              <i class="fa-brands fa-telegram" style="color:#26A5E4;"></i>
+              تليجرام
+            </a>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- زر تسجيل الخروج -->
+    <div class="card">
+      <button class="btn btn-logout" onclick="logout()">
+        <i class="fa-solid fa-sign-out-alt"></i> تسجيل الخروج
+      </button>
+    </div>
+
     <nav class="bottom-nav">
       <a href="account.html" class="nav-item active">
         <div class="nav-icon"><i class="fa-solid fa-user"></i></div>
@@ -399,6 +446,12 @@
     let savedEmail = localStorage.getItem("userEmail");
 
     if(!savedEmail){
+      window.location.href = "login.html";
+    }
+
+    // تسجيل الخروج
+    function logout(){
+      localStorage.removeItem("userEmail");
       window.location.href = "login.html";
     }
 
@@ -470,7 +523,7 @@
       });
     }
 
-        function changePasswordNow(){
+    function changePasswordNow(){
       clearBoxMessage("passwordMsg");
 
       const email = document.getElementById("passEmail").value.trim();
@@ -536,9 +589,7 @@
     }
 
     async function loadVerificationState(realName){
-
       try{
-
         const res = await fetch(`${API}/my-verification`,{
           method:"POST",
           headers:{
@@ -592,13 +643,10 @@
         }
 
       }catch(e){
-
         console.log(e);
-
         const badge = document.getElementById("verifyStatusBadge");
         badge.innerText="فشل التحميل";
         badge.className="status-badge pending";
-
       }
     }
 
