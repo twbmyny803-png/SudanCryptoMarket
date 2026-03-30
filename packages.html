@@ -140,6 +140,11 @@ opacity:0.9;
 </div>
 
 <script>
+// تنظيف البداية
+localStorage.removeItem("paymentSent");
+localStorage.removeItem("orderId");
+localStorage.removeItem("selectedNetwork");
+
 function buyPackage(name, price, dailyProfit, durationDays){
 
   // امسح فقط بيانات الطلب القديم
