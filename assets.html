@@ -124,22 +124,22 @@ padding:10px;
 
 <div class="actions">
 
-<div class="card" onclick="goToDeposit()">
+<div class="card" onclick="goToPackages()">
 <div class="card-title">إيداع</div>
-<div class="card-desc">إضافة رصيد إلى حسابك</div>
+<div class="card-desc">اختر باقة لإيداع الأموال</div>
 </div>
 
-<div class="card" onclick="openPage('withdraw.html')">
+<div class="card" onclick="goToWithdraw()">
 <div class="card-title">سحب</div>
 <div class="card-desc">سحب الأموال إلى محفظتك</div>
 </div>
 
-<div class="card" onclick="transferProfit()" style="cursor:pointer;">
+<div class="card" onclick="transferProfit()">
 <div class="card-title">تحويل</div>
 <div class="card-desc">اضغط لتحويل الأرباح</div>
 </div>
 
-<div class="card" onclick="openPage('transactions.html')">
+<div class="card" onclick="goToTransactions()">
 <div class="card-title">سجل العمليات</div>
 <div class="card-desc">عرض الإيداع والسحب</div>
 </div>
@@ -164,88 +164,88 @@ padding:10px;
 
 <script>
 
-const API="https://sudancryptomarket-api.onrender.com";
-const email=localStorage.getItem("userEmail");
+const API = "https://sudancryptomarket-api.onrender.com";
+const email = localStorage.getItem("userEmail");
 
 if(!email){
-window.location.href="login.html";
+  window.location.href = "login.html";
 }
 
-fetch(API+"/user-data",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({email})
+let userBalance = 0;
+
+fetch(API + "/user-data", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email })
 })
-.then(res=>res.json())
-.then(data=>{
-
-if(!data.success){
-localStorage.removeItem("userEmail");
-window.location.href="login.html";
-return;
-}
-
-// التحقق من وجود باقة نشطة
-// إذا ما فيه باقة، يحول للباقات مباشرة بدون رسالة
-if(!data.packageName || data.packageName === "" || data.packageName === "لا توجد"){
-window.location.href = "packages.html";
-return;
-}
-
-/* عرض الرصيد */
-document.getElementById("balance").innerText=(data.balance||0)+" USDT";
-
-/* عرض آخر النشاط */
-const box=document.getElementById("activityBox");
-
-if(!data.operations || data.operations.length===0){
-box.innerHTML=`<div class="activity-empty">لا توجد عمليات حتى الآن</div>`;
-}else{
-let html="";
-data.operations.slice(0,5).forEach(op=>{
-let text="";
-if(op.type==="deposit") text="إيداع";
-if(op.type==="withdraw") text="سحب";
-if(op.type==="daily_profit") text="ربح يومي";
-if(op.type==="referral_bonus") text="مكافأة إحالة";
-html+=`<div class="activity-item">${text} ${op.amount} USDT</div>`;
-});
-box.innerHTML=html;
-}
-
+.then(res => res.json())
+.then(data => {
+  if(!data.success){
+    localStorage.removeItem("userEmail");
+    window.location.href = "login.html";
+    return;
+  }
+  
+  userBalance = data.balance || 0;
+  
+  // عرض الرصيد
+  document.getElementById("balance").innerText = userBalance + " USDT";
+  
+  // عرض آخر النشاط
+  const box = document.getElementById("activityBox");
+  
+  if(!data.operations || data.operations.length === 0){
+    box.innerHTML = `<div class="activity-empty">لا توجد عمليات حتى الآن</div>`;
+  } else {
+    let html = "";
+    data.operations.slice(0, 5).forEach(op => {
+      let text = "";
+      if(op.type === "deposit") text = "إيداع";
+      if(op.type === "withdraw") text = "سحب";
+      if(op.type === "daily_profit") text = "ربح يومي";
+      if(op.type === "referral_bonus") text = "مكافأة إحالة";
+      if(op.type === "transfer") text = "تحويل";
+      html += `<div class="activity-item">${text} ${op.amount} USDT</div>`;
+    });
+    box.innerHTML = html;
+  }
 })
-.catch(()=>{
-window.location.href="login.html";
+.catch(() => {
+  window.location.href = "login.html";
 });
 
-function openPage(page){
-window.location.href=page;
+// دوال الانتقال
+function goToPackages(){
+  // يودي لصفحة الباقات مباشرة بدون رسالة
+  window.location.href = "packages.html";
 }
 
-function goToDeposit(){
-window.location.href = "deposit.html";
+function goToWithdraw(){
+  window.location.href = "withdraw.html";
+}
+
+function goToTransactions(){
+  window.location.href = "transactions.html";
 }
 
 function transferProfit(){
-const email = localStorage.getItem("userEmail");
-fetch(API + "/transfer-profit",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({ email })
-})
-.then(res=>res.json())
-.then(data=>{
-if(data.success){
-alert("تم تحويل الأرباح بنجاح");
-location.reload();
-}else{
-alert(data.message || "فشل التحويل");
-}
-});
+  fetch(API + "/transfer-profit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if(data.success){
+      alert("✅ تم تحويل الأرباح بنجاح");
+      location.reload();
+    } else {
+      alert(data.message || "❌ فشل التحويل");
+    }
+  })
+  .catch(() => {
+    alert("❌ فشل الاتصال بالخادم");
+  });
 }
 
 </script>
