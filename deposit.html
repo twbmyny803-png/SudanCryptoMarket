@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>الدفع</title>
 
 <style>
@@ -13,7 +12,6 @@ body{
   color:#fff;
   margin:0;
 }
-
 .container{
   width:100%;
   max-width:420px;
@@ -21,21 +19,18 @@ body{
   min-height:100vh;
   padding:20px;
 }
-
 .box{
   background:#1e293b;
   padding:20px;
   border-radius:12px;
   text-align:center;
 }
-
 .timer{
   color:#ff4d4d;
   font-size:28px;
   margin-bottom:15px;
   font-weight:bold;
 }
-
 input{
   width:100%;
   padding:12px;
@@ -43,7 +38,6 @@ input{
   border-radius:8px;
   border:none;
 }
-
 .btn{
   width:100%;
   padding:14px;
@@ -54,22 +48,15 @@ input{
   font-size:16px;
   cursor:pointer;
 }
-
 .copy{
   background:#3b82f6;
   margin-top:8px;
 }
-
-.qr{
-  margin:15px 0;
-}
-
 .status{
   margin-top:10px;
   font-size:15px;
 }
 </style>
-
 </head>
 
 <body>
@@ -90,10 +77,6 @@ input{
 
 <div id="addressBox"></div>
 
-<div class="qr">
-  <canvas id="qrcode"></canvas>
-</div>
-
 <input type="text" id="txid" placeholder="رقم العملية (TXID)">
 <input type="file" id="proof">
 
@@ -110,14 +93,13 @@ input{
 
 const API="https://sudancryptomarket-api.onrender.com";
 
-// 🔥 البيانات
 const orderId = localStorage.getItem("orderId");
 const packageName = localStorage.getItem("selectedPackage");
 const amount = localStorage.getItem("selectedPrice");
 const email = localStorage.getItem("userEmail");
 const network = localStorage.getItem("selectedNetwork");
 
-// 🔥 حماية قوية
+// حماية
 if(!orderId || !network){
   alert("ابدأ من الباقات");
   window.location.href="packages.html";
@@ -135,31 +117,18 @@ const BEP20 = "0x990635c24b47a3ebbc14efadf0355e26ec706385";
 
 let address = network === "TRC20" ? TRC20 : BEP20;
 
-// عرض العنوان
 document.getElementById("addressBox").innerHTML = `
 <div style="word-break:break-all;">${address}</div>
 <button class="btn copy" onclick="copyAddress('${address}')">نسخ العنوان</button>
 `;
 
-QRCode.toCanvas(document.getElementById("qrcode"), address, {width:220});
+QRCode.toCanvas(document.createElement("canvas"), address);
 
 // متغيرات
 let time = 900;
 let sent = false;
 let approvedOnce = false;
-
-// 🔥 أهم متغير (حل القبول الوهمي)
-const pageStartTime = Date.now();
-
-// صوت
-const successSound = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
-
-// تنبيه
-setTimeout(()=>{
-  alert(`تنبيه مهم:
-- تأكد من الشبكة (${network})
-- أرسل المبلغ الصحيح (${amount} USDT)`);
-},500);
+let createdOperationIndex = null;
 
 // نسخ
 function copyAddress(addr){
@@ -167,10 +136,9 @@ function copyAddress(addr){
   alert("تم النسخ");
 }
 
-// التايمر
+// تايمر
 setInterval(()=>{
   time--;
-
   let m = Math.floor(time/60);
   let s = time % 60;
 
@@ -181,7 +149,6 @@ setInterval(()=>{
     document.getElementById("status").innerText="انتهى الوقت";
     sent = true;
   }
-
 },1000);
 
 // إرسال
@@ -216,7 +183,7 @@ async function submitPayment(){
   document.getElementById("status").innerText="تم إرسال الطلب";
 }
 
-// 🔥 الإصلاح الحقيقي النهائي
+// 🔥 الحل الحقيقي النهائي (ربط الطلب الصحيح فقط)
 setInterval(async ()=>{
 
   const res = await fetch(API+"/user-data",{
@@ -228,38 +195,34 @@ setInterval(async ()=>{
   const data = await res.json();
   if(!data.success) return;
 
-  // ✅ نجيب فقط الطلب الجديد (بعد فتح الصفحة)
-  const op = (data.operations || []).find(o=>{
-    return (
-      (o.type === "package_deposit") &&
-      (new Date(o.date).getTime() >= pageStartTime - 5000)
-    );
-  });
+  const operations = data.operations || [];
 
-  if(!op) return;
-
-  // pending
-  if(op.status === "pending"){
-    document.getElementById("status").innerText="قيد المراجعة...";
+  // أول مرة: نحدد الطلب الجديد
+  if(createdOperationIndex === null){
+    const opIndex = operations.findIndex(o => o.type === "package_deposit" && o.status === "pending");
+    if(opIndex !== -1){
+      createdOperationIndex = opIndex;
+    }
     return;
   }
 
-  // approved
+  const op = operations[createdOperationIndex];
+  if(!op) return;
+
+  if(op.status === "pending"){
+    document.getElementById("status").innerText="قيد المراجعة...";
+  }
+
   if(op.status === "approved" && !approvedOnce){
-
     approvedOnce = true;
-
     document.getElementById("status").innerText="تم القبول";
     document.getElementById("status").style.color="green";
-
-    successSound.play();
 
     setTimeout(()=>{
       window.location.href="dashboard.html";
     },3000);
   }
 
-  // rejected
   if(op.status === "rejected"){
     document.getElementById("status").innerText="مرفوض";
     document.getElementById("status").style.color="red";
