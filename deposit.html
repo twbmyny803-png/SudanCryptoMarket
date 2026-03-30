@@ -172,7 +172,6 @@ function copyAddress(addr){
 // إرسال
 async function submitPayment(){
 
-  // ✅ منع الإرسال المزدوج باستخدام localStorage
   if(localStorage.getItem("paymentSent") === "true"){
     alert("تم الإرسال مسبقاً");
     return;
@@ -188,18 +187,30 @@ async function submitPayment(){
 
   document.getElementById("status").innerText="جاري الإرسال...";
 
+  // 🔥 1. إنشاء الطلب في السيرفر
+  await fetch(API+"/manual-deposit",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({
+      email,
+      amount,
+      packageName,
+      orderId
+    })
+  });
+
+  // 🔥 2. رفع الصورة + txid
   const formData = new FormData();
   formData.append("email",email);
   formData.append("txid",txid);
   formData.append("file",file);
-  formData.append("orderId",orderId); // ✅ إرسال orderId للسيرفر
+  formData.append("orderId",orderId);
 
   await fetch(API+"/upload-proof",{
     method:"POST",
     body:formData
   });
 
-  // ✅ تعيين العلم بعد الإرسال
   localStorage.setItem("paymentSent","true");
 
   document.getElementById("status").innerText="تم إرسال الطلب";
