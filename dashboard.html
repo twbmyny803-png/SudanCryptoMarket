@@ -32,58 +32,6 @@ border-bottom-left-radius:24px;
 border-bottom-right-radius:24px;
 }
 
-.topbar-row{
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
-.brand{
-display:flex;
-gap:10px;
-align-items:center;
-}
-
-.brand-logo{
-width:42px;
-height:42px;
-border-radius:12px;
-background:rgba(255,255,255,.2);
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:22px;
-}
-
-.brand-text h1{
-margin:0;
-font-size:18px;
-}
-
-.brand-text p{
-margin:2px 0 0;
-font-size:12px;
-}
-
-.top-icons{
-display:flex;
-gap:8px;
-}
-
-.icon-btn{
-width:38px;
-height:38px;
-border:none;
-border-radius:50%;
-background:rgba(255,255,255,.18);
-color:#fff;
-font-size:16px;
-cursor:pointer;
-display:flex;
-align-items:center;
-justify-content:center;
-}
-
 .welcome-box{
 margin-top:14px;
 background:rgba(255,255,255,.15);
@@ -93,45 +41,6 @@ border-radius:16px;
 
 .content{
 padding:14px 14px 90px;
-}
-
-.banner{
-background:#fff;
-border-radius:20px;
-padding:14px;
-display:flex;
-gap:10px;
-align-items:center;
-}
-
-.banner-art{
-width:110px;
-height:110px;
-border-radius:16px;
-background:linear-gradient(135deg,#e0f2fe,#bae6fd);
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:48px;
-color:#0f172a;
-}
-
-.banner-text h3{
-margin:0 0 6px;
-}
-
-.banner-text p{
-margin:0 0 8px;
-font-size:13px;
-color:#555;
-}
-
-.banner-badge{
-background:#22c55e;
-color:#fff;
-padding:6px 10px;
-border-radius:8px;
-font-size:12px;
 }
 
 .section-title{
@@ -169,40 +78,6 @@ margin:auto auto 6px;
 .c2{background:#f59e0b}
 .c3{background:#10b981}
 
-.action-text{
-font-size:13px;
-font-weight:bold;
-}
-
-.stats-grid{
-margin-top:14px;
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:10px;
-}
-
-.stat-card{
-background:#fff;
-border-radius:16px;
-padding:14px;
-}
-
-.stat-label{
-font-size:12px;
-color:#666;
-}
-
-.stat-value{
-font-size:20px;
-font-weight:bold;
-margin:6px 0;
-}
-
-.stat-sub{
-font-size:12px;
-color:#2563eb;
-}
-
 .bottom-nav{
 position:fixed;
 bottom:0;
@@ -211,29 +86,9 @@ transform:translateX(-50%);
 width:100%;
 max-width:420px;
 background:#fff;
-border-top:1px solid #eee;
 display:grid;
 grid-template-columns:repeat(5,1fr);
 padding:10px 6px;
-}
-
-.nav-item{
-text-align:center;
-font-size:11px;
-text-decoration:none;
-color:#444;
-}
-
-.nav-icon{
-width:40px;
-height:40px;
-margin:auto auto 4px;
-border-radius:50%;
-display:flex;
-align-items:center;
-justify-content:center;
-background:#eef2ff;
-font-size:16px;
 }
 </style>
 </head>
@@ -243,22 +98,7 @@ font-size:16px;
 <div class="app">
 
 <div class="topbar">
-<div class="topbar-row">
-
-<div class="brand">
-<div class="brand-logo"><i class="fa-brands fa-bitcoin"></i></div>
-<div class="brand-text">
-<h1>سودان كربتو</h1>
-<p>لوحة المستخدم</p>
-</div>
-</div>
-
-<div class="top-icons">
-<button class="icon-btn" onclick="window.open('https://t.me/lool0002')"><i class="fa-brands fa-telegram"></i></button>
-<button class="icon-btn" onclick="window.open('https://wa.me/16727123329')"><i class="fa-brands fa-whatsapp"></i></button>
-</div>
-
-</div>
+<h2>سودان كربتو</h2>
 
 <div class="welcome-box">
 مرحباً، <span id="userName">...</span>
@@ -267,68 +107,111 @@ font-size:16px;
 
 <div class="content">
 
-<div class="banner">
-<div class="banner-art"><i class="fa-brands fa-bitcoin"></i></div>
-<div class="banner-text">
-<h3>منصة سودان كربتو</h3>
-<p>منصة تداول واستثمار رقمية تساعدك على متابعة الأرباح وإدارة استثماراتك.</p>
-<span class="banner-badge">منصة موثوقة</span>
-</div>
-</div>
-
 <div class="section-title">الخدمات الرئيسية</div>
 
 <div class="actions-grid">
 
-<div class="action-item" onclick="location.href='about.html'">
-<div class="action-icon c1"><i class="fa-solid fa-building"></i></div>
-<div class="action-text">عن المنصة</div>
+<div class="action-item" onclick="location.href='packages.html'">
+<div class="action-icon c3"><i class="fa-solid fa-sack-dollar"></i></div>
+<div>الباقات</div>
 </div>
 
 <div class="action-item" onclick="location.href='referrals.html'">
 <div class="action-icon c2"><i class="fa-solid fa-users"></i></div>
-<div class="action-text">فريقي</div>
+<div>فريقي</div>
 </div>
 
-<div class="action-item" onclick="location.href='packages.html'">
-<div class="action-icon c3"><i class="fa-solid fa-sack-dollar"></i></div>
-<div class="action-text">الباقات</div>
+<div class="action-item" onclick="startDeposit()">
+<div class="action-icon c1"><i class="fa-solid fa-wallet"></i></div>
+<div>إيداع</div>
 </div>
 
 </div>
 
+<br>
+
+<div style="background:#fff;padding:14px;border-radius:14px;">
+<div>الرصيد: <b id="balance">0</b></div>
+<div>الأرباح: <b id="income">0</b></div>
+<div>الباقة: <b id="package">-</b></div>
 </div>
 
-<div class="bottom-nav">
+<br>
 
-<a href="dashboard.html" class="nav-item">
-<div class="nav-icon"><i class="fa-solid fa-house"></i></div>
-الرئيسية
-</a>
+<div style="background:#fff;padding:14px;border-radius:14px;">
+<div>رمز الإحالة</div>
+<input id="myRefCode" readonly style="width:100%">
+<button onclick="copyRefCode()">نسخ</button>
 
-<a href="packages.html" class="nav-item">
-<div class="nav-icon"><i class="fa-solid fa-sack-dollar"></i></div>
-الباقات
-</a>
+<br><br>
 
-<a href="income.html" class="nav-item">
-<div class="nav-icon"><i class="fa-solid fa-chart-line"></i></div>
-الدخل
-</a>
-
-<a href="assets.html" class="nav-item">
-<div class="nav-icon"><i class="fa-solid fa-briefcase"></i></div>
-الأصول
-</a>
-
-<a href="account.html" class="nav-item">
-<div class="nav-icon"><i class="fa-solid fa-user"></i></div>
-حسابي
-</a>
+<div>رابط الإحالة</div>
+<input id="myRefLink" readonly style="width:100%">
+<button onclick="copyRefLink()">نسخ</button>
+</div>
 
 </div>
 
 </div>
+
+<script>
+
+const API="https://sudancryptomarket-api.onrender.com"
+const email = localStorage.getItem("userEmail")
+
+// 🔥 بدء إيداع (حل المشكلة)
+function startDeposit(){
+  localStorage.removeItem("activeOrder")
+  localStorage.removeItem("orderId")
+  localStorage.removeItem("selectedNetwork")
+  window.location.href = "packages.html"
+}
+
+// 🔥 تحميل بيانات المستخدم
+if(!email){
+  location.href="login.html"
+}else{
+
+fetch(API+"/user-data",{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({email})
+})
+.then(r=>r.json())
+.then(data=>{
+
+  if(!data.success){
+    localStorage.removeItem("userEmail")
+    location.href="login.html"
+    return
+  }
+
+  document.getElementById("userName").innerText = data.name || "مستخدم";
+  document.getElementById("balance").innerText = (data.balance || 0) + " USDT";
+  document.getElementById("income").innerText = (data.incomeBalance || 0) + " USDT";
+  document.getElementById("package").innerText = data.packageName || "لا توجد";
+
+  document.getElementById("myRefCode").value = data.refCode || "";
+
+  const link = window.location.origin + "/index.html?ref=" + (data.refCode || "");
+  document.getElementById("myRefLink").value = link;
+
+})
+
+}
+
+// نسخ
+function copyRefCode(){
+  navigator.clipboard.writeText(document.getElementById("myRefCode").value)
+  alert("تم النسخ")
+}
+
+function copyRefLink(){
+  navigator.clipboard.writeText(document.getElementById("myRefLink").value)
+  alert("تم النسخ")
+}
+
+</script>
 
 </body>
-  </html>
+      </html>
