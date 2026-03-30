@@ -3,102 +3,246 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>الإحالات | سودان كربتو</title>
+<title>الإحالات وفريقي | سودان كربتو</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
-body{
-margin:0;
-font-family:Tahoma;
-background:#f3f6fb;
+* {
+  box-sizing: border-box;
 }
 
-.header{
-background:#0b1f3a;
-color:white;
-padding:18px;
-text-align:center;
-font-size:20px;
-font-weight:bold;
+body {
+  margin: 0;
+  font-family: 'Tahoma', 'Segoe UI', sans-serif;
+  background: #f0f2f8;
 }
 
-.container{
-max-width:600px;
-margin:auto;
-padding:20px;
+.header {
+  background: linear-gradient(135deg, #0b1f3a 0%, #1a2f4e 100%);
+  color: white;
+  padding: 20px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
-.card{
-background:white;
-border-radius:12px;
-padding:18px;
-margin-bottom:16px;
-box-shadow:0 6px 16px rgba(0,0,0,0.08);
+.container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
 }
 
-.title{
-font-weight:bold;
-margin-bottom:10px;
-font-size:16px;
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: transform 0.2s;
 }
 
-.code{
-font-size:24px;
-font-weight:bold;
-color:#2D6AF6;
-margin-top:6px;
-text-align:center;
+.card:hover {
+  transform: translateY(-2px);
 }
 
-.link{
-font-size:13px;
-word-break:break-all;
-margin-top:8px;
-color:#333;
-text-align:center;
+.title {
+  font-weight: bold;
+  margin-bottom: 15px;
+  font-size: 18px;
+  color: #0b1f3a;
+  border-right: 4px solid #2D6AF6;
+  padding-right: 12px;
 }
 
-.btn{
-background:#2D6AF6;
-color:white;
-border:none;
-padding:12px;
-border-radius:8px;
-width:100%;
-margin-top:10px;
-cursor:pointer;
-font-size:14px;
+.code {
+  font-size: 28px;
+  font-weight: bold;
+  color: #2D6AF6;
+  margin: 12px 0;
+  text-align: center;
+  background: #f0f7ff;
+  padding: 12px;
+  border-radius: 10px;
+  letter-spacing: 2px;
 }
 
-.btn2{
-background:#25D366;
+.link {
+  font-size: 12px;
+  word-break: break-all;
+  margin-top: 8px;
+  color: #666;
+  text-align: center;
+  background: #f8f9fa;
+  padding: 8px;
+  border-radius: 8px;
 }
 
-.qr{
-display:flex;
-justify-content:center;
-margin-top:10px;
+.btn {
+  background: #2D6AF6;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  width: 100%;
+  margin-top: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.3s;
 }
 
-.count{
-font-size:26px;
-font-weight:bold;
-color:#10B981;
-text-align:center;
+.btn:hover {
+  background: #1a4fcf;
+  transform: scale(0.98);
 }
 
-.member{
-border-top:1px solid #eee;
-padding:10px 0;
-font-size:14px;
+.btn2 {
+  background: #25D366;
 }
 
-.empty{
-text-align:center;
-color:#777;
-font-size:13px;
-padding:10px;
+.btn2:hover {
+  background: #128C7E;
+}
+
+.qr {
+  display: flex;
+  justify-content: center;
+  margin: 15px 0;
+}
+
+.count {
+  font-size: 32px;
+  font-weight: bold;
+  color: #10B981;
+  text-align: center;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.stat-box {
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 24px;
+  font-weight: bold;
+  color: #2D6AF6;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #666;
+  margin-top: 5px;
+}
+
+.commission-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.commission-table th,
+.commission-table td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+}
+
+.commission-table th {
+  background: #0b1f3a;
+  color: white;
+  font-weight: bold;
+}
+
+.commission-table td {
+  color: #333;
+}
+
+.level-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.level-1 { background: #10B981; color: white; }
+.level-2 { background: #3B82F6; color: white; }
+.level-3 { background: #F59E0B; color: white; }
+
+.member-item {
+  border-bottom: 1px solid #eee;
+  padding: 12px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.member-info {
+  flex: 1;
+}
+
+.member-name {
+  font-weight: bold;
+  color: #333;
+}
+
+.member-email {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.member-level {
+  margin-right: 10px;
+}
+
+.empty {
+  text-align: center;
+  color: #999;
+  padding: 20px;
+}
+
+.tab-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #eee;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+  transition: all 0.3s;
+}
+
+.tab-btn.active {
+  color: #2D6AF6;
+  border-bottom: 2px solid #2D6AF6;
+  font-weight: bold;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
 }
 </style>
 </head>
@@ -106,29 +250,82 @@ padding:10px;
 <body>
 
 <div class="header">
-الإحالات وفريقك
+🏆 الإحالات وفريقي | نظام المستويات
 </div>
 
 <div class="container">
 
+<!-- بطاقة رمز الإحالة -->
 <div class="card">
-<div class="title">رمز الإحالة</div>
+<div class="title">🔗 رمز الإحالة الخاص بك</div>
 <div class="code" id="refCode">...</div>
 <div class="link" id="refLink">...</div>
 <div class="qr" id="qrCode"></div>
-<button class="btn" onclick="copyLink()">نسخ رابط الإحالة</button>
-<button class="btn btn2" onclick="shareWhatsApp()">مشاركة عبر واتساب</button>
+<button class="btn" onclick="copyLink()">📋 نسخ رابط الإحالة</button>
+<button class="btn btn2" onclick="shareWhatsApp()">💬 مشاركة عبر واتساب</button>
 </div>
 
+<!-- جدول المستويات والعمولات -->
 <div class="card">
-<div class="title">عدد أعضاء الفريق</div>
+<div class="title">💰 عمولات الإحالات حسب الباقة</div>
+<table class="commission-table">
+<thead>
+<tr>
+<th>الباقة (USDT)</th>
+<th>🏅 مستوى 1</th>
+<th>🥈 مستوى 2</th>
+<th>🥉 مستوى 3</th>
+</tr>
+</thead>
+<tbody id="commissionTable">
+<tr>
+<td colspan="4" style="text-align:center;">جاري التحميل...</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<!-- إحصائيات الفريق -->
+<div class="card">
+<div class="title">📊 إحصائيات فريقي</div>
+<div class="stats-grid">
+<div class="stat-box">
+<div class="stat-number" id="level1Count">0</div>
+<div class="stat-label">المستوى 1 (مباشر)</div>
+</div>
+<div class="stat-box">
+<div class="stat-number" id="level2Count">0</div>
+<div class="stat-label">المستوى 2</div>
+</div>
+<div class="stat-box">
+<div class="stat-number" id="level3Count">0</div>
+<div class="stat-label">المستوى 3</div>
+</div>
+</div>
 <div class="count" id="teamCount">0</div>
+<div class="stat-label" style="text-align:center;">إجمالي أعضاء الفريق</div>
 </div>
 
+<!-- أعضاء الفريق مع تبويب المستويات -->
 <div class="card">
-<div class="title">أعضاء الفريق</div>
-<div id="teamList">
-<div class="empty">جاري التحميل...</div>
+<div class="title">👥 أعضاء فريقي</div>
+<div class="tab-buttons">
+<button class="tab-btn active" onclick="showTab('all')">الكل</button>
+<button class="tab-btn" onclick="showTab('level1')">المستوى 1</button>
+<button class="tab-btn" onclick="showTab('level2')">المستوى 2</button>
+<button class="tab-btn" onclick="showTab('level3')">المستوى 3</button>
+</div>
+<div id="tab-all" class="tab-content active">
+<div id="teamListAll">جاري التحميل...</div>
+</div>
+<div id="tab-level1" class="tab-content">
+<div id="teamListLevel1">جاري التحميل...</div>
+</div>
+<div id="tab-level2" class="tab-content">
+<div id="teamListLevel2">جاري التحميل...</div>
+</div>
+<div id="tab-level3" class="tab-content">
+<div id="teamListLevel3">جاري التحميل...</div>
 </div>
 </div>
 
@@ -142,7 +339,29 @@ if(!email){
   window.location.href = "login.html";
 }
 
-// 1. جلب بيانات المستخدم الأساسية (الرمز والرابط)
+// جدول العمولات حسب الباقة
+const commissionLevels = [
+  { package: 50, level1: 5, level2: 2, level3: 1 },
+  { package: 100, level1: 7, level2: 3, level3: 2 },
+  { package: 250, level1: 10, level2: 5, level3: 3 },
+  { package: 500, level1: 12, level2: 7, level3: 4 },
+  { package: 1000, level1: 15, level2: 10, level3: 5 }
+];
+
+// عرض جدول العمولات
+function loadCommissionTable() {
+  const tbody = document.getElementById("commissionTable");
+  tbody.innerHTML = commissionLevels.map(item => `
+    <tr>
+      <td><strong>${item.package} USDT</strong></td>
+      <td style="color:#10B981;">${item.level1}%</td>
+      <td style="color:#3B82F6;">${item.level2}%</td>
+      <td style="color:#F59E0B;">${item.level3}%</td>
+    </tr>
+  `).join('');
+}
+
+// جلب بيانات المستخدم الأساسية
 fetch(API + "/user-data", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
@@ -162,16 +381,18 @@ fetch(API + "/user-data", {
   const link = window.location.origin + "/index.html?ref=" + refCode;
   document.getElementById("refLink").innerText = link;
 
-  // توليد الـ QR Code
-  new QRCode(document.getElementById("qrCode"), {
-    text: link,
-    width: 150,
-    height: 150
-  });
+  // توليد QR Code
+  if(typeof QRCode !== 'undefined') {
+    new QRCode(document.getElementById("qrCode"), {
+      text: link,
+      width: 150,
+      height: 150
+    });
+  }
 })
 .catch(err => console.error("Error loading user data:", err));
 
-// 2. جلب قائمة أعضاء الفريق بالتفصيل
+// جلب أعضاء الفريق مع المستويات
 async function loadTeam(){
   try{
     const res = await fetch(API + "/my-team", {
@@ -181,50 +402,92 @@ async function loadTeam(){
     });
 
     const data = await res.json();
-    const list = document.getElementById("teamList");
-
+    
     if(!data.success){
-      list.innerHTML = '<div class="empty">فشل تحميل الفريق</div>';
+      document.getElementById("teamListAll").innerHTML = '<div class="empty">فشل تحميل الفريق</div>';
       return;
     }
 
-    document.getElementById("teamCount").innerText = data.count || 0;
-    list.innerHTML = "";
-
-    if(!data.team || data.team.length === 0){
-      list.innerHTML = '<div class="empty">لا يوجد أعضاء حتى الآن</div>';
-      return;
-    }
-
-    data.team.forEach(member => {
-      const div = document.createElement("div");
-      div.className = "member";
-      div.innerHTML = `
-        <div>👤 <b>الاسم:</b> ${member.name || "-"}</div>
-        <div>📧 <b>البريد:</b> ${member.email || "-"}</div>
-        <div>📞 <b>الهاتف:</b> ${member.phone || "-"}</div>
-      `;
-      list.appendChild(div);
-    });
+    const team = data.team || [];
+    const totalCount = team.length;
+    document.getElementById("teamCount").innerText = totalCount;
+    
+    // تصنيف الأعضاء حسب المستوى
+    // ملاحظة: هذا يعتمد على وجود حقل level في البيانات من الـ API
+    // إذا لم يكن موجودًا، سنحتاج تعديل الـ API لإرجاع المستوى
+    const level1 = team.filter(m => m.level === 1);
+    const level2 = team.filter(m => m.level === 2);
+    const level3 = team.filter(m => m.level === 3);
+    
+    document.getElementById("level1Count").innerText = level1.length;
+    document.getElementById("level2Count").innerText = level2.length;
+    document.getElementById("level3Count").innerText = level3.length;
+    
+    // عرض القوائم
+    displayTeamList(team, "teamListAll");
+    displayTeamList(level1, "teamListLevel1", 1);
+    displayTeamList(level2, "teamListLevel2", 2);
+    displayTeamList(level3, "teamListLevel3", 3);
+    
   } catch(e) {
-    document.getElementById("teamList").innerHTML = '<div class="empty">حدث خطأ أثناء تحميل الفريق</div>';
+    console.error(e);
+    document.getElementById("teamListAll").innerHTML = '<div class="empty">حدث خطأ أثناء تحميل الفريق</div>';
   }
+}
+
+function displayTeamList(members, elementId, level = null) {
+  const container = document.getElementById(elementId);
+  if(!container) return;
+  
+  if(!members || members.length === 0){
+    container.innerHTML = '<div class="empty">لا يوجد أعضاء في هذا المستوى</div>';
+    return;
+  }
+  
+  container.innerHTML = members.map(member => `
+    <div class="member-item">
+      <div class="member-info">
+        <div class="member-name">👤 ${member.name || member.username || "-"}</div>
+        <div class="member-email">📧 ${member.email || "-"}</div>
+        ${member.phone ? `<div class="member-email">📞 ${member.phone}</div>` : ''}
+        ${member.package ? `<div class="member-email">💎 الباقة: ${member.package} USDT</div>` : ''}
+      </div>
+      ${level ? `<div class="member-level"><span class="level-badge level-${level}">المستوى ${level}</span></div>` : ''}
+    </div>
+  `).join('');
+}
+
+function showTab(tab) {
+  // تحديث التبويبات
+  const tabs = ['all', 'level1', 'level2', 'level3'];
+  tabs.forEach(t => {
+    const content = document.getElementById(`tab-${t}`);
+    if(content) content.classList.remove('active');
+  });
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  
+  // تحديث الأزرار
+  const btns = document.querySelectorAll('.tab-btn');
+  btns.forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
 }
 
 function copyLink(){
   const link = document.getElementById("refLink").innerText;
   navigator.clipboard.writeText(link);
-  alert("تم نسخ رابط الإحالة");
+  alert("✅ تم نسخ رابط الإحالة");
 }
 
 function shareWhatsApp(){
   const link = document.getElementById("refLink").innerText;
-  const text = "انضم إلى منصة سودان كربتو عبر رابط الإحالة الخاص بي: " + link;
+  const text = "🔥 انضم إلى منصة سودان كربتو عبر رابط الإحالة الخاص بي واحصل على أرباح مميزة! \n" + link;
   window.open("https://wa.me/?text=" + encodeURIComponent(text));
 }
 
+// تحميل البيانات
+loadCommissionTable();
 loadTeam();
 </script>
 
 </body>
-</html>
+  </html>
