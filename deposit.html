@@ -75,7 +75,6 @@ input{
 <body>
 
 <div class="container">
-
 <div class="box">
 
 <h2>تفاصيل الدفع</h2>
@@ -103,7 +102,6 @@ input{
 <div id="status" class="status">في انتظار الدفع...</div>
 
 </div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
@@ -112,17 +110,17 @@ input{
 
 const API="https://sudancryptomarket-api.onrender.com";
 
-// البيانات
+// 🔥 البيانات
 const orderId = localStorage.getItem("orderId");
 const packageName = localStorage.getItem("selectedPackage");
 const amount = localStorage.getItem("selectedPrice");
 const email = localStorage.getItem("userEmail");
 const network = localStorage.getItem("selectedNetwork");
 
-// حماية
+// 🔥 حماية قوية
 if(!orderId || !network){
-  alert("ابدأ من اختيار الشبكة");
-  window.location.href="choose-network.html";
+  alert("ابدأ من الباقات");
+  window.location.href="packages.html";
 }
 
 // عرض
@@ -143,7 +141,6 @@ document.getElementById("addressBox").innerHTML = `
 <button class="btn copy" onclick="copyAddress('${address}')">نسخ العنوان</button>
 `;
 
-// QR حقيقي
 QRCode.toCanvas(document.getElementById("qrcode"), address, {width:220});
 
 // متغيرات
@@ -151,18 +148,17 @@ let time = 900;
 let sent = false;
 let approvedOnce = false;
 
+// 🔥 أهم متغير (حل القبول الوهمي)
+const pageStartTime = Date.now();
+
 // صوت
 const successSound = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
 
-// 🔥 تحذير احترافي
+// تنبيه
 setTimeout(()=>{
   alert(`تنبيه مهم:
-
 - تأكد من الشبكة (${network})
-- أرسل المبلغ الصحيح (${amount} USDT)
-- أي خطأ يؤدي لفقدان الأموال
-
-لن يتم استرجاع أي تحويل خاطئ`);
+- أرسل المبلغ الصحيح (${amount} USDT)`);
 },500);
 
 // نسخ
@@ -217,10 +213,10 @@ async function submitPayment(){
     body:formData
   });
 
-  alert("تم إرسال الطلب");
+  document.getElementById("status").innerText="تم إرسال الطلب";
 }
 
-// تحديث الحالة
+// 🔥 الإصلاح الحقيقي النهائي
 setInterval(async ()=>{
 
   const res = await fetch(API+"/user-data",{
@@ -232,9 +228,23 @@ setInterval(async ()=>{
   const data = await res.json();
   if(!data.success) return;
 
-  const op = data.operations[0];
+  // ✅ نجيب فقط الطلب الجديد (بعد فتح الصفحة)
+  const op = (data.operations || []).find(o=>{
+    return (
+      (o.type === "package_deposit") &&
+      (new Date(o.date).getTime() >= pageStartTime - 5000)
+    );
+  });
+
   if(!op) return;
 
+  // pending
+  if(op.status === "pending"){
+    document.getElementById("status").innerText="قيد المراجعة...";
+    return;
+  }
+
+  // approved
   if(op.status === "approved" && !approvedOnce){
 
     approvedOnce = true;
@@ -249,8 +259,10 @@ setInterval(async ()=>{
     },3000);
   }
 
+  // rejected
   if(op.status === "rejected"){
     document.getElementById("status").innerText="مرفوض";
+    document.getElementById("status").style.color="red";
   }
 
 },3000);
