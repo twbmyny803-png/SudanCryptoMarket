@@ -110,22 +110,24 @@ input{
 
 const API="https://sudancryptomarket-api.onrender.com";
 
+// البيانات
 const orderId = localStorage.getItem("orderId");
 const packageName = localStorage.getItem("selectedPackage");
 const amount = localStorage.getItem("selectedPrice");
 const email = localStorage.getItem("userEmail");
 const network = localStorage.getItem("selectedNetwork");
 
-// 🔥 حماية بدون ما يكسر الصفحة
-if(!orderId){
-  document.body.innerHTML = "<h2 style='text-align:center;color:white'>ارجع للباقات</h2>";
+// حماية
+if(!orderId || !network){
+  alert("ابدأ من الباقات");
+  window.location.href="packages.html";
 }
 
-// عرض البيانات
-document.getElementById("orderId").innerText = orderId || "-";
-document.getElementById("packageName").innerText = packageName || "-";
-document.getElementById("amount").innerText = amount || "-";
-document.getElementById("networkText").innerText = network || "-";
+// عرض
+document.getElementById("orderId").innerText = orderId;
+document.getElementById("packageName").innerText = packageName;
+document.getElementById("amount").innerText = amount;
+document.getElementById("networkText").innerText = network;
 
 // العناوين
 const TRC20 = "TLPZEoW71BNe6mHPK8XRJ5PkN5Agqqpa5n";
@@ -144,12 +146,7 @@ QRCode.toCanvas(document.getElementById("qrcode"), address, {width:220});
 // متغيرات
 let time = 900;
 let sent = false;
-
-// نسخ
-function copyAddress(addr){
-  navigator.clipboard.writeText(addr);
-  alert("تم النسخ");
-}
+let approvedOnce = false;
 
 // تايمر
 setInterval(()=>{
@@ -167,6 +164,12 @@ setInterval(()=>{
   }
 
 },1000);
+
+// نسخ
+function copyAddress(addr){
+  navigator.clipboard.writeText(addr);
+  alert("تم النسخ");
+}
 
 // إرسال
 async function submitPayment(){
@@ -191,6 +194,7 @@ async function submitPayment(){
   formData.append("email",email);
   formData.append("txid",txid);
   formData.append("file",file);
+  formData.append("orderId",orderId); // 🔥 أهم سطر
 
   await fetch(API+"/upload-proof",{
     method:"POST",
@@ -200,7 +204,7 @@ async function submitPayment(){
   document.getElementById("status").innerText="تم إرسال الطلب";
 }
 
-// 🔥 إصلاح القبول الوهمي نهائي
+// 🔥 متابعة الطلب الصحيح فقط
 setInterval(async ()=>{
 
   const res = await fetch(API+"/user-data",{
@@ -212,7 +216,8 @@ setInterval(async ()=>{
   const data = await res.json();
   if(!data.success) return;
 
-  const op = (data.operations || []).find(o => o.type === "package_deposit");
+  // 🔥 نجيب نفس الطلب فقط
+  const op = (data.operations || []).find(o => o.orderId === orderId);
 
   if(!op) return;
 
@@ -220,9 +225,16 @@ setInterval(async ()=>{
     document.getElementById("status").innerText="قيد المراجعة...";
   }
 
-  if(op.status === "approved"){
+  if(op.status === "approved" && !approvedOnce){
+
+    approvedOnce = true;
+
     document.getElementById("status").innerText="تم القبول";
     document.getElementById("status").style.color="green";
+
+    setTimeout(()=>{
+      window.location.href="dashboard.html";
+    },3000);
   }
 
   if(op.status === "rejected"){
@@ -235,4 +247,4 @@ setInterval(async ()=>{
 </script>
 
 </body>
-</html>
+  </html>
