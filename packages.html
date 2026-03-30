@@ -92,7 +92,7 @@ opacity:0.9;
 <div class="price">USDT 50</div>
 <div class="profit">ربح يومي 2.5 USDT</div>
 <div class="duration">مدة الباقة 280 يوم</div>
-<button class="buy-btn" onclick="buyPackage('Starter',50)">
+<button class="buy-btn" onclick="buyPackage('Starter',50,2.5,280)">
 انقر للشراء
 </button>
 </div>
@@ -102,7 +102,7 @@ opacity:0.9;
 <div class="price">USDT 100</div>
 <div class="profit">ربح يومي 5 USDT</div>
 <div class="duration">مدة الباقة 280 يوم</div>
-<button class="buy-btn" onclick="buyPackage('Silver',100)">
+<button class="buy-btn" onclick="buyPackage('Silver',100,5,280)">
 انقر للشراء
 </button>
 </div>
@@ -112,7 +112,7 @@ opacity:0.9;
 <div class="price">USDT 250</div>
 <div class="profit">ربح يومي 8 USDT</div>
 <div class="duration">مدة الباقة 280 يوم</div>
-<button class="buy-btn" onclick="buyPackage('Gold',250)">
+<button class="buy-btn" onclick="buyPackage('Gold',250,8,280)">
 انقر للشراء
 </button>
 </div>
@@ -122,7 +122,7 @@ opacity:0.9;
 <div class="price">USDT 500</div>
 <div class="profit">ربح يومي 12 USDT</div>
 <div class="duration">مدة الباقة 280 يوم</div>
-<button class="buy-btn" onclick="buyPackage('Diamond',500)">
+<button class="buy-btn" onclick="buyPackage('Diamond',500,12,280)">
 انقر للشراء
 </button>
 </div>
@@ -132,7 +132,7 @@ opacity:0.9;
 <div class="price">USDT 1000</div>
 <div class="profit">ربح يومي 25 USDT</div>
 <div class="duration">مدة الباقة 280 يوم</div>
-<button class="buy-btn" onclick="buyPackage('Platinum',1000)">
+<button class="buy-btn" onclick="buyPackage('Platinum',1000,25,280)">
 انقر للشراء
 </button>
 </div>
@@ -140,61 +140,33 @@ opacity:0.9;
 </div>
 
 <script>
+function buyPackage(name, price, dailyProfit, durationDays){
 
-const API="https://sudancryptomarket-api.onrender.com";
-
-async function buyPackage(name, price){
-
-  const email = localStorage.getItem("userEmail");
-
-  if(!email){
-    alert("سجل دخول أول");
-    window.location.href="login.html";
-    return;
-  }
-
-  // 🔥 تنظيف أي بيانات قديمة
+  // امسح فقط بيانات الطلب القديم
   localStorage.removeItem("orderId");
   localStorage.removeItem("selectedNetwork");
+  localStorage.removeItem("activeOrder");
+  localStorage.removeItem("selectedPackage");
+  localStorage.removeItem("selectedPrice");
+  localStorage.removeItem("selectedDailyProfit");
+  localStorage.removeItem("selectedDuration");
 
-  try{
+  // خزّن بيانات الباقة
+  localStorage.setItem("selectedPackage", name);
+  localStorage.setItem("selectedPrice", price);
+  localStorage.setItem("selectedDailyProfit", dailyProfit);
+  localStorage.setItem("selectedDuration", durationDays);
 
-    // 🔥 إنشاء طلب حقيقي من السيرفر
-    const res = await fetch(API + "/create-order",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({
-        email,
-        packageName:name,
-        amount:price
-      })
-    });
+  // إنشاء رقم طلب
+  const orderId = "ORD" + Date.now();
+  localStorage.setItem("orderId", orderId);
 
-    const data = await res.json();
+  // تحديد وجود طلب جديد
+  localStorage.setItem("activeOrder", "true");
 
-    if(!data.success){
-      alert("فشل إنشاء الطلب");
-      return;
-    }
-
-    // حفظ الطلب
-    localStorage.setItem("orderId", data.orderId);
-
-    // حفظ الباقة
-    localStorage.setItem("selectedPackage", name);
-    localStorage.setItem("selectedPrice", price);
-
-    // 🔥 الانتقال لاختيار الشبكة
-    window.location.href = "choose-network.html";
-
-  }catch(e){
-    alert("خطأ في الاتصال بالسيرفر");
-  }
-
+  // انتقال لاختيار الشبكة
+  window.location.href = "choose-network.html";
 }
-
 </script>
 
 </body>
