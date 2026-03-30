@@ -2,179 +2,356 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>سودان كربتو | الرئيسية</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-*{box-sizing:border-box}
-
-body{
-margin:0;
-font-family:Tahoma,Arial,sans-serif;
-background:linear-gradient(135deg,#07162b,#0b1f3a,#12345c);
-min-height:100vh;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.app{
-max-width:420px;
-margin:auto;
-min-height:100vh;
-background:#f4f8ff;
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Tahoma', sans-serif;
+  background: linear-gradient(135deg, #0b1f3a 0%, #1a2f4e 100%);
+  min-height: 100vh;
 }
 
-.topbar{
-background:linear-gradient(135deg,#0f4ea8,#0d6efd,#17a2b8);
-color:#fff;
-padding:16px;
-border-bottom-left-radius:24px;
-border-bottom-right-radius:24px;
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: #f5f7fc;
+  position: relative;
+  padding-bottom: 75px;
 }
 
-.topbar-row{
-display:flex;
-justify-content:space-between;
-align-items:center;
+/* Header */
+.topbar {
+  background: linear-gradient(135deg, #0f4ea8 0%, #1e6fdf 100%);
+  color: white;
+  padding: 20px 20px 30px;
+  border-bottom-left-radius: 28px;
+  border-bottom-right-radius: 28px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
 }
 
-.brand{
-display:flex;
-gap:10px;
-align-items:center;
+.topbar-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
-.brand-logo{
-width:42px;
-height:42px;
-border-radius:12px;
-background:rgba(255,255,255,.2);
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:22px;
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.brand-text h1{
-margin:0;
-font-size:18px;
+.brand-logo {
+  width: 48px;
+  height: 48px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  backdrop-filter: blur(4px);
 }
 
-.brand-text p{
-margin:2px 0 0;
-font-size:12px;
+.brand-text h1 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
 }
 
-.top-icons{
-display:flex;
-gap:8px;
+.brand-text p {
+  font-size: 12px;
+  opacity: 0.85;
+  margin: 4px 0 0;
 }
 
-.icon-btn{
-width:38px;
-height:38px;
-border:none;
-border-radius:50%;
-background:rgba(255,255,255,.18);
-color:#fff;
-font-size:16px;
-cursor:pointer;
-display:flex;
-align-items:center;
-justify-content:center;
+.top-icons {
+  display: flex;
+  gap: 10px;
 }
 
-.welcome-box{
-margin-top:14px;
-background:rgba(255,255,255,.15);
-padding:12px;
-border-radius:16px;
+.icon-btn {
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.18);
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+  backdrop-filter: blur(4px);
 }
 
-.content{
-padding:14px 14px 90px;
+.icon-btn:hover {
+  background: rgba(255,255,255,0.3);
+  transform: scale(0.95);
 }
 
-.section-title{
-margin:18px 0 10px;
-font-weight:bold;
+.welcome-box {
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(4px);
+  padding: 14px 18px;
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: 500;
 }
 
-.actions-grid{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:12px;
-background:#fff;
-padding:14px;
-border-radius:18px;
+.welcome-box span {
+  font-weight: 700;
+  color: #ffe484;
 }
 
-.action-item{
-text-align:center;
-cursor:pointer;
+/* Content */
+.content {
+  padding: 20px;
+  margin-top: -12px;
 }
 
-.action-icon{
-width:56px;
-height:56px;
-border-radius:50%;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:22px;
-color:#fff;
-margin:auto auto 6px;
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-right: 3px solid #1e6fdf;
+  padding-right: 12px;
 }
 
-.c1{background:#a855f7}
-.c2{background:#f59e0b}
-.c3{background:#10b981}
-
-.stats-box{
-background:#fff;
-padding:14px;
-border-radius:16px;
-margin-top:14px;
-line-height:2;
+/* Actions Grid */
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  background: white;
+  padding: 20px 16px;
+  border-radius: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  margin-bottom: 16px;
 }
 
-.card{
-background:#fff;
-border-radius:16px;
-padding:14px;
-margin-top:14px;
+.action-item {
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.bottom-nav{
-position:fixed;
-bottom:0;
-left:50%;
-transform:translateX(-50%);
-width:100%;
-max-width:420px;
-background:#fff;
-display:grid;
-grid-template-columns:repeat(5,1fr);
-padding:10px 6px;
+.action-item:hover {
+  transform: translateY(-3px);
 }
 
-.nav-item{
-text-align:center;
-font-size:11px;
-text-decoration:none;
-color:#444;
+.action-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+  margin: 0 auto 10px;
+  transition: all 0.2s;
 }
 
-.nav-icon{
-width:40px;
-height:40px;
-margin:auto auto 4px;
-border-radius:50%;
-display:flex;
-align-items:center;
-justify-content:center;
-background:#eef2ff;
-font-size:16px;
+.c1 { background: linear-gradient(135deg, #a855f7, #7c3aed); }
+.c2 { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.c3 { background: linear-gradient(135deg, #10b981, #059669); }
+
+.action-item div:last-child {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+/* Stats Box */
+.stats-box {
+  background: white;
+  padding: 20px;
+  border-radius: 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.stat-value small {
+  font-size: 12px;
+  font-weight: normal;
+  color: #64748b;
+}
+
+/* Referral Card */
+.card {
+  background: white;
+  border-radius: 24px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-right: 3px solid #1e6fdf;
+  padding-right: 12px;
+}
+
+.referral-box {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.referral-label {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.referral-value {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 14px;
+  font-family: monospace;
+  word-break: break-all;
+  color: #1e6fdf;
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.referral-value span {
+  flex: 1;
+  word-break: break-all;
+}
+
+.copy-btn {
+  background: #1e6fdf;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.copy-btn:hover {
+  background: #0f4ea8;
+  transform: scale(0.98);
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  background: white;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 10px 12px 20px;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  z-index: 100;
+}
+
+.nav-item {
+  text-align: center;
+  text-decoration: none;
+  color: #64748b;
+  font-size: 11px;
+  transition: all 0.2s;
+}
+
+.nav-item.active {
+  color: #1e6fdf;
+}
+
+.nav-icon {
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 5px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  font-size: 18px;
+  transition: all 0.2s;
+}
+
+.nav-item.active .nav-icon {
+  background: linear-gradient(135deg, #1e6fdf, #0f4ea8);
+  color: white;
+}
+
+.nav-item span {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Utility */
+hr {
+  margin: 12px 0;
+  border: none;
+  border-top: 1px solid #e2e8f0;
 }
 </style>
 </head>
@@ -203,14 +380,17 @@ font-size:16px;
 </div>
 
 <div class="welcome-box">
-مرحباً، <span id="userName">...</span>
+<i class="fa-regular fa-hand-peace"></i> مرحباً، <span id="userName">...</span>
 </div>
 
 </div>
 
 <div class="content">
 
-<div class="section-title">الخدمات الرئيسية</div>
+<div class="section-title">
+<i class="fa-solid fa-star" style="color:#f59e0b;"></i>
+الخدمات الرئيسية
+</div>
 
 <div class="actions-grid">
 
@@ -232,50 +412,76 @@ font-size:16px;
 </div>
 
 <div class="stats-box">
-الرصيد: <b id="balance">0</b><br>
-الأرباح: <b id="income">0</b><br>
-الباقة: <b id="package">-</b>
+<div class="stat-item">
+<div class="stat-label"><i class="fa-solid fa-coins"></i> الرصيد</div>
+<div class="stat-value"><span id="balance">0</span> <small>USDT</small></div>
+</div>
+<div class="stat-item">
+<div class="stat-label"><i class="fa-solid fa-chart-line"></i> الأرباح</div>
+<div class="stat-value"><span id="income">0</span> <small>USDT</small></div>
+</div>
+<div class="stat-item">
+<div class="stat-label"><i class="fa-solid fa-gem"></i> الباقة</div>
+<div class="stat-value" id="package" style="font-size:16px;">-</div>
+</div>
 </div>
 
 <div class="card">
-<div>رمز الإحالة</div>
-<input id="myRefCode" readonly style="width:100%">
-<button onclick="copyRefCode()">نسخ</button>
+<div class="card-title">
+<i class="fa-solid fa-link"></i>
+نظام الإحالات
+</div>
 
-<br><br>
+<div class="referral-box">
+<div class="referral-label"><i class="fa-solid fa-qrcode"></i> رمز الإحالة</div>
+<div class="referral-value">
+<span id="myRefCode">...</span>
+<button class="copy-btn" onclick="copyRefCode()"><i class="fa-regular fa-copy"></i> نسخ</button>
+</div>
+</div>
 
-<div>رابط الإحالة</div>
-<input id="myRefLink" readonly style="width:100%">
-<button onclick="copyRefLink()">نسخ</button>
+<div class="referral-box">
+<div class="referral-label"><i class="fa-solid fa-share-alt"></i> رابط الإحالة</div>
+<div class="referral-value">
+<span id="myRefLink">...</span>
+<button class="copy-btn" onclick="copyRefLink()"><i class="fa-regular fa-copy"></i> نسخ</button>
+</div>
+</div>
+
+<hr>
+
+<div class="referral-label" style="margin-top:8px;">
+<i class="fa-solid fa-chart-simple"></i> كلما زاد فريقك، زادت أرباحك!
+</div>
 </div>
 
 </div>
 
 <div class="bottom-nav">
 
-<a href="dashboard.html" class="nav-item">
+<a href="dashboard.html" class="nav-item active">
 <div class="nav-icon"><i class="fa-solid fa-house"></i></div>
-الرئيسية
+<span>الرئيسية</span>
 </a>
 
 <a href="packages.html" class="nav-item">
 <div class="nav-icon"><i class="fa-solid fa-sack-dollar"></i></div>
-الباقات
+<span>الباقات</span>
 </a>
 
 <a href="income.html" class="nav-item">
 <div class="nav-icon"><i class="fa-solid fa-chart-line"></i></div>
-الدخل
+<span>الدخل</span>
 </a>
 
 <a href="assets.html" class="nav-item">
 <div class="nav-icon"><i class="fa-solid fa-briefcase"></i></div>
-الأصول
+<span>الأصول</span>
 </a>
 
 <a href="account.html" class="nav-item">
 <div class="nav-icon"><i class="fa-solid fa-user"></i></div>
-حسابي
+<span>حسابي</span>
 </a>
 
 </div>
@@ -284,62 +490,59 @@ font-size:16px;
 
 <script>
 
-const API="https://sudancryptomarket-api.onrender.com"
-const email=localStorage.getItem("userEmail")
+const API = "https://sudancryptomarket-api.onrender.com";
+const email = localStorage.getItem("userEmail");
 
-// 🔥 حل الإيداع
 function goDeposit(){
-  localStorage.removeItem("activeOrder")
-  localStorage.removeItem("orderId")
-  localStorage.removeItem("selectedNetwork")
-  window.location.href="packages.html"
+  localStorage.removeItem("activeOrder");
+  localStorage.removeItem("orderId");
+  localStorage.removeItem("selectedNetwork");
+  window.location.href = "packages.html";
 }
 
-// 🔥 تحميل البيانات
 if(!email){
-location.href="login.html"
-}else{
+  window.location.href = "login.html";
+} else {
+  fetch(API + "/user-data", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if(!data.success){
+      localStorage.removeItem("userEmail");
+      window.location.href = "login.html";
+      return;
+    }
 
-fetch(API+"/user-data",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({email})
-})
-.then(r=>r.json())
-.then(data=>{
+    document.getElementById("userName").innerText = data.name || "مستخدم";
+    document.getElementById("balance").innerText = data.balance || 0;
+    document.getElementById("income").innerText = data.incomeBalance || 0;
+    document.getElementById("package").innerText = data.packageName || "لا توجد";
 
-if(!data.success){
-localStorage.removeItem("userEmail")
-location.href="login.html"
-return
+    document.getElementById("myRefCode").innerText = data.refCode || "";
+    const link = window.location.origin + "/index.html?ref=" + (data.refCode || "");
+    document.getElementById("myRefLink").innerText = link;
+  })
+  .catch(err => console.error(err));
 }
 
-document.getElementById("userName").innerText = data.name || "مستخدم";
-document.getElementById("balance").innerText = (data.balance || 0) + " USDT";
-document.getElementById("income").innerText = (data.incomeBalance || 0) + " USDT";
-document.getElementById("package").innerText = data.packageName || "لا توجد";
-
-document.getElementById("myRefCode").value = data.refCode || "";
-
-const link = window.location.origin + "/index.html?ref=" + (data.refCode || "");
-document.getElementById("myRefLink").value = link;
-
-})
-
-}
-
-// نسخ
 function copyRefCode(){
-navigator.clipboard.writeText(document.getElementById("myRefCode").value)
-alert("تم النسخ")
+  const code = document.getElementById("myRefCode").innerText;
+  if(code && code !== "..."){
+    navigator.clipboard.writeText(code);
+  }
 }
 
 function copyRefLink(){
-navigator.clipboard.writeText(document.getElementById("myRefLink").value)
-alert("تم النسخ")
+  const link = document.getElementById("myRefLink").innerText;
+  if(link && link !== "..."){
+    navigator.clipboard.writeText(link);
+  }
 }
 
 </script>
 
 </body>
-  </html>
+</html>
