@@ -1,36 +1,68 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>اختيار الشبكة</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اختيار الشبكة | سودان كربتو</title>
 
 <style>
 body{
   background:#0f172a;
   color:#fff;
-  font-family:Tahoma;
+  font-family:Tahoma, Arial, sans-serif;
   text-align:center;
   padding:40px;
+  margin:0;
 }
 
 .box{
   max-width:400px;
   margin:auto;
   background:#1e293b;
-  padding:20px;
-  border-radius:12px;
+  padding:30px;
+  border-radius:16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
 }
 
-button{
+h2 {
+  margin-bottom: 20px;
+  color: #3b82f6;
+}
+
+#info {
+  background: #334155;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+  line-height: 1.8;
+  font-size: 15px;
+  text-align: right;
+}
+
+.btn-network {
   width:100%;
   padding:15px;
-  margin-top:10px;
+  margin-top:12px;
   border:none;
-  border-radius:8px;
+  border-radius:10px;
   background:#2563eb;
   color:#fff;
-  font-size:16px;
+  font-size:17px;
+  font-weight: bold;
   cursor:pointer;
+  transition: background 0.3s ease;
+}
+
+.btn-network:hover {
+  background: #1d4ed8;
+}
+
+.btn-back {
+  display: inline-block;
+  margin-top: 20px;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 14px;
 }
 </style>
 
@@ -40,44 +72,46 @@ button{
 
 <div class="box">
 
-<h2>اختار الشبكة</h2>
+<h2>اختر الشبكة</h2>
 
-<div id="info"></div>
+<div id="info">
+  جاري تحميل بيانات الطلب...
+</div>
 
-<button onclick="selectNetwork('TRC20')">USDT TRC20</button>
-<button onclick="selectNetwork('BEP20')">USDT BEP20</button>
+<button class="btn-network" onclick="selectNetwork('TRC20')">USDT TRC20</button>
+<button class="btn-network" onclick="selectNetwork('BEP20')">USDT BEP20</button>
+
+<a href="packages.html" class="btn-back">العودة للباقات</a>
 
 </div>
 
 <script>
-
-// البيانات
+// استرجاع البيانات من localStorage
 const packageName = localStorage.getItem("selectedPackage");
 const price = localStorage.getItem("selectedPrice");
 const orderId = localStorage.getItem("orderId");
 
-// حماية
+// حماية: التأكد من وجود بيانات الطلب
 if(!packageName || !orderId){
-  alert("ارجع للباقات");
+  alert("عذراً، لم يتم العثور على بيانات الطلب. يرجى اختيار باقة أولاً.");
   window.location.href="packages.html";
+} else {
+  // عرض بيانات الطلب
+  document.getElementById("info").innerHTML = `
+    <strong>الباقة:</strong> ${packageName} <br>
+    <strong>المبلغ:</strong> ${price} USDT <br>
+    <strong>رقم الطلب:</strong> ${orderId}
+  `;
 }
 
-// عرض
-document.getElementById("info").innerHTML = `
-الباقة: ${packageName} <br>
-المبلغ: ${price} USDT <br>
-رقم الطلب: ${orderId}
-`;
-
-// اختيار الشبكة
+// دالة اختيار الشبكة
 function selectNetwork(network){
-
+  // تخزين الشبكة المختارة
   localStorage.setItem("selectedNetwork", network);
 
-  // 🔥 الانتقال للدفع
+  // الانتقال لصفحة الإيداع
   window.location.href = "deposit.html";
 }
-
 </script>
 
 </body>
