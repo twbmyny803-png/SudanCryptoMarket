@@ -911,7 +911,7 @@ app.get("/admin-withdraws", async (req,res)=>{
 
 /* ---------------- ADMIN OPERATIONS ---------------- */
 
-// ✅ قبول الإيداع - النسخة المبسطة والآمنة
+// قبول الإيداع
 app.post("/admin-approve-deposit", async (req,res)=>{
   try{
     if(!requireAdmin(req,res)) return;
@@ -940,16 +940,13 @@ app.post("/admin-approve-deposit", async (req,res)=>{
       return res.json({success:false, message:`العملية بحالة ${op.status}`});
     }
 
-    // تحويل المبلغ لرقم
     const amount = Number(op.amount) || 0;
     const dailyProfit = Number(op.dailyProfit) || 0;
 
-    // تحديث حالة العملية
     operations[opIndex].status = "approved";
 
     if(op.type === "package_deposit"){
       
-      // تحديث بيانات المستخدم
       await usersCollection.updateOne(
         { email },
         {
@@ -970,7 +967,6 @@ app.post("/admin-approve-deposit", async (req,res)=>{
         }
       );
 
-      // إضافة عملية الربح اليومي بشكل منفصل
       await usersCollection.updateOne(
         { email },
         {
@@ -989,7 +985,6 @@ app.post("/admin-approve-deposit", async (req,res)=>{
         }
       );
 
-      // توزيع العمولات
       await distributeReferralCommission(user, amount);
 
       console.log("✅ تم قبول الباقة:", email, amount);
@@ -1015,7 +1010,7 @@ app.post("/admin-approve-deposit", async (req,res)=>{
   }
 });
 
-// رفض الإيداع باستخدام orderId
+// رفض الإيداع
 app.post("/admin-reject-deposit", async (req,res)=>{
   try{
     if(!requireAdmin(req,res)) return;
@@ -1626,6 +1621,52 @@ app.post("/upload-proof", upload.single("file"), async (req,res)=>{
   }
 });
 
+/* ---------------- TRANSFER INCOME ---------------- */
+
+app.post("/transfer-income", async (req,res)=>{
+  try{
+    const email = normalizeEmail(req.body.email);
+    const user = await usersCollection.findOne({ email });
+
+    if(!user){
+      return res.json({success:false, message:"المستخدم غير موجود"});
+    }
+
+    const income = Number(user.incomeBalance || 0);
+
+    if(income <= 0){
+      return res.json({success:false, message:"لا يوجد أرباح للتحويل"});
+    }
+
+    await usersCollection.updateOne(
+      { email },
+      {
+        $inc: {
+          balance: income,
+          incomeBalance: -income
+        },
+        $push: {
+          operations: {
+            $each: [{
+              type: "transfer_income",
+              amount: income,
+              status: "approved",
+              date: new Date().toISOString()
+            }],
+            $position: 0
+          }
+        }
+      }
+    );
+
+    res.json({success:true, message:"تم تحويل الأرباح بنجاح"});
+
+  } catch(e){
+    console.error("🔥 خطأ في تحويل الأرباح:", e);
+    res.json({success:false, message:"حدث خطأ في السيرفر"});
+  }
+});
+
 /* ---------------- DATABASE CONNECT ---------------- */
 
 async function connectDB(){
@@ -1638,21 +1679,16 @@ async function connectDB(){
 
     console.log("Connected to MongoDB");
 
-    // تشغيل فوري عند بدء السيرفر
     cancelExpiredDepositsNow();
-    
-    // تشغيل كل دقيقة
     setInterval(() => {
       cancelExpiredDepositsNow();
     }, 60 * 1000);
 
-    // تشغيل المهمة اليومية للربح
     cron.schedule("0 0 * * *", () => {
       console.log("Running daily profit job...");
       runDailyProfitForAllUsers();
     });
 
-    // تشغيل مرة عند بدء التشغيل لحساب الأرباح المتراكمة
     setTimeout(() => {
       runDailyProfitForAllUsers();
     }, 5000);
