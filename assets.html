@@ -179,6 +179,13 @@ padding:10px;
 .profit-icon { color: #f59e0b; }
 .referral-icon { color: #8b5cf6; }
 .transfer-icon { color: #3b82f6; }
+
+/* ألوان الباقات */
+.package-starter { color: #10b981; }
+.package-silver { color: #94a3b8; }
+.package-gold { color: #f59e0b; }
+.package-diamond { color: #3b82f6; }
+.package-platinum { color: #a855f7; }
 </style>
 </head>
 
@@ -273,6 +280,18 @@ function showToast(message, isError = false) {
   }, 5000);
 }
 
+// دالة للحصول على لون الباقة
+function getPackageColor(packageName) {
+  if(!packageName) return "";
+  const name = packageName.toLowerCase();
+  if(name === "starter") return "package-starter";
+  if(name === "silver") return "package-silver";
+  if(name === "gold") return "package-gold";
+  if(name === "diamond") return "package-diamond";
+  if(name === "platinum") return "package-platinum";
+  return "";
+}
+
 if(!email){
   window.location.href = "login.html";
 }
@@ -297,7 +316,7 @@ fetch(API + "/user-data", {
   // عرض الرصيد
   document.getElementById("balance").innerText = userBalance + " USDT";
   
-  // عرض آخر النشاط مع أيقونات
+  // عرض آخر النشاط مع أيقونات واسم الباقة
   const box = document.getElementById("activityBox");
   
   if(!data.operations || data.operations.length === 0){
@@ -308,28 +327,34 @@ fetch(API + "/user-data", {
       let text = "";
       let icon = "";
       let iconClass = "";
+      let packageClass = "";
       
-      if(op.type === "deposit") {
+      if(op.type === "deposit" || op.type === "package_deposit") {
         text = "إيداع";
+        // إضافة اسم الباقة إذا وجد
+        if(op.packageName) {
+          packageClass = getPackageColor(op.packageName);
+          text += ` <span class="${packageClass}">${op.packageName}</span>`;
+        }
         icon = "fa-solid fa-arrow-down";
         iconClass = "deposit-icon";
       }
-      if(op.type === "withdraw") {
+      else if(op.type === "withdraw") {
         text = "سحب";
         icon = "fa-solid fa-arrow-up";
         iconClass = "withdraw-icon";
       }
-      if(op.type === "daily_profit") {
+      else if(op.type === "daily_profit") {
         text = "ربح يومي";
         icon = "fa-solid fa-chart-line";
         iconClass = "profit-icon";
       }
-      if(op.type === "referral_bonus") {
+      else if(op.type === "referral_bonus") {
         text = "مكافأة إحالة";
         icon = "fa-solid fa-users";
         iconClass = "referral-icon";
       }
-      if(op.type === "transfer" || op.type === "transfer_income") {
+      else if(op.type === "transfer" || op.type === "transfer_income") {
         text = "تحويل أرباح";
         icon = "fa-solid fa-exchange-alt";
         iconClass = "transfer-icon";
