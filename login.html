@@ -2,147 +2,263 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>تسجيل الدخول | سودان كربتو</title>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 <style>
-*{box-sizing:border-box;}
-
-body{
-margin:0;
-font-family:Tahoma, Arial, sans-serif;
-background:linear-gradient(135deg,#07162b,#0b1f3a,#12345c);
-display:flex;
-justify-content:center;
-align-items:center;
-min-height:100vh;
-padding:12px;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.container{
-width:100%;
-max-width:380px;
-background:#dcebff;
-border-radius:18px;
-padding:22px 18px;
-box-shadow:0 18px 45px rgba(0,0,0,0.28);
-border:1px solid rgba(255,255,255,0.35);
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Tahoma', sans-serif;
+  background: linear-gradient(135deg, #0b1f3a 0%, #1a2f4e 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 
-.logo{
-text-align:center;
-font-size:22px;
-font-weight:700;
-color:#2D6AF6;
-margin-bottom:4px;
+.container {
+  max-width: 440px;
+  width: 100%;
+  background: white;
+  border-radius: 40px;
+  padding: 32px 24px;
+  box-shadow: 0 25px 45px rgba(0,0,0,0.2);
+  animation: fadeInUp 0.5s ease;
 }
 
-.subtitle{
-text-align:center;
-color:#42526b;
-font-size:12px;
-margin-bottom:14px;
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-h2{
-margin:0 0 14px;
-text-align:center;
-color:#1A1A1A;
-font-size:20px;
+.logo {
+  text-align: center;
+  margin-bottom: 8px;
 }
 
-label{
-display:block;
-margin-top:8px;
-margin-bottom:4px;
-font-size:13px;
-font-weight:700;
-color:#1A1A1A;
+.logo i {
+  font-size: 48px;
+  color: #2D6AF6;
+  background: linear-gradient(135deg, #2D6AF6, #10B981);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
-input{
-width:100%;
-height:42px;
-border:1px solid #bfd0ea;
-border-radius:8px;
-padding:0 12px;
-font-size:13px;
-background:#f7fbff;
-outline:none;
+.logo h1 {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-top: 8px;
 }
 
-input:focus{
-border-color:#2D6AF6;
-box-shadow:0 0 0 3px rgba(45,106,246,0.12);
-background:#ffffff;
+.subtitle {
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 16px;
 }
 
-.password-wrap{
-position:relative;
+h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  text-align: center;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-.password-wrap input{
-padding-left:74px;
+h2 i {
+  color: #2D6AF6;
 }
 
-.toggle-password{
-position:absolute;
-left:8px;
-top:50%;
-transform:translateY(-50%);
-height:28px;
-padding:0 10px;
-border:none;
-border-radius:6px;
-background:#2D6AF6;
-color:#fff;
-font-size:11px;
-font-weight:700;
-cursor:pointer;
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
 }
 
-.login-btn{
-width:100%;
-height:44px;
-border:none;
-border-radius:8px;
-font-size:14px;
-font-weight:700;
-cursor:pointer;
-margin-top:12px;
-background:#10B981;
-color:#fff;
+label i {
+  margin-left: 8px;
+  color: #2D6AF6;
+  width: 18px;
 }
 
-.status-message{
-margin-top:10px;
-font-size:13px;
-font-weight:700;
-display:none;
-color:#e74c3c;
-text-align:center;
+input {
+  width: 100%;
+  height: 52px;
+  border: 2px solid #e2e8f0;
+  border-radius: 28px;
+  padding: 0 20px;
+  font-size: 14px;
+  background: #f8fafc;
+  transition: all 0.2s;
+  outline: none;
 }
 
-.links{
-text-align:center;
-margin-top:12px;
+input:focus {
+  border-color: #2D6AF6;
+  box-shadow: 0 0 0 3px rgba(45,106,246,0.1);
+  background: white;
 }
 
-.links a{
-display:block;
-text-decoration:none;
-color:#2D6AF6;
-font-size:13px;
-font-weight:700;
-margin-top:6px;
+.password-wrap {
+  position: relative;
 }
 
-footer{
-text-align:center;
-margin-top:14px;
-font-size:11px;
-color:#314057;
-font-weight:600;
+.password-wrap input {
+  padding-left: 85px;
+}
+
+.toggle-password {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #2D6AF6;
+  color: white;
+  border: none;
+  border-radius: 40px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggle-password:hover {
+  background: #1e4fcf;
+}
+
+.login-btn {
+  width: 100%;
+  height: 54px;
+  border: none;
+  border-radius: 40px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 24px;
+  background: linear-gradient(135deg, #2D6AF6, #1e4fcf);
+  color: white;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(45,106,246,0.3);
+}
+
+.login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(45,106,246,0.4);
+}
+
+.login-btn:active {
+  transform: translateY(0);
+}
+
+.status-message {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 40px;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  display: none;
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-message.success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.links {
+  text-align: center;
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.links a {
+  text-decoration: none;
+  color: #2D6AF6;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.links a:hover {
+  color: #1e4fcf;
+  text-decoration: underline;
+}
+
+.links a:first-child {
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 8px;
+}
+
+footer {
+  text-align: center;
+  margin-top: 28px;
+  font-size: 11px;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* responsive */
+@media (max-width: 480px) {
+  .container {
+    padding: 24px 20px;
+  }
+  .logo i {
+    font-size: 40px;
+  }
+  .logo h1 {
+    font-size: 22px;
+  }
+  h2 {
+    font-size: 20px;
+  }
+  input {
+    height: 48px;
+    font-size: 13px;
+  }
+  .login-btn {
+    height: 48px;
+    font-size: 15px;
+  }
 }
 </style>
 </head>
@@ -151,100 +267,116 @@ font-weight:600;
 
 <div class="container">
 
-<div class="logo">سودان كربتو</div>
+<div class="logo">
+  <i class="fa-brands fa-bitcoin"></i>
+  <h1>سودان كربتو</h1>
+</div>
 <div class="subtitle">تسجيل الدخول إلى حسابك</div>
 
-<h2>تسجيل الدخول</h2>
+<h2>
+  <i class="fa-solid fa-arrow-right-to-bracket"></i>
+  تسجيل الدخول
+</h2>
 
-<label>البريد الإلكتروني</label>
+<label><i class="fa-regular fa-envelope"></i> البريد الإلكتروني</label>
 <input type="email" id="email" placeholder="اكتب البريد الإلكتروني">
 
-<label>كلمة السر</label>
-
+<label><i class="fa-solid fa-lock"></i> كلمة السر</label>
 <div class="password-wrap">
-<input type="password" id="password" placeholder="اكتب كلمة السر">
-<button type="button" class="toggle-password" onclick="togglePassword()">إظهار</button>
+  <input type="password" id="password" placeholder="اكتب كلمة السر">
+  <button type="button" class="toggle-password" onclick="togglePassword()">إظهار</button>
 </div>
 
-<button class="login-btn" onclick="loginNow()">دخول</button>
+<button class="login-btn" onclick="loginNow()">
+  <i class="fa-solid fa-arrow-left"></i> دخول
+</button>
 
 <div class="status-message" id="statusMessage"></div>
 
 <div class="links">
-<a href="forgot.html">هل نسيت كلمة السر؟</a>
-<a href="index.html">إنشاء حساب جديد</a>
+  <a href="forgot.html"><i class="fa-regular fa-circle-question"></i> هل نسيت كلمة السر؟</a>
+  <a href="index.html"><i class="fa-regular fa-user-plus"></i> إنشاء حساب جديد</a>
 </div>
 
-<footer>© سودان كربتو</footer>
+<footer>
+  <i class="fa-regular fa-copyright"></i> سودان كربتو
+</footer>
 
 </div>
 
 <script>
-const API_BASE="https://sudancryptomarket-api.onrender.com";
+const API_BASE = "https://sudancryptomarket-api.onrender.com";
 
-function togglePassword(){
-const input=document.getElementById("password");
-const button=document.querySelector(".toggle-password");
+function togglePassword() {
+  const input = document.getElementById("password");
+  const button = document.querySelector(".toggle-password");
 
-if(input.type==="password"){
-input.type="text";
-button.textContent="إخفاء";
-}else{
-input.type="password";
-button.textContent="إظهار";
-}
-}
-
-function showStatus(msg){
-const box=document.getElementById("statusMessage");
-box.textContent=msg;
-box.style.display="block";
+  if(input.type === "password") {
+    input.type = "text";
+    button.textContent = "إخفاء";
+  } else {
+    input.type = "password";
+    button.textContent = "إظهار";
+  }
 }
 
-function clearStatus(){
-document.getElementById("statusMessage").style.display="none";
+function showStatus(msg, isSuccess = false) {
+  const box = document.getElementById("statusMessage");
+  box.textContent = msg;
+  box.style.display = "block";
+  if(isSuccess) {
+    box.classList.add("success");
+  } else {
+    box.classList.remove("success");
+  }
 }
 
-function loginNow(){
-const email=document.getElementById("email").value.trim();
-const password=document.getElementById("password").value.trim();
-
-clearStatus();
-
-if(email===""){
-showStatus("اكتب البريد الإلكتروني");
-return;
+function clearStatus() {
+  const box = document.getElementById("statusMessage");
+  box.style.display = "none";
+  box.classList.remove("success");
 }
 
-if(password===""){
-showStatus("اكتب كلمة السر");
-return;
-}
+function loginNow() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
 
-fetch(`${API_BASE}/login`,{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-email,
-password
-})
-})
-.then(res=>res.json())
-.then(data=>{
+  clearStatus();
 
-if(data.success===false){
-throw new Error(data.message || "فشل تسجيل الدخول");
-}
+  if(email === "") {
+    showStatus("❌ اكتب البريد الإلكتروني");
+    return;
+  }
 
-localStorage.setItem("userEmail",email);
-window.location.href="dashboard.html";
+  if(password === "") {
+    showStatus("❌ اكتب كلمة السر");
+    return;
+  }
 
-})
-.catch(err=>{
-showStatus(err.message || "حدث خطأ أثناء تسجيل الدخول");
-});
+  showStatus("⏳ جاري تسجيل الدخول...");
+
+  fetch(`${API_BASE}/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ email, password })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if(data.success === false) {
+      throw new Error(data.message || "فشل تسجيل الدخول");
+    }
+
+    localStorage.setItem("userEmail", email);
+    showStatus("✅ تم تسجيل الدخول بنجاح، جاري التحويل...", true);
+    setTimeout(() => {
+      window.location.href = "dashboard.html";
+    }, 1000);
+  })
+  .catch(err => {
+    showStatus("❌ " + (err.message || "حدث خطأ أثناء تسجيل الدخول"));
+  });
 }
 </script>
 
