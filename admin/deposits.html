@@ -271,13 +271,16 @@ async function loadDeposits() {
         // عرض الصورة
         const proofDisplay = dep.proof ? `<img src="${API}${dep.proof}" alt="proof" title="إثبات الدفع" onclick="window.open('${API}${dep.proof}','_blank')" style="cursor:pointer;">` : "-";
         
+        // استخراج orderId من الـ id أو من البيانات
+        const orderId = dep.id ? dep.id.split("_")[1] : "";
+        
         // أزرار التحكم (تظهر فقط للمعلقة)
         let controls = "-";
         if(statusText === "pending") {
           controls = `
             <div class="actions">
-              <button class="approve" onclick="approveDeposit('${dep.email}', ${dep.index})">✅ قبول</button>
-              <button class="reject" onclick="rejectDeposit('${dep.email}', ${dep.index})">❌ رفض</button>
+              <button class="approve" onclick="approveDeposit('${dep.email}', '${orderId}')">✅ قبول</button>
+              <button class="reject" onclick="rejectDeposit('${dep.email}', '${orderId}')">❌ رفض</button>
             </div>
           `;
         }
@@ -315,9 +318,9 @@ function postAdmin(url, body) {
   }).then(res => res.json());
 }
 
-function approveDeposit(email, index) {
+function approveDeposit(email, orderId) {
   if(confirm("✅ هل أنت متأكد من قبول هذا الإيداع؟")) {
-    postAdmin("/admin-approve-deposit", { email, index }).then(data => {
+    postAdmin("/admin-approve-deposit", { email, orderId }).then(data => {
       if(data.success) {
         alert("✅ تم قبول الإيداع بنجاح");
         loadDeposits();
@@ -330,9 +333,9 @@ function approveDeposit(email, index) {
   }
 }
 
-function rejectDeposit(email, index) {
+function rejectDeposit(email, orderId) {
   if(confirm("❌ هل أنت متأكد من رفض هذا الإيداع؟")) {
-    postAdmin("/admin-reject-deposit", { email, index }).then(data => {
+    postAdmin("/admin-reject-deposit", { email, orderId }).then(data => {
       if(data.success) {
         alert("✅ تم رفض الإيداع بنجاح");
         loadDeposits();
