@@ -130,6 +130,37 @@ color:#777;
 text-align:center;
 padding:10px;
 }
+
+/* Toast Notification */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 40px;
+  font-size: 14px;
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  white-space: nowrap;
+}
+
+.toast.success {
+  background: #10b981;
+}
+
+.toast.error {
+  background: #ef4444;
+}
+
+.toast i {
+  font-size: 16px;
+}
 </style>
 </head>
 
@@ -187,6 +218,11 @@ padding:10px;
 
 </div>
 
+<div class="toast" id="toastMessage">
+<i class="fa-solid fa-circle-check"></i>
+<span id="toastText"></span>
+</div>
+
 <script>
 
 const API = "https://sudancryptomarket-api.onrender.com";
@@ -194,6 +230,29 @@ const email = localStorage.getItem("userEmail");
 
 function goBack() {
   window.history.back();
+}
+
+// دالة عرض Toast
+function showToast(message, isError = false) {
+  const toast = document.getElementById("toastMessage");
+  const toastText = document.getElementById("toastText");
+  const icon = toast.querySelector("i");
+  
+  toastText.innerText = message;
+  
+  if (isError) {
+    icon.className = "fa-solid fa-circle-exclamation";
+    toast.className = "toast error";
+  } else {
+    icon.className = "fa-solid fa-circle-check";
+    toast.className = "toast success";
+  }
+  
+  toast.style.display = "flex";
+  
+  setTimeout(() => {
+    toast.style.display = "none";
+  }, 5000); // 5 ثواني
 }
 
 if(!email){
@@ -256,10 +315,10 @@ function goToTransactions(){
   window.location.href = "transactions.html";
 }
 
-// ✅ دالة تحويل الأرباح الجديدة
+// ✅ دالة تحويل الأرباح مع Toast
 async function transferIncome() {
   if(!email){
-    alert("سجل الدخول أولاً");
+    showToast("سجل الدخول أولاً", true);
     return;
   }
 
@@ -275,14 +334,16 @@ async function transferIncome() {
     const data = await res.json();
 
     if(data.success) {
-      alert("تم تحويل الأرباح إلى الرصيد");
-      location.reload();
+      showToast("✅ تم تحويل الأرباح إلى الرصيد");
+      setTimeout(() => {
+        location.reload();
+      }, 1500);
     } else {
-      alert(data.message || "فشل التحويل");
+      showToast(data.message || "فشل التحويل", true);
     }
   } catch(e) {
     console.error(e);
-    alert("خطأ في الاتصال بالسيرفر");
+    showToast("خطأ في الاتصال بالسيرفر", true);
   }
 }
 
