@@ -40,6 +40,30 @@ body {
   margin-bottom: 16px;
   text-align: center;
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.back-btn {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #f0f0f0;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #667eea;
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  background: #e0e0e0;
 }
 
 .header h1 {
@@ -62,6 +86,7 @@ body {
   color: #666;
 }
 
+/* بقية الستايل كما هو */
 /* Cards */
 .card {
   background: white;
@@ -397,6 +422,7 @@ body {
   
   <!-- Header -->
   <div class="header">
+    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-right"></i></button>
     <h1>
       <i class="fas fa-users"></i>
       الإحالات وفريقي
@@ -514,6 +540,10 @@ body {
 const API = "https://sudancryptomarket-api.onrender.com";
 const email = localStorage.getItem("userEmail");
 
+function goBack() {
+  window.history.back();
+}
+
 if(!email){
   window.location.href = "login.html";
 }
@@ -535,7 +565,7 @@ function loadCommissionTable() {
       <td style="color:#10B981; font-weight:600;">${item.level1}%</td>
       <td style="color:#3B82F6; font-weight:600;">${item.level2}%</td>
       <td style="color:#F59E0B; font-weight:600;">${item.level3}%</td>
-    </tr>
+     </tr>
   `).join('');
 }
 
@@ -669,4 +699,4 @@ loadTeam();
 </script>
 
 </body>
-</html>
+                                                  </html>
