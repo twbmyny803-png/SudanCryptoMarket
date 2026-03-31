@@ -911,7 +911,7 @@ app.get("/admin-withdraws", async (req,res)=>{
 
 /* ---------------- ADMIN OPERATIONS ---------------- */
 
-// قبول الإيداع باستخدام orderId
+// ✅ قبول الإيداع - النسخة النهائية الصحيحة
 app.post("/admin-approve-deposit", async (req,res)=>{
   try{
     if(!requireAdmin(req,res)) return;
@@ -926,46 +926,49 @@ app.post("/admin-approve-deposit", async (req,res)=>{
     }
 
     const operations = user.operations || [];
-    
     const opIndex = operations.findIndex(op => op.orderId === orderId);
-    
+
     if(opIndex === -1){
       return res.json({success:false, message:"العملية غير موجودة"});
     }
-    
+
     const op = operations[opIndex];
 
     if(op.status !== "pending"){
       return res.json({success:false, message:`العملية بحالة ${op.status}`});
     }
 
+    // تحويل المبلغ لرقم
+    const amount = Number(op.amount) || 0;
+
+    // تحديث الحالة
     operations[opIndex].status = "approved";
 
     if(op.type === "package_deposit"){
-      const updateData = {
-        operations,
-        balance: (user.balance || 0) + (op.amount || 0),
-        packageName: op.packageName || "",
-        packagePrice: op.amount || 0,
-        dailyProfit: op.dailyProfit || 0,
-        packageStart: new Date().toISOString(),
-        lastProfitAt: new Date().toISOString(),
-        packageDurationDays: 280,
-        profitDays: 1
-      };
-      
-      const firstDayProfit = op.dailyProfit || 0;
-      
+
+      // تحديث المستخدم في عملية واحدة
       await usersCollection.updateOne(
         { email },
-        { 
-          $set: updateData,
-          $inc: { incomeBalance: firstDayProfit },
+        {
+          $set: {
+            operations,
+            packageName: op.packageName || "",
+            packagePrice: amount,
+            dailyProfit: Number(op.dailyProfit) || 0,
+            packageStart: new Date().toISOString(),
+            lastProfitAt: new Date().toISOString(),
+            packageDurationDays: 280,
+            profitDays: 1
+          },
+          $inc: {
+            balance: amount,
+            incomeBalance: Number(op.dailyProfit) || 0
+          },
           $push: {
             operations: {
               $each: [{
                 type: "daily_profit",
-                amount: firstDayProfit,
+                amount: Number(op.dailyProfit) || 0,
                 days: 1,
                 status: "approved",
                 date: new Date().toISOString()
@@ -975,26 +978,28 @@ app.post("/admin-approve-deposit", async (req,res)=>{
           }
         }
       );
-      
-      await distributeReferralCommission(user, op.amount);
+
+      await distributeReferralCommission(user, amount);
+
       return res.json({success:true, message:"تم قبول الإيداع والباقة"});
     }
-    
+
     if(op.type === "deposit"){
       await usersCollection.updateOne(
         { email },
         {
           $set: { operations },
-          $inc: { balance: op.amount || 0 }
+          $inc: { balance: amount }
         }
       );
+
       return res.json({success:true, message:"تم قبول الإيداع"});
     }
-    
+
     return res.json({success:false, message:"نوع العملية غير معروف"});
-    
+
   } catch(e){
-    console.error("خطأ في قبول الإيداع:", e);
+    console.error("🔥 خطأ في قبول الإيداع:", e);
     res.json({success:false, message:"حدث خطأ في السيرفر"});
   }
 });
@@ -1014,7 +1019,6 @@ app.post("/admin-reject-deposit", async (req,res)=>{
     }
 
     const operations = user.operations || [];
-    
     const opIndex = operations.findIndex(op => op.orderId === orderId);
     
     if(opIndex === -1){
