@@ -109,43 +109,44 @@ function getPackageInfo(pack){
   return null;
 }
 
-async function cancelExpiredDeposits(){
-  try{
+// ✅ دالة إلغاء الطلبات منتهية الوقت (تشغيل كل دقيقة)
+async function cancelExpiredDepositsNow() {
+  try {
+    const users = await usersCollection.find({}).toArray();
+    let anyChanged = false;
 
-    const users = await usersCollection.find({}).toArray()
+    for (const user of users) {
+      const operations = user.operations || [];
+      let changed = false;
 
-    for(const user of users){
+      for (let i = 0; i < operations.length; i++) {
+        const op = operations[i];
 
-      const operations = user.operations || []
-      let changed = false
-
-      for(let i=0;i<operations.length;i++){
-
-        const op = operations[i]
-
-        if(
-          op.type === "deposit" &&
+        if (
+          (op.type === "package_deposit" || op.type === "deposit") &&
           op.status === "pending" &&
           op.expiresAt &&
           Date.now() > op.expiresAt
-        ){
-          operations[i].status = "cancelled"
-          changed = true
+        ) {
+          operations[i].status = "cancelled";
+          changed = true;
+          anyChanged = true;
         }
-
       }
 
-      if(changed){
+      if (changed) {
         await usersCollection.updateOne(
-          { email:user.email },
-          { $set:{ operations } }
-        )
+          { email: user.email },
+          { $set: { operations } }
+        );
       }
-
     }
 
-  }catch(e){
-    console.log(e)
+    if (anyChanged) {
+      console.log("✅ تم إلغاء الطلبات منتهية الوقت:", new Date().toISOString());
+    }
+  } catch (e) {
+    console.log("خطأ في إلغاء الطلبات:", e);
   }
 }
 
@@ -192,7 +193,6 @@ async function applyPendingDailyProfit(user){
 
   let actualDays = Math.min(daysToAdd, remainingDays);
 
-  // التأكد من عدم إضافة ربح لليوم الأول إذا كان قد تم احتسابه بالفعل
   if (totalDays === 0 && actualDays > 0) {
     actualDays = 1;
   }
@@ -251,7 +251,6 @@ async function runDailyProfitForAllUsers(){
 
 /* ---------------- REFERRAL FUNCTIONS WITH LEVELS ---------------- */
 
-// جدول العمولات حسب الباقة والمستوى (3 مستويات فقط)
 function getCommissionByPackageAndLevel(packageAmount, level) {
   const commissionTable = {
     50: { level1: 5, level2: 2, level3: 1 },
@@ -273,7 +272,6 @@ function getCommissionByPackageAndLevel(packageAmount, level) {
 async function distributeReferralCommission(user, price) {
   if (!user.referrer) return;
   
-  // المستوى 1: اللي دعاه مباشرة
   const level1User = await usersCollection.findOne({ refCode: user.referrer });
   if (level1User) {
     const commission = getCommissionByPackageAndLevel(price, 1);
@@ -300,7 +298,6 @@ async function distributeReferralCommission(user, price) {
       );
     }
     
-    // المستوى 2: اللي دعاه اللي دعاه
     if (level1User.referrer) {
       const level2User = await usersCollection.findOne({ refCode: level1User.referrer });
       if (level2User) {
@@ -328,7 +325,6 @@ async function distributeReferralCommission(user, price) {
           );
         }
         
-        // المستوى 3: اللي دعاه اللي دعاه اللي دعاه
         if (level2User.referrer) {
           const level3User = await usersCollection.findOne({ refCode: level2User.referrer });
           if (level3User) {
@@ -708,14 +704,11 @@ app.post("/my-team", async (req, res) => {
       return res.json({ success: false, message: "المستخدم غير موجود" });
     }
     
-    // جلب جميع المستخدمين
     const allUsers = await usersCollection.find({ isDeleted: { $ne: true } }).toArray();
     
-    // دالة لجلب المستوى لكل مستخدم
     function getUserLevel(targetEmail, referrerCode, currentLevel = 1) {
       if (!referrerCode || currentLevel > 3) return null;
       
-      // البحث عن المستخدم صاحب الـ referrerCode
       const referrerUser = allUsers.find(u => u.refCode === referrerCode);
       if (!referrerUser) return null;
       
@@ -723,7 +716,6 @@ app.post("/my-team", async (req, res) => {
         return currentLevel;
       }
       
-      // البحث في المستوى الأعلى
       if (referrerUser.referrer) {
         return getUserLevel(targetEmail, referrerUser.referrer, currentLevel + 1);
       }
@@ -731,7 +723,6 @@ app.post("/my-team", async (req, res) => {
       return null;
     }
     
-    // بناء قائمة الفريق مع المستويات
     const teamWithLevels = [];
     
     for (const u of allUsers) {
@@ -750,7 +741,6 @@ app.post("/my-team", async (req, res) => {
       }
     }
     
-    // إحصائيات حسب المستوى
     const level1Count = teamWithLevels.filter(m => m.level === 1).length;
     const level2Count = teamWithLevels.filter(m => m.level === 2).length;
     const level3Count = teamWithLevels.filter(m => m.level === 3).length;
@@ -841,13 +831,12 @@ app.get("/admin-users", async (req,res)=>{
   }
 });
 
-/* ---------------- ADMIN DEPOSITS (MODIFIED) ---------------- */
+/* ---------------- ADMIN DEPOSITS ---------------- */
 
 app.get("/admin-deposits", async (req,res)=>{
   try{
     if(!requireAdmin(req,res)) return;
 
-    // جلب كل المستخدمين (بدون فلتر isDeleted لضمان ظهور كل الإيداعات)
     const users = await usersCollection.find({}).toArray();
 
     const deposits = [];
@@ -856,7 +845,6 @@ app.get("/admin-deposits", async (req,res)=>{
       if (!user.operations) return;
       
       user.operations.forEach((op, index) => {
-        // قبول أي عملية نوعها deposit أو package_deposit
         if (op.type === "deposit" || op.type === "package_deposit") {
           deposits.push({
             id: user.email + "_" + index,
@@ -876,7 +864,6 @@ app.get("/admin-deposits", async (req,res)=>{
       });
     });
 
-    // ترتيب من الأحدث للأقدم
     deposits.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     res.json({ success: true, deposits });
@@ -963,10 +950,33 @@ app.post("/admin-approve-deposit", async (req,res)=>{
       updateData.packageStart = new Date().toISOString();
       updateData.lastProfitAt = new Date().toISOString();
       updateData.packageDurationDays = 280;
-      updateData.profitDays = 0;
-
-      // توزيع العمولات على المستويات
+      updateData.profitDays = 1;  // 👈 يبدأ من اليوم الأول
+      
+      // ✅ إضافة ربح اليوم الأول فوراً
+      const firstDayProfit = Number(op.dailyProfit || 0);
+      
+      await usersCollection.updateOne(
+        { email },
+        { 
+          $set: updateData,
+          $inc: { incomeBalance: firstDayProfit },
+          $push: {
+            operations: {
+              $each: [{
+                type: "daily_profit",
+                amount: firstDayProfit,
+                days: 1,
+                status: "approved",
+                date: new Date().toISOString()
+              }],
+              $position: 0
+            }
+          }
+        }
+      );
+      
       await distributeReferralCommission(user, op.amount);
+      return res.json({success:true});
     }
 
     await usersCollection.updateOne(
@@ -1323,17 +1333,27 @@ app.post("/admin-set-package", async (req,res)=>{
           packageStart:new Date().toISOString(),
           lastProfitAt: new Date().toISOString(),
           packageDurationDays:info.durationDays,
-          profitDays:0
+          profitDays:1
         },
+        $inc: { incomeBalance: info.dailyProfit },
         $push:{
-          operations:{
-            $each:[{
-              type:"admin_set_package",
-              amount:info.price,
-              packageName:info.name,
-              status:"approved",
-              date:new Date().toISOString()
-            }],
+          operations: {
+            $each: [
+              {
+                type:"admin_set_package",
+                amount:info.price,
+                packageName:info.name,
+                status:"approved",
+                date:new Date().toISOString()
+              },
+              {
+                type:"daily_profit",
+                amount: info.dailyProfit,
+                days: 1,
+                status:"approved",
+                date:new Date().toISOString()
+              }
+            ],
             $position:0
           }
         }
@@ -1518,7 +1538,7 @@ app.post("/manual-deposit", async (req,res)=>{
               dailyProfit: packageInfo?.dailyProfit || 0,
               txid:"",
               proof:"",
-              expiresAt: Date.now() + (30 * 60 * 1000),
+              expiresAt: Date.now() + (15 * 60 * 1000), // 15 دقيقة
               date:new Date().toISOString()
             }],
             $position:0
@@ -1589,11 +1609,18 @@ async function connectDB(){
 
     console.log("Connected to MongoDB");
 
-    // تشغيل المهمة كل يوم في منتصف الليل
+    // تشغيل فوري عند بدء السيرفر
+    cancelExpiredDepositsNow();
+    
+    // تشغيل كل دقيقة
+    setInterval(() => {
+      cancelExpiredDepositsNow();
+    }, 60 * 1000);
+
+    // تشغيل المهمة اليومية للربح
     cron.schedule("0 0 * * *", () => {
       console.log("Running daily profit job...");
       runDailyProfitForAllUsers();
-      cancelExpiredDeposits();
     });
 
     // تشغيل مرة عند بدء التشغيل لحساب الأرباح المتراكمة
