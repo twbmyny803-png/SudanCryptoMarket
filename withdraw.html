@@ -85,6 +85,31 @@ body {
   color: #2D6AF6;
 }
 
+.balance-box {
+  background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.balance-label {
+  font-size: 13px;
+  color: #475569;
+  margin-bottom: 4px;
+}
+
+.balance-amount {
+  font-size: 28px;
+  font-weight: 800;
+  color: #2D6AF6;
+}
+
+.balance-amount small {
+  font-size: 14px;
+  font-weight: normal;
+}
+
 label {
   display: block;
   margin-top: 12px;
@@ -169,6 +194,18 @@ input:focus, select:focus {
   align-items: center;
 }
 
+.net-amount-info {
+  background: #dcfce7;
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 12px;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #166534;
+}
+
 .status {
   text-align: center;
   font-size: 14px;
@@ -229,6 +266,16 @@ input:focus, select:focus {
 
 <div class="card">
 <div class="title">
+<i class="fa-solid fa-coins"></i> الرصيد المتاح
+</div>
+<div class="balance-box">
+<div class="balance-label">الرصيد الحالي</div>
+<div class="balance-amount" id="userBalance">0 <small>USDT</small></div>
+</div>
+</div>
+
+<div class="card">
+<div class="title">
 <i class="fa-solid fa-wallet"></i> عناوين محفظة السحب
 </div>
 
@@ -262,10 +309,14 @@ input:focus, select:focus {
 <div class="title">
 <i class="fa-solid fa-dollar-sign"></i> المبلغ
 </div>
-<input type="number" id="amount" step="0.01" placeholder="أدخل مبلغ السحب (الحد الأدنى 10 USDT)">
+<input type="number" id="amount" step="0.01" placeholder="أدخل مبلغ السحب (الحد الأدنى 10 USDT)" oninput="updateNetAmount()">
 <div class="fee-info">
 <span><i class="fa-solid fa-receipt"></i> رسوم السحب</span>
 <span>1.5 USDT (ثابتة)</span>
+</div>
+<div class="net-amount-info" id="netAmountBox">
+<span><i class="fa-solid fa-calculator"></i> المبلغ المستلم بعد الخصم</span>
+<span id="netAmount">0 USDT</span>
 </div>
 </div>
 
@@ -296,6 +347,8 @@ const email = localStorage.getItem("userEmail");
 const MIN_WITHDRAW = 10;
 const WITHDRAW_FEE = 1.5;
 
+let userCurrentBalance = 0;
+
 function goBack() {
   window.history.back();
 }
@@ -321,6 +374,39 @@ function showToast(message, isError = false) {
   setTimeout(() => {
     toast.style.display = "none";
   }, 3000);
+}
+
+// تحديث المبلغ بعد الخصم
+function updateNetAmount() {
+  const amount = parseFloat(document.getElementById("amount").value);
+  if(!amount || amount <= 0) {
+    document.getElementById("netAmount").innerText = "0 USDT";
+    return;
+  }
+  const netAmount = amount - WITHDRAW_FEE;
+  if(netAmount <= 0) {
+    document.getElementById("netAmount").innerHTML = '<span style="color:#dc2626;">0 USDT (غير كافٍ)</span>';
+  } else {
+    document.getElementById("netAmount").innerText = netAmount.toFixed(2) + " USDT";
+  }
+}
+
+// جلب بيانات المستخدم
+async function loadUserData() {
+  try {
+    const res = await fetch(API + "/user-data", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if(data.success) {
+      userCurrentBalance = data.balance || 0;
+      document.getElementById("userBalance").innerHTML = userCurrentBalance.toFixed(2) + " <small>USDT</small>";
+    }
+  } catch(e) {
+    console.error("خطأ في جلب الرصيد:", e);
+  }
 }
 
 if(!email){
@@ -357,7 +443,10 @@ function lockWalletInputs(){
   document.getElementById("bep20").disabled = true;
 }
 
-window.onload = lockWalletInputs;
+window.onload = () => {
+  lockWalletInputs();
+  loadUserData();
+};
 
 // السحب
 async function submitWithdraw(){
@@ -381,6 +470,12 @@ async function submitWithdraw(){
 
   if(!amount || amount <= 0){
     showToast("مبلغ غير صحيح", true);
+    return;
+  }
+
+  // التحقق من الرصيد
+  if(amount > userCurrentBalance){
+    showToast(`الرصيد غير كافي. الرصيد المتاح: ${userCurrentBalance.toFixed(2)} USDT`, true);
     return;
   }
 
@@ -437,13 +532,13 @@ async function submitWithdraw(){
     if(data.success){
       statusDiv.innerHTML = '<i class="fa-solid fa-check-circle"></i> تم إرسال الطلب بنجاح';
       statusDiv.className = "status success";
-      showToast("✅ تم إرسال طلب السحب");
+      showToast("تم إرسال طلب السحب");
       setTimeout(() => {
         location.reload();
       }, 2000);
     } else {
       if(data.message && data.message.includes("كلمة السحب")){
-        showToast("🔐 يرجى تعيين كلمة السحب أولاً", true);
+        showToast("يرجى تعيين كلمة السحب أولاً", true);
         setTimeout(() => {
           window.location.href = "set-withdraw-password.html";
         }, 1500);
