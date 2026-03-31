@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>الأصول | سودان كربتو</title>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 <style>
 *{box-sizing:border-box;}
 
@@ -122,6 +124,9 @@ margin-bottom:10px;
 font-size:13px;
 padding:8px 0;
 border-bottom:1px solid #eee;
+display: flex;
+justify-content: space-between;
+align-items: center;
 }
 
 .activity-empty{
@@ -161,6 +166,19 @@ padding:10px;
 .toast i {
   font-size: 16px;
 }
+
+.activity-icon {
+  margin-left: 8px;
+  font-size: 12px;
+  width: 24px;
+  text-align: center;
+}
+
+.deposit-icon { color: #10b981; }
+.withdraw-icon { color: #ef4444; }
+.profit-icon { color: #f59e0b; }
+.referral-icon { color: #8b5cf6; }
+.transfer-icon { color: #3b82f6; }
 </style>
 </head>
 
@@ -205,12 +223,12 @@ padding:10px;
 <div class="activity">
 
 <div class="activity-title">
-آخر النشاط
+<i class="fa-solid fa-clock"></i> آخر النشاط
 </div>
 
 <div id="activityBox">
 <div class="activity-empty">
-جاري التحميل...
+<i class="fa-solid fa-spinner fa-spin"></i> جاري التحميل...
 </div>
 </div>
 
@@ -252,7 +270,7 @@ function showToast(message, isError = false) {
   
   setTimeout(() => {
     toast.style.display = "none";
-  }, 5000); // 5 ثواني
+  }, 5000);
 }
 
 if(!email){
@@ -279,21 +297,53 @@ fetch(API + "/user-data", {
   // عرض الرصيد
   document.getElementById("balance").innerText = userBalance + " USDT";
   
-  // عرض آخر النشاط
+  // عرض آخر النشاط مع أيقونات
   const box = document.getElementById("activityBox");
   
   if(!data.operations || data.operations.length === 0){
-    box.innerHTML = `<div class="activity-empty">لا توجد عمليات حتى الآن</div>`;
+    box.innerHTML = `<div class="activity-empty"><i class="fa-solid fa-inbox"></i> لا توجد عمليات حتى الآن</div>`;
   } else {
     let html = "";
     data.operations.slice(0, 5).forEach(op => {
       let text = "";
-      if(op.type === "deposit") text = "إيداع";
-      if(op.type === "withdraw") text = "سحب";
-      if(op.type === "daily_profit") text = "ربح يومي";
-      if(op.type === "referral_bonus") text = "مكافأة إحالة";
-      if(op.type === "transfer") text = "تحويل";
-      html += `<div class="activity-item">${text} ${op.amount} USDT</div>`;
+      let icon = "";
+      let iconClass = "";
+      
+      if(op.type === "deposit") {
+        text = "إيداع";
+        icon = "fa-solid fa-arrow-down";
+        iconClass = "deposit-icon";
+      }
+      if(op.type === "withdraw") {
+        text = "سحب";
+        icon = "fa-solid fa-arrow-up";
+        iconClass = "withdraw-icon";
+      }
+      if(op.type === "daily_profit") {
+        text = "ربح يومي";
+        icon = "fa-solid fa-chart-line";
+        iconClass = "profit-icon";
+      }
+      if(op.type === "referral_bonus") {
+        text = "مكافأة إحالة";
+        icon = "fa-solid fa-users";
+        iconClass = "referral-icon";
+      }
+      if(op.type === "transfer" || op.type === "transfer_income") {
+        text = "تحويل أرباح";
+        icon = "fa-solid fa-exchange-alt";
+        iconClass = "transfer-icon";
+      }
+      
+      html += `
+        <div class="activity-item">
+          <div>
+            <i class="${icon} ${iconClass} activity-icon"></i>
+            ${text}
+          </div>
+          <div class="amount">${op.amount} USDT</div>
+        </div>
+      `;
     });
     box.innerHTML = html;
   }
@@ -334,7 +384,7 @@ async function transferIncome() {
     const data = await res.json();
 
     if(data.success) {
-      showToast("✅ تم تحويل الأرباح إلى الرصيد");
+      showToast("تم تحويل الأرباح إلى الرصيد");
       setTimeout(() => {
         location.reload();
       }, 1500);
