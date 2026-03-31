@@ -9,7 +9,7 @@
 
 body{
 margin:0;
-font-family:Tah​oma;
+font-family:Tahoma;
 background:#f4f8ff;
 }
 
@@ -17,12 +17,44 @@ background:#f4f8ff;
 max-width:420px;
 margin:auto;
 padding:15px;
+position:relative;
+}
+
+.header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.back-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #e2e8f0;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2D6AF6;
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  background: #cbd5e1;
 }
 
 .title{
 font-size:20px;
 font-weight:bold;
-margin-bottom:15px;
+margin:0;
 }
 
 .card{
@@ -55,8 +87,9 @@ color:#666;
 
 <div class="container">
 
-<div class="title">
-الدخل اليومي
+<div class="header">
+<button class="back-btn" onclick="goBack()">←</button>
+<div class="title">الدخل اليومي</div>
 </div>
 
 <div id="incomeList"></div>
@@ -67,6 +100,10 @@ color:#666;
 
 const API="https://sudancryptomarket-api.onrender.com"
 const email=localStorage.getItem("userEmail")
+
+function goBack() {
+  window.history.back();
+}
 
 if(!email){
 location.href="login.html"
