@@ -52,7 +52,6 @@ body {
 
 .logo i {
   font-size: 48px;
-  color: #2D6AF6;
   background: linear-gradient(135deg, #2D6AF6, #10B981);
   -webkit-background-clip: text;
   background-clip: text;
@@ -322,7 +321,7 @@ function togglePassword() {
 
 function showStatus(msg, isSuccess = false) {
   const box = document.getElementById("statusMessage");
-  box.textContent = msg;
+  box.innerHTML = msg;
   box.style.display = "block";
   if(isSuccess) {
     box.classList.add("success");
@@ -344,16 +343,16 @@ function loginNow() {
   clearStatus();
 
   if(email === "") {
-    showStatus("❌ اكتب البريد الإلكتروني");
+    showStatus('<i class="fa-solid fa-circle-exclamation"></i> اكتب البريد الإلكتروني');
     return;
   }
 
   if(password === "") {
-    showStatus("❌ اكتب كلمة السر");
+    showStatus('<i class="fa-solid fa-circle-exclamation"></i> اكتب كلمة السر');
     return;
   }
 
-  showStatus("⏳ جاري تسجيل الدخول...");
+  showStatus('<i class="fa-solid fa-spinner fa-spin"></i> جاري تسجيل الدخول...');
 
   fetch(`${API_BASE}/login`, {
     method: "POST",
@@ -369,13 +368,13 @@ function loginNow() {
     }
 
     localStorage.setItem("userEmail", email);
-    showStatus("✅ تم تسجيل الدخول بنجاح، جاري التحويل...", true);
+    showStatus('<i class="fa-solid fa-circle-check"></i> تم تسجيل الدخول بنجاح، جاري التحويل...', true);
     setTimeout(() => {
       window.location.href = "dashboard.html";
     }, 1000);
   })
   .catch(err => {
-    showStatus("❌ " + (err.message || "حدث خطأ أثناء تسجيل الدخول"));
+    showStatus('<i class="fa-solid fa-circle-exclamation"></i> ' + (err.message || "حدث خطأ أثناء تسجيل الدخول"));
   });
 }
 </script>
