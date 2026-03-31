@@ -772,21 +772,31 @@ app.post("/withdraw", async (req,res)=>{
     let user = await usersCollection.findOne({ email });
 
     if(!user || user.isDeleted){
-      return res.json({success:false});
+      return res.json({success:false, message:"المستخدم غير موجود"});
     }
 
-    if(!user.withdrawPassword){
-      return res.json({success:false,message:"قم بتعيين كلمة السحب أولاً"});
+    // ✅ إذا كانت كلمة المرور غير موجودة، نحفظها أولاً
+    if(!user.withdrawPassword || user.withdrawPassword === ""){
+      if(withdrawPass.length !== 6){
+        return res.json({success:false, message:"كلمة السحب يجب أن تكون 6 أرقام"});
+      }
+      
+      await usersCollection.updateOne(
+        { email },
+        { $set: { withdrawPassword: withdrawPass } }
+      );
+      
+      user = await usersCollection.findOne({ email });
     }
 
     if(user.withdrawPassword !== withdrawPass){
-      return res.json({success:false,message:"كلمة السحب غير صحيحة"});
+      return res.json({success:false, message:"كلمة السحب غير صحيحة"});
     }
 
     user = await applyPendingDailyProfit(user);
 
     if(Number(user.balance || 0) < amount){
-      return res.json({success:false,message:"الرصيد غير كافي"});
+      return res.json({success:false, message:"الرصيد غير كافي"});
     }
 
     await usersCollection.updateOne(
@@ -807,11 +817,11 @@ app.post("/withdraw", async (req,res)=>{
       }
     );
 
-    res.json({success:true});
+    res.json({success:true, message:"تم إرسال طلب السحب"});
 
   }catch(e){
-    console.log(e);
-    res.json({success:false,message:"فشل السحب"});
+    console.error("🔥 خطأ في السحب:", e);
+    res.json({success:false, message:"فشل السحب"});
   }
 });
 
