@@ -911,13 +911,15 @@ app.get("/admin-withdraws", async (req,res)=>{
 
 /* ---------------- ADMIN OPERATIONS ---------------- */
 
-// ✅ قبول الإيداع - النسخة النهائية الصحيحة
+// ✅ قبول الإيداع - النسخة المبسطة والآمنة
 app.post("/admin-approve-deposit", async (req,res)=>{
   try{
     if(!requireAdmin(req,res)) return;
 
     const email = normalizeEmail(req.body.email);
     const orderId = req.body.orderId;
+
+    console.log("📥 قبول الإيداع:", { email, orderId });
 
     const user = await usersCollection.findOne({ email });
 
@@ -940,21 +942,22 @@ app.post("/admin-approve-deposit", async (req,res)=>{
 
     // تحويل المبلغ لرقم
     const amount = Number(op.amount) || 0;
+    const dailyProfit = Number(op.dailyProfit) || 0;
 
-    // تحديث الحالة
+    // تحديث حالة العملية
     operations[opIndex].status = "approved";
 
     if(op.type === "package_deposit"){
-
-      // تحديث المستخدم في عملية واحدة
+      
+      // تحديث بيانات المستخدم
       await usersCollection.updateOne(
         { email },
         {
           $set: {
-            operations,
+            operations: operations,
             packageName: op.packageName || "",
             packagePrice: amount,
-            dailyProfit: Number(op.dailyProfit) || 0,
+            dailyProfit: dailyProfit,
             packageStart: new Date().toISOString(),
             lastProfitAt: new Date().toISOString(),
             packageDurationDays: 280,
@@ -962,13 +965,20 @@ app.post("/admin-approve-deposit", async (req,res)=>{
           },
           $inc: {
             balance: amount,
-            incomeBalance: Number(op.dailyProfit) || 0
-          },
+            incomeBalance: dailyProfit
+          }
+        }
+      );
+
+      // إضافة عملية الربح اليومي بشكل منفصل
+      await usersCollection.updateOne(
+        { email },
+        {
           $push: {
             operations: {
               $each: [{
                 type: "daily_profit",
-                amount: Number(op.dailyProfit) || 0,
+                amount: dailyProfit,
                 days: 1,
                 status: "approved",
                 date: new Date().toISOString()
@@ -979,8 +989,10 @@ app.post("/admin-approve-deposit", async (req,res)=>{
         }
       );
 
+      // توزيع العمولات
       await distributeReferralCommission(user, amount);
 
+      console.log("✅ تم قبول الباقة:", email, amount);
       return res.json({success:true, message:"تم قبول الإيداع والباقة"});
     }
 
@@ -988,11 +1000,10 @@ app.post("/admin-approve-deposit", async (req,res)=>{
       await usersCollection.updateOne(
         { email },
         {
-          $set: { operations },
+          $set: { operations: operations },
           $inc: { balance: amount }
         }
       );
-
       return res.json({success:true, message:"تم قبول الإيداع"});
     }
 
@@ -1000,7 +1011,7 @@ app.post("/admin-approve-deposit", async (req,res)=>{
 
   } catch(e){
     console.error("🔥 خطأ في قبول الإيداع:", e);
-    res.json({success:false, message:"حدث خطأ في السيرفر"});
+    res.json({success:false, message:"حدث خطأ في السيرفر: " + e.message});
   }
 });
 
