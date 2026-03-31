@@ -271,18 +271,20 @@ async function loadDeposits() {
         // عرض الصورة
         const proofDisplay = dep.proof ? `<img src="${API}${dep.proof}" alt="proof" title="إثبات الدفع" onclick="window.open('${API}${dep.proof}','_blank')" style="cursor:pointer;">` : "-";
         
-        // استخراج orderId من الـ id أو من البيانات
-        const orderId = dep.id ? dep.id.split("_")[1] : "";
+        // ✅ استخدام orderId من السيرفر مباشرة
+        const orderId = dep.orderId || "";
         
         // أزرار التحكم (تظهر فقط للمعلقة)
         let controls = "-";
-        if(statusText === "pending") {
+        if(statusText === "pending" && orderId) {
           controls = `
             <div class="actions">
               <button class="approve" onclick="approveDeposit('${dep.email}', '${orderId}')">✅ قبول</button>
               <button class="reject" onclick="rejectDeposit('${dep.email}', '${orderId}')">❌ رفض</button>
             </div>
           `;
+        } else if(statusText === "pending" && !orderId) {
+          controls = `<span style="color:red;">⚠️ لا يوجد orderId</span>`;
         }
         
         html += `
@@ -319,30 +321,36 @@ function postAdmin(url, body) {
 }
 
 function approveDeposit(email, orderId) {
+  console.log("📤 إرسال قبول:", { email, orderId });
   if(confirm("✅ هل أنت متأكد من قبول هذا الإيداع؟")) {
     postAdmin("/admin-approve-deposit", { email, orderId }).then(data => {
+      console.log("📥 الرد:", data);
       if(data.success) {
         alert("✅ تم قبول الإيداع بنجاح");
         loadDeposits();
       } else {
         alert("❌ " + (data.message || "فشلت العملية"));
       }
-    }).catch(() => {
+    }).catch((err) => {
+      console.error("❌ خطأ:", err);
       alert("❌ خطأ في الاتصال بالخادم");
     });
   }
 }
 
 function rejectDeposit(email, orderId) {
+  console.log("📤 إرسال رفض:", { email, orderId });
   if(confirm("❌ هل أنت متأكد من رفض هذا الإيداع؟")) {
     postAdmin("/admin-reject-deposit", { email, orderId }).then(data => {
+      console.log("📥 الرد:", data);
       if(data.success) {
         alert("✅ تم رفض الإيداع بنجاح");
         loadDeposits();
       } else {
         alert("❌ " + (data.message || "فشلت العملية"));
       }
-    }).catch(() => {
+    }).catch((err) => {
+      console.error("❌ خطأ:", err);
       alert("❌ خطأ في الاتصال بالخادم");
     });
   }
