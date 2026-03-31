@@ -438,7 +438,6 @@ async function loadUserData() {
       userCurrentBalance = data.balance || 0;
       document.getElementById("userBalance").innerHTML = userCurrentBalance.toFixed(2) + " <small>USDT</small>";
       
-      // إذا كانت كلمة السر موجودة في السيرفر، خزنها في localStorage
       if(data.withdrawPassword && !savedWithdrawPassword) {
         localStorage.setItem("withdrawPassword", data.withdrawPassword);
         savedWithdrawPassword = data.withdrawPassword;
@@ -499,55 +498,50 @@ async function submitWithdraw(){
   statusDiv.style.display = "none";
 
   if(!wallets){
-    showToast("احفظ العناوين أولاً", true);
+    showToast("<i class='fa-solid fa-wallet'></i> احفظ العناوين أولاً", true);
     return;
   }
 
   if(network === ""){
-    showToast("اختر الشبكة", true);
+    showToast("<i class='fa-solid fa-network-wired'></i> اختر الشبكة", true);
     return;
   }
 
   if(!amount || amount <= 0){
-    showToast("مبلغ غير صحيح", true);
+    showToast("<i class='fa-solid fa-dollar-sign'></i> مبلغ غير صحيح", true);
     return;
   }
 
-  // التحقق من الرصيد
   if(amount > userCurrentBalance){
-    showToast(`الرصيد غير كافي. الرصيد المتاح: ${userCurrentBalance.toFixed(2)} USDT`, true);
+    showToast(`<i class='fa-solid fa-coins'></i> الرصيد غير كافي. المتاح: ${userCurrentBalance.toFixed(2)} USDT`, true);
     return;
   }
 
-  // الحد الأدنى للسحب
   if(amount < MIN_WITHDRAW){
-    showToast(`الحد الأدنى للسحب ${MIN_WITHDRAW} USDT`, true);
+    showToast(`<i class='fa-solid fa-arrow-down'></i> الحد الأدنى للسحب ${MIN_WITHDRAW} USDT`, true);
     return;
   }
 
   if(pass.length !== 6){
-    showToast("كلمة السحب يجب أن تكون 6 أرقام", true);
+    showToast("<i class='fa-solid fa-lock'></i> كلمة السحب يجب أن تكون 6 أرقام", true);
     return;
   }
 
-  // ✅ التحقق من كلمة المرور (أول مرة أو مطابقة)
+  // التحقق من كلمة المرور
   if(!savedWithdrawPassword) {
-    // أول مرة: حفظ كلمة المرور
     localStorage.setItem("withdrawPassword", pass);
     savedWithdrawPassword = pass;
-    showToast("تم حفظ كلمة مرور السحب. ستُستخدم في جميع عمليات السحب المستقبلية.");
+    showToast("<i class='fa-solid fa-check-circle'></i> تم حفظ كلمة مرور السحب للأبد");
   } else {
-    // ليست أول مرة: التحقق من المطابقة
     if(pass !== savedWithdrawPassword) {
-      showToast("❌ كلمة المرور غير صحيحة! كلمة المرور الأولى هي المسجلة ولا يمكن تغييرها.", true);
+      showToast("<i class='fa-solid fa-ban'></i> كلمة المرور غير صحيحة! لا يمكن تغييرها بعد الحفظ.", true);
       return;
     }
   }
 
-  // حساب المبلغ بعد الخصم
   const netAmount = amount - WITHDRAW_FEE;
   if(netAmount <= 0){
-    showToast(`المبلغ بعد الخصم يجب أن يكون أكبر من 0`, true);
+    showToast("<i class='fa-solid fa-calculator'></i> المبلغ بعد الخصم يجب أن يكون أكبر من 0", true);
     return;
   }
 
@@ -560,7 +554,7 @@ async function submitWithdraw(){
   }
 
   if(!wallet){
-    showToast("لا يوجد عنوان لهذه الشبكة", true);
+    showToast("<i class='fa-solid fa-address-card'></i> لا يوجد عنوان لهذه الشبكة", true);
     return;
   }
 
@@ -586,16 +580,13 @@ async function submitWithdraw(){
     if(data.success){
       statusDiv.innerHTML = '<i class="fa-solid fa-check-circle"></i> تم إرسال الطلب بنجاح';
       statusDiv.className = "status success";
-      showToast("تم إرسال طلب السحب");
+      showToast("<i class='fa-solid fa-paper-plane'></i> تم إرسال طلب السحب");
       setTimeout(() => {
         location.reload();
       }, 2000);
     } else {
       if(data.message && data.message.includes("كلمة السحب")){
-        showToast("يرجى تعيين كلمة السحب أولاً", true);
-        setTimeout(() => {
-          window.location.href = "set-withdraw-password.html";
-        }, 1500);
+        showToast("<i class='fa-solid fa-key'></i> يرجى تعيين كلمة السحب أولاً", true);
       } else {
         statusDiv.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> ' + (data.message || "فشل السحب");
         statusDiv.className = "status error";
@@ -606,7 +597,7 @@ async function submitWithdraw(){
     console.error(e);
     statusDiv.innerHTML = '<i class="fa-solid fa-wifi"></i> خطأ في الاتصال';
     statusDiv.className = "status error";
-    showToast("خطأ في الاتصال بالخادم", true);
+    showToast("<i class='fa-solid fa-server'></i> خطأ في الاتصال بالخادم", true);
   }
 }
 
