@@ -298,6 +298,56 @@ body {
   transform: scale(0.98);
 }
 
+/* About & Banks */
+.about-text, .bank-list {
+  line-height: 1.7;
+  color: #334155;
+  font-size: 14px;
+}
+
+.bank-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #eef2f8;
+}
+
+.bank-item:last-child {
+  border-bottom: none;
+}
+
+.bank-name {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.bank-ussd {
+  font-family: monospace;
+  background: #f1f5f9;
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #2D6AF6;
+}
+
+.future-branch {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 16px;
+  padding: 12px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: #065f46;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.future-branch i {
+  font-size: 18px;
+}
+
 /* Bottom Navigation */
 .bottom-nav {
   position: fixed;
@@ -351,7 +401,6 @@ body {
   font-weight: 500;
 }
 
-/* Utility */
 hr {
   margin: 12px 0;
   border: none;
@@ -456,6 +505,69 @@ hr {
 
 <div class="referral-label" style="margin-top:8px;">
 <i class="fa-solid fa-chart-simple"></i> كلما زاد فريقك، زادت أرباحك!
+</div>
+</div>
+
+<!-- ========== NEW: عن المنصة (About) ========== -->
+<div class="card">
+<div class="card-title">
+<i class="fa-solid fa-circle-info"></i>
+عن المنصة
+</div>
+<div class="about-text">
+<p><strong>سودان كربتو</strong> هي أول منصة رقمية متكاملة في السودان متخصصة في الاستثمار بالعملات الرقمية، تأسست بهدف تمكين الأفراد من دخول عالم العملات المشفرة بسهولة وأمان.</p>
+<p style="margin-top:10px">نحن نؤمن بأن الجميع يستحق فرصة الاستثمار في المستقبل الرقمي، لذلك صممنا منصتنا لتكون بسيطة وسهلة الاستخدام، تناسب المبتدئين والمحترفين على حد سواء.</p>
+<p style="margin-top:10px"><strong>ماذا نقدم؟</strong></p>
+<ul style="margin-right:20px; margin-top:6px;">
+<li><strong>باقات استثمارية مرنة:</strong> 5 باقات تبدأ من 50 دولار حتى 1000 دولار، مع أرباح يومية تصل إلى 25 دولار ولمدة 280 يومًا.</li>
+<li><strong>نظام إحالات متطور:</strong> 3 مستويات، عمولات تصل إلى 15% من مشتريات من تدعوهم.</li>
+<li><strong>أمان وحماية:</strong> أحدث تقنيات التشفير لحماية حساباتك وأموالك.</li>
+<li><strong>دعم فني متواصل:</strong> عبر واتساب وتليجرام.</li>
+</ul>
+<p style="margin-top:10px"><strong>رؤيتنا:</strong> أن نكون المنصة الرقمية الأولى في السودان والمنطقة، نقدم حلولاً استثمارية مبتكرة وآمنة.</p>
+<p style="margin-top:10px"><strong>مهمتنا:</strong> تمكين الأفراد من تحقيق دخل إضافي من خلال الاستثمار في العملات الرقمية، وتوفير بيئة آمنة وسهلة.</p>
+</div>
+</div>
+
+<!-- ========== NEW: طرق الإيداع (Deposit Methods) ========== -->
+<div class="card">
+<div class="card-title">
+<i class="fa-solid fa-building-columns"></i>
+طرق الإيداع
+</div>
+<div class="bank-list">
+<div class="bank-item">
+<span class="bank-name">بنك الخرطوم</span>
+<span class="bank-ussd">*888#</span>
+</div>
+<div class="bank-item">
+<span class="bank-name">بنك أمدرمان الوطني</span>
+<span class="bank-ussd">*999#</span>
+</div>
+<div class="bank-item">
+<span class="bank-name">بنك النيل</span>
+<span class="bank-ussd">*877#</span>
+</div>
+<div class="bank-item">
+<span class="bank-name">بنك السودان الإسلامي</span>
+<span class="bank-ussd">*777#</span>
+</div>
+<div class="bank-item">
+<span class="bank-name">بنك فيصل الإسلامي</span>
+<span class="bank-ussd">*555#</span>
+</div>
+<div class="bank-item">
+<span class="bank-name">بنك البركة</span>
+<span class="bank-ussd">*111#</span>
+</div>
+<div class="bank-item">
+<span class="bank-name">بنك التنمية</span>
+<span class="bank-ussd">*5555#</span>
+</div>
+</div>
+<div class="future-branch">
+<i class="fa-solid fa-location-dot"></i>
+نسعى قريباً لفتح فرع في العاصمة الإدارية بورتسودان لزيادة الشفافية وثقة العملاء.
 </div>
 </div>
 
