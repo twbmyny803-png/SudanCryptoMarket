@@ -2,294 +2,331 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>سودان كربتو</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>سودان كربتو | إنشاء حساب</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-*{
-  box-sizing:border-box;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-body{
-  margin:0;
-  font-family:Tahoma, Arial, sans-serif;
-  background:linear-gradient(135deg,#07162b,#0b1f3a,#12345c);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  padding:12px;
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Tahoma', sans-serif;
+  background: linear-gradient(135deg, #0b1f3a 0%, #1a2f4e 100%);
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.container{
-  width:100%;
-  max-width:380px;
-  background:#dcebff;
-  border-radius:18px;
-  padding:22px 18px;
-  box-shadow:0 18px 45px rgba(0,0,0,0.28);
-  border:1px solid rgba(255,255,255,0.35);
+.container {
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  background: white;
+  border-radius: 32px;
+  padding: 28px 20px;
+  box-shadow: 0 20px 35px rgba(0,0,0,0.2);
 }
 
-.logo{
-  text-align:center;
-  font-size:22px;
-  font-weight:700;
-  color:#2D6AF6;
-  margin-bottom:4px;
+.logo {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: #2D6AF6;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-.subtitle{
-  text-align:center;
-  color:#42526b;
-  font-size:12px;
-  margin-bottom:14px;
+.logo i {
+  font-size: 28px;
 }
 
-h2{
-  margin:0 0 14px;
-  text-align:center;
-  color:#1A1A1A;
-  font-size:20px;
+.subtitle {
+  text-align: center;
+  color: #64748b;
+  font-size: 13px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 12px;
 }
 
-label{
-  display:block;
-  margin-top:8px;
-  margin-bottom:4px;
-  font-size:13px;
-  font-weight:700;
-  color:#1A1A1A;
+h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-input{
-  width:100%;
-  height:42px;
-  border:1px solid #bfd0ea;
-  border-radius:8px;
-  padding:0 12px;
-  font-size:13px;
-  color:#1A1A1A;
-  background:#f7fbff;
-  outline:none;
+label {
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
 }
 
-input:focus{
-  border-color:#2D6AF6;
-  box-shadow:0 0 0 3px rgba(45,106,246,0.12);
-  background:#ffffff;
+label i {
+  margin-left: 6px;
+  color: #2D6AF6;
+  width: 18px;
 }
 
-input[readonly]{
-  background:#edf4ff;
-  color:#516076;
-  cursor:not-allowed;
+input, select {
+  width: 100%;
+  height: 48px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 0 14px;
+  font-size: 14px;
+  background: #f8fafc;
+  transition: all 0.2s;
+  outline: none;
 }
 
-.password-note{
-  font-size:11px;
-  color:#4f5d73;
-  margin-top:4px;
-  line-height:1.6;
+input:focus, select:focus {
+  border-color: #2D6AF6;
+  box-shadow: 0 0 0 3px rgba(45,106,246,0.1);
+  background: white;
 }
 
-.password-wrap{
-  position:relative;
-  width:100%;
+input[readonly] {
+  background: #f1f5f9;
+  color: #475569;
+  cursor: not-allowed;
 }
 
-.password-wrap input{
-  padding-left:74px;
+.password-wrap {
+  position: relative;
+  width: 100%;
 }
 
-.toggle-password{
-  position:absolute;
-  left:8px;
-  top:50%;
-  transform:translateY(-50%);
-  width:auto;
-  height:28px;
-  padding:0 10px;
-  border:none;
-  border-radius:6px;
-  background:#2D6AF6;
-  color:#ffffff;
-  font-size:11px;
-  font-weight:700;
-  cursor:pointer;
-  margin:0;
-  line-height:28px;
+.password-wrap input {
+  padding-left: 70px;
 }
 
-.verify-btn,
-.create-btn{
-  width:100%;
-  height:44px;
-  border:none;
-  border-radius:8px;
-  font-size:14px;
-  font-weight:700;
-  cursor:pointer;
-  margin-top:10px;
-  transition:0.2s ease;
+.toggle-password {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #2D6AF6;
+  color: white;
+  border: none;
+  border-radius: 40px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.verify-btn:hover,
-.create-btn:hover{
-  transform:translateY(-1px);
+.toggle-password:hover {
+  background: #1e4fcf;
 }
 
-.verify-btn{
-  background:#2D6AF6;
-  color:#ffffff;
-  box-shadow:0 10px 20px rgba(45,106,246,0.2);
+.password-note {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.create-btn{
-  background:#10B981;
-  color:#ffffff;
-  box-shadow:0 10px 20px rgba(16,185,129,0.2);
+.btn {
+  width: 100%;
+  height: 50px;
+  border: none;
+  border-radius: 40px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-.code-section{
-  text-align:center;
-  margin-top:14px;
-  padding:14px 10px 10px;
-  background:#eef5ff;
-  border:1px solid #cfe0fb;
-  border-radius:12px;
+.btn-primary {
+  background: linear-gradient(135deg, #2D6AF6, #1e4fcf);
+  color: white;
+  box-shadow: 0 4px 12px rgba(45,106,246,0.3);
 }
 
-.code-title{
-  margin:0 0 10px;
-  font-size:14px;
-  font-weight:700;
-  color:#1A1A1A;
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(45,106,246,0.4);
 }
 
-.code-box{
-  display:flex;
-  justify-content:center;
-  gap:8px;
-  margin:14px 0 10px;
-  direction:ltr;
+.btn-success {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  box-shadow: 0 4px 12px rgba(16,185,129,0.3);
 }
 
-.code-box input{
-  width:42px;
-  height:48px;
-  text-align:center;
-  font-size:20px;
-  border-radius:10px;
-  border:2px solid #d4deef;
-  background:#fff;
-  padding:0;
+.btn-success:hover {
+  transform: translateY(-2px);
 }
 
-.code-box input:focus{
-  border-color:#2D6AF6;
-  box-shadow:0 0 0 3px rgba(45,106,246,0.12);
+.code-section {
+  background: #f8fafc;
+  border-radius: 20px;
+  padding: 16px;
+  margin-top: 16px;
+  border: 1px solid #e2e8f0;
 }
 
-.timer{
-  font-size:13px;
-  color:#444;
-  margin-top:8px;
+.code-title {
+  font-weight: 700;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 12px;
+  color: #1e293b;
 }
 
-.resend{
-  color:#2D6AF6;
-  margin-top:10px;
-  display:none;
-  cursor:pointer;
-  font-size:13px;
-  font-weight:700;
+.code-box {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 12px 0;
+  direction: ltr;
 }
 
-.status-message{
-  margin-top:10px;
-  font-size:13px;
-  font-weight:700;
-  display:none;
-  text-align:center;
-  line-height:1.7;
+.code-box input {
+  width: 48px;
+  height: 52px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  border-radius: 16px;
+  background: white;
+  border: 2px solid #e2e8f0;
+  padding: 0;
 }
 
-.status-success{
-  color:#10B981;
+.code-box input:focus {
+  border-color: #2D6AF6;
+  box-shadow: 0 0 0 2px rgba(45,106,246,0.2);
 }
 
-.status-error{
-  color:#e74c3c;
+.timer {
+  font-size: 13px;
+  text-align: center;
+  color: #475569;
+  margin-top: 8px;
 }
 
-.links{
-  text-align:center;
-  margin-top:12px;
+.resend {
+  text-align: center;
+  color: #2D6AF6;
+  margin-top: 12px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  display: none;
 }
 
-.links a{
-  display:block;
-  text-decoration:none;
-  color:#2D6AF6;
-  font-size:13px;
-  font-weight:700;
-  margin-top:6px;
+.resend:hover {
+  text-decoration: underline;
 }
 
-.links a:hover{
-  text-decoration:underline;
+.status-message {
+  margin-top: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  padding: 8px;
+  border-radius: 40px;
+  display: none;
 }
 
-footer{
-  text-align:center;
-  margin-top:14px;
-  font-size:11px;
-  color:#314057;
-  font-weight:600;
+.status-success {
+  background: #dcfce7;
+  color: #166534;
 }
 
-@media (max-width:420px){
-  .container{
-    max-width:100%;
-    padding:20px 16px;
+.status-error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.links {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.links a {
+  text-decoration: none;
+  color: #2D6AF6;
+  font-weight: 600;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.links a:hover {
+  text-decoration: underline;
+}
+
+footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* responsive */
+@media (max-width: 450px) {
+  .container {
+    padding: 20px 16px;
   }
-
-  .logo{
-    font-size:20px;
-  }
-
-  h2{
-    font-size:18px;
-  }
-
-  .code-box input{
-    width:40px;
-    height:46px;
+  .code-box input {
+    width: 40px;
+    height: 48px;
+    font-size: 20px;
   }
 }
 </style>
 </head>
+
 <body>
 
 <div class="container">
-  <div class="logo">سودان كربتو</div>
+  <div class="logo">
+    <i class="fa-brands fa-bitcoin"></i> سودان كربتو
+  </div>
   <div class="subtitle">منصة العملات الرقمية في السودان</div>
 
   <h2>إنشاء حساب</h2>
 
-  <label>الاسم الحقيقي</label>
+  <label><i class="fa-regular fa-user"></i> الاسم الحقيقي</label>
   <input type="text" id="fullName" placeholder="اكتب الاسم الحقيقي">
 
-  <label>البريد الإلكتروني</label>
+  <label><i class="fa-regular fa-envelope"></i> البريد الإلكتروني</label>
   <input type="email" id="email" placeholder="اكتب البريد الإلكتروني">
 
-  <button class="verify-btn" onclick="sendCode()">تحقق من البريد الإلكتروني</button>
+  <button class="btn btn-primary" onclick="sendCode()">
+    <i class="fa-regular fa-paper-plane"></i> تحقق من البريد الإلكتروني
+  </button>
   <div class="status-message status-success" id="sendSuccess"></div>
   <div class="status-message status-error" id="sendError"></div>
 
   <div class="code-section" id="codeSection">
-    <p class="code-title">أدخل كود التحقق</p>
+    <p class="code-title"><i class="fa-solid fa-key"></i> أدخل كود التحقق</p>
 
     <div class="code-box">
       <input type="text" maxlength="1" inputmode="numeric">
@@ -301,50 +338,50 @@ footer{
     </div>
 
     <div class="timer">
-      إعادة إرسال الكود خلال <span id="count">60</span> ثانية
+      <i class="fa-regular fa-clock"></i> إعادة إرسال الكود خلال <span id="count">60</span> ثانية
     </div>
 
     <div class="resend" id="resend" onclick="sendCode()">
-      إرسال كود جديد
+      <i class="fa-solid fa-rotate-right"></i> إرسال كود جديد
     </div>
 
     <div class="status-message status-error" id="verifyError"></div>
   </div>
 
-  <label>الدولة</label>
+  <label><i class="fa-solid fa-location-dot"></i> الدولة</label>
   <input type="text" value="السودان 🇸🇩 (+249)" readonly>
 
-  <label>رقم الهاتف</label>
+  <label><i class="fa-solid fa-phone"></i> رقم الهاتف</label>
   <input type="tel" id="phone" placeholder="مثال: 912345678">
 
-  <label>رمز الإحالة (اختياري)</label>
+  <label><i class="fa-solid fa-gift"></i> رمز الإحالة (اختياري)</label>
   <input type="text" id="referralCode" placeholder="رمز الإحالة">
 
-  <label>كلمة المرور</label>
+  <label><i class="fa-solid fa-lock"></i> كلمة المرور</label>
   <div class="password-wrap">
     <input type="password" id="password" placeholder="كلمة المرور">
     <button type="button" class="toggle-password" onclick="togglePassword('password', this)">إظهار</button>
   </div>
 
   <div class="password-note">
-    يجب أن تتكون كلمة المرور من 8 أحرف أو أرقام على الأقل
+    <i class="fa-regular fa-circle-check"></i> يجب أن تتكون كلمة المرور من 8 أحرف أو أرقام على الأقل
   </div>
 
-  <label>تأكيد كلمة المرور</label>
+  <label><i class="fa-solid fa-lock"></i> تأكيد كلمة المرور</label>
   <div class="password-wrap">
     <input type="password" id="confirmPassword" placeholder="تأكيد كلمة المرور">
     <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword', this)">إظهار</button>
   </div>
 
-  <button class="create-btn" id="createBtn" onclick="createAccount()">
-    إنشاء الحساب
+  <button class="btn btn-success" id="createBtn" onclick="createAccount()">
+    <i class="fa-regular fa-user-plus"></i> إنشاء الحساب
   </button>
 
   <div class="status-message status-success" id="registerSuccess"></div>
   <div class="status-message status-error" id="registerError"></div>
 
   <div class="links">
-    <a href="login.html">تسجيل الدخول</a>
+    <a href="login.html"><i class="fa-solid fa-arrow-left"></i> تسجيل الدخول</a>
   </div>
 
   <footer>© سودان كربتو – جميع الحقوق محفوظة</footer>
@@ -623,4 +660,4 @@ async function createAccount(){
 </script>
 
 </body>
-</html>
+  </html>
