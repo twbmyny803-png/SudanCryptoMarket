@@ -109,7 +109,7 @@ function getPackageInfo(pack){
   return null;
 }
 
-// ✅ دالة إلغاء الطلبات منتهية الوقت (تشمل package_deposit)
+// دالة إلغاء الطلبات منتهية الوقت
 async function cancelExpiredDepositsNow() {
   try {
     const users = await usersCollection.find({}).toArray();
@@ -848,6 +848,7 @@ app.get("/admin-deposits", async (req,res)=>{
         if (op.type === "deposit" || op.type === "package_deposit") {
           deposits.push({
             id: user.email + "_" + index,
+            orderId: op.orderId,
             email: user.email,
             name: user.name || "غير معروف",
             amount: op.amount,
@@ -910,50 +911,50 @@ app.get("/admin-withdraws", async (req,res)=>{
 
 /* ---------------- ADMIN OPERATIONS ---------------- */
 
+// قبول الإيداع باستخدام orderId
 app.post("/admin-approve-deposit", async (req,res)=>{
   try{
     if(!requireAdmin(req,res)) return;
 
     const email = normalizeEmail(req.body.email);
-    const index = Number(req.body.index);
+    const orderId = req.body.orderId;
 
     const user = await usersCollection.findOne({ email });
 
     if(!user){
-      return res.json({success:false,message:"المستخدم غير موجود"});
+      return res.json({success:false, message:"المستخدم غير موجود"});
     }
 
     const operations = user.operations || [];
-    const op = operations[index];
+    
+    const opIndex = operations.findIndex(op => op.orderId === orderId);
+    
+    if(opIndex === -1){
+      return res.json({success:false, message:"العملية غير موجودة"});
+    }
+    
+    const op = operations[opIndex];
 
-    if(!op){
-      return res.json({success:false,message:"العملية غير موجودة"});
+    if(op.status !== "pending"){
+      return res.json({success:false, message:`العملية بحالة ${op.status}`});
     }
 
-    if(op.status === "approved"){
-      return res.json({success:false,message:"تمت الموافقة مسبقاً"});
-    }
-
-    operations[index].status = "approved";
-
-    const updateData = { operations };
-
-    if(op.type === "deposit"){
-      updateData.balance = Number(user.balance || 0) + Number(op.amount || 0);
-    }
+    operations[opIndex].status = "approved";
 
     if(op.type === "package_deposit"){
-      updateData.balance = Number(user.balance || 0) + Number(op.amount || 0);
-      updateData.packageName = op.packageName || "";
-      updateData.packagePrice = Number(op.amount || 0);
-      updateData.dailyProfit = Number(op.dailyProfit || 0);
-      updateData.packageStart = new Date().toISOString();
-      updateData.lastProfitAt = new Date().toISOString();
-      updateData.packageDurationDays = 280;
-      updateData.profitDays = 1;  // 👈 يبدأ من اليوم الأول
+      const updateData = {
+        operations,
+        balance: (user.balance || 0) + (op.amount || 0),
+        packageName: op.packageName || "",
+        packagePrice: op.amount || 0,
+        dailyProfit: op.dailyProfit || 0,
+        packageStart: new Date().toISOString(),
+        lastProfitAt: new Date().toISOString(),
+        packageDurationDays: 280,
+        profitDays: 1
+      };
       
-      // ✅ إضافة ربح اليوم الأول فوراً
-      const firstDayProfit = Number(op.dailyProfit || 0);
+      const firstDayProfit = op.dailyProfit || 0;
       
       await usersCollection.updateOne(
         { email },
@@ -976,42 +977,55 @@ app.post("/admin-approve-deposit", async (req,res)=>{
       );
       
       await distributeReferralCommission(user, op.amount);
-      return res.json({success:true, message:"تم قبول الإيداع والباقة بنجاح"});
+      return res.json({success:true, message:"تم قبول الإيداع والباقة"});
     }
-
-    await usersCollection.updateOne(
-      { email },
-      { $set:updateData }
-    );
-
-    res.json({success:true});
-
-  }catch(e){
-    console.log(e);
-    res.json({success:false,message:"فشلت العملية"});
+    
+    if(op.type === "deposit"){
+      await usersCollection.updateOne(
+        { email },
+        {
+          $set: { operations },
+          $inc: { balance: op.amount || 0 }
+        }
+      );
+      return res.json({success:true, message:"تم قبول الإيداع"});
+    }
+    
+    return res.json({success:false, message:"نوع العملية غير معروف"});
+    
+  } catch(e){
+    console.error("خطأ في قبول الإيداع:", e);
+    res.json({success:false, message:"حدث خطأ في السيرفر"});
   }
 });
 
+// رفض الإيداع باستخدام orderId
 app.post("/admin-reject-deposit", async (req,res)=>{
   try{
     if(!requireAdmin(req,res)) return;
 
     const email = normalizeEmail(req.body.email);
-    const index = Number(req.body.index);
+    const orderId = req.body.orderId;
 
     const user = await usersCollection.findOne({ email });
 
     if(!user){
-      return res.json({success:false,message:"المستخدم غير موجود"});
+      return res.json({success:false, message:"المستخدم غير موجود"});
     }
 
     const operations = user.operations || [];
-
-    if(!operations[index]){
-      return res.json({success:false,message:"العملية غير موجودة"});
+    
+    const opIndex = operations.findIndex(op => op.orderId === orderId);
+    
+    if(opIndex === -1){
+      return res.json({success:false, message:"العملية غير موجودة"});
     }
 
-    operations[index].status = "rejected";
+    if(operations[opIndex].status !== "pending"){
+      return res.json({success:false, message:"العملية ليست معلقة"});
+    }
+
+    operations[opIndex].status = "rejected";
 
     await usersCollection.updateOne(
       { email },
@@ -1022,7 +1036,7 @@ app.post("/admin-reject-deposit", async (req,res)=>{
 
   }catch(e){
     console.log(e);
-    res.json({success:false,message:"فشلت العملية"});
+    res.json({success:false, message:"فشلت العملية"});
   }
 });
 
