@@ -25,6 +25,31 @@ body {
 .container {
   max-width: 480px;
   margin: 0 auto;
+  position: relative;
+}
+
+.back-btn {
+  position: absolute;
+  top: 20px;
+  right: 10px;
+  z-index: 10;
+  background: rgba(255,255,255,0.2);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  font-size: 18px;
+  backdrop-filter: blur(4px);
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  background: rgba(255,255,255,0.3);
 }
 
 .box {
@@ -33,6 +58,7 @@ body {
   padding: 24px 20px;
   box-shadow: 0 12px 30px rgba(0,0,0,0.15);
   color: #1e293b;
+  margin-top: 10px;
 }
 
 h2 {
@@ -253,6 +279,7 @@ input:focus {
 <body>
 
 <div class="container">
+<button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-right"></i></button>
 <div class="box">
 
 <h2>
@@ -290,6 +317,10 @@ input:focus {
 <script>
 
 const API = "https://sudancryptomarket-api.onrender.com";
+
+function goBack() {
+  window.history.back();
+}
 
 // البيانات
 const orderId = localStorage.getItem("orderId");
@@ -499,4 +530,4 @@ setInterval(async () => {
 </script>
 
 </body>
-</html>
+  </html>
