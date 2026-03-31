@@ -206,7 +206,6 @@ input:focus, select:focus {
   color: #166534;
 }
 
-/* تنبيه كلمة المرور */
 .password-warning {
   background: #fef3c7;
   border: 1px solid #fde047;
@@ -254,7 +253,6 @@ input:focus, select:focus {
   display: block;
 }
 
-/* Toast Notification */
 .toast {
   position: fixed;
   bottom: 30px;
@@ -381,13 +379,13 @@ const MIN_WITHDRAW = 10;
 const WITHDRAW_FEE = 1.5;
 
 let userCurrentBalance = 0;
-let savedWithdrawPassword = localStorage.getItem("withdrawPassword");
+// ✅ ربط كلمة السر بالبريد الإلكتروني لكل مستخدم
+let savedWithdrawPassword = localStorage.getItem(`withdrawPassword_${email}`);
 
 function goBack() {
   window.history.back();
 }
 
-// دالة عرض Toast
 function showToast(message, isError = false) {
   const toast = document.getElementById("toastMessage");
   const toastText = document.getElementById("toastText");
@@ -410,7 +408,6 @@ function showToast(message, isError = false) {
   }, 3000);
 }
 
-// تحديث المبلغ بعد الخصم
 function updateNetAmount() {
   const amount = parseFloat(document.getElementById("amount").value);
   if(!amount || amount <= 0) {
@@ -425,7 +422,6 @@ function updateNetAmount() {
   }
 }
 
-// جلب بيانات المستخدم
 async function loadUserData() {
   try {
     const res = await fetch(API + "/user-data", {
@@ -439,7 +435,7 @@ async function loadUserData() {
       document.getElementById("userBalance").innerHTML = userCurrentBalance.toFixed(2) + " <small>USDT</small>";
       
       if(data.withdrawPassword && !savedWithdrawPassword) {
-        localStorage.setItem("withdrawPassword", data.withdrawPassword);
+        localStorage.setItem(`withdrawPassword_${email}`, data.withdrawPassword);
         savedWithdrawPassword = data.withdrawPassword;
       }
     }
@@ -452,7 +448,6 @@ if(!email){
   window.location.href = "login.html";
 }
 
-// حفظ العناوين
 function saveWallets(){
   const trc = document.getElementById("trc20").value.trim();
   const bep = document.getElementById("bep20").value.trim();
@@ -471,7 +466,6 @@ function saveWallets(){
   lockWalletInputs();
 }
 
-// قفل العناوين
 function lockWalletInputs(){
   const saved = JSON.parse(localStorage.getItem("userWallets"));
   if(!saved) return;
@@ -487,7 +481,6 @@ window.onload = () => {
   loadUserData();
 };
 
-// السحب
 async function submitWithdraw(){
   const network = document.getElementById("network").value;
   let amount = parseFloat(document.getElementById("amount").value);
@@ -498,50 +491,50 @@ async function submitWithdraw(){
   statusDiv.style.display = "none";
 
   if(!wallets){
-    showToast("<i class='fa-solid fa-wallet'></i> احفظ العناوين أولاً", true);
+    showToast("احفظ العناوين أولاً", true);
     return;
   }
 
   if(network === ""){
-    showToast("<i class='fa-solid fa-network-wired'></i> اختر الشبكة", true);
+    showToast("اختر الشبكة", true);
     return;
   }
 
   if(!amount || amount <= 0){
-    showToast("<i class='fa-solid fa-dollar-sign'></i> مبلغ غير صحيح", true);
+    showToast("مبلغ غير صحيح", true);
     return;
   }
 
   if(amount > userCurrentBalance){
-    showToast(`<i class='fa-solid fa-coins'></i> الرصيد غير كافي. المتاح: ${userCurrentBalance.toFixed(2)} USDT`, true);
+    showToast(`الرصيد غير كافي. المتاح: ${userCurrentBalance.toFixed(2)} USDT`, true);
     return;
   }
 
   if(amount < MIN_WITHDRAW){
-    showToast(`<i class='fa-solid fa-arrow-down'></i> الحد الأدنى للسحب ${MIN_WITHDRAW} USDT`, true);
+    showToast(`الحد الأدنى للسحب ${MIN_WITHDRAW} USDT`, true);
     return;
   }
 
   if(pass.length !== 6){
-    showToast("<i class='fa-solid fa-lock'></i> كلمة السحب يجب أن تكون 6 أرقام", true);
+    showToast("كلمة السحب يجب أن تكون 6 أرقام", true);
     return;
   }
 
-  // التحقق من كلمة المرور
+  // ✅ التحقق من كلمة المرور (خاصة بكل مستخدم)
   if(!savedWithdrawPassword) {
-    localStorage.setItem("withdrawPassword", pass);
+    localStorage.setItem(`withdrawPassword_${email}`, pass);
     savedWithdrawPassword = pass;
-    showToast("<i class='fa-solid fa-check-circle'></i> تم حفظ كلمة مرور السحب للأبد");
+    showToast("تم حفظ كلمة مرور السحب لهذا الحساب للأبد");
   } else {
     if(pass !== savedWithdrawPassword) {
-      showToast("<i class='fa-solid fa-ban'></i> كلمة المرور غير صحيحة! لا يمكن تغييرها بعد الحفظ.", true);
+      showToast("كلمة المرور غير صحيحة! كلمة المرور الأولى هي المسجلة ولا يمكن تغييرها.", true);
       return;
     }
   }
 
   const netAmount = amount - WITHDRAW_FEE;
   if(netAmount <= 0){
-    showToast("<i class='fa-solid fa-calculator'></i> المبلغ بعد الخصم يجب أن يكون أكبر من 0", true);
+    showToast("المبلغ بعد الخصم يجب أن يكون أكبر من 0", true);
     return;
   }
 
@@ -554,7 +547,7 @@ async function submitWithdraw(){
   }
 
   if(!wallet){
-    showToast("<i class='fa-solid fa-address-card'></i> لا يوجد عنوان لهذه الشبكة", true);
+    showToast("لا يوجد عنوان لهذه الشبكة", true);
     return;
   }
 
@@ -580,13 +573,13 @@ async function submitWithdraw(){
     if(data.success){
       statusDiv.innerHTML = '<i class="fa-solid fa-check-circle"></i> تم إرسال الطلب بنجاح';
       statusDiv.className = "status success";
-      showToast("<i class='fa-solid fa-paper-plane'></i> تم إرسال طلب السحب");
+      showToast("تم إرسال طلب السحب");
       setTimeout(() => {
         location.reload();
       }, 2000);
     } else {
       if(data.message && data.message.includes("كلمة السحب")){
-        showToast("<i class='fa-solid fa-key'></i> يرجى تعيين كلمة السحب أولاً", true);
+        showToast("يرجى تعيين كلمة السحب أولاً", true);
       } else {
         statusDiv.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> ' + (data.message || "فشل السحب");
         statusDiv.className = "status error";
@@ -597,11 +590,11 @@ async function submitWithdraw(){
     console.error(e);
     statusDiv.innerHTML = '<i class="fa-solid fa-wifi"></i> خطأ في الاتصال';
     statusDiv.className = "status error";
-    showToast("<i class='fa-solid fa-server'></i> خطأ في الاتصال بالخادم", true);
+    showToast("خطأ في الاتصال بالخادم", true);
   }
 }
 
 </script>
 
 </body>
-</html>
+  </html>
