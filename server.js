@@ -109,7 +109,7 @@ function getPackageInfo(pack){
   return null;
 }
 
-// ✅ دالة إلغاء الطلبات منتهية الوقت (تشغيل كل دقيقة)
+// ✅ دالة إلغاء الطلبات منتهية الوقت (تشمل package_deposit)
 async function cancelExpiredDepositsNow() {
   try {
     const users = await usersCollection.find({}).toArray();
@@ -976,7 +976,7 @@ app.post("/admin-approve-deposit", async (req,res)=>{
       );
       
       await distributeReferralCommission(user, op.amount);
-      return res.json({success:true});
+      return res.json({success:true, message:"تم قبول الإيداع والباقة بنجاح"});
     }
 
     await usersCollection.updateOne(
@@ -1538,7 +1538,7 @@ app.post("/manual-deposit", async (req,res)=>{
               dailyProfit: packageInfo?.dailyProfit || 0,
               txid:"",
               proof:"",
-              expiresAt: Date.now() + (15 * 60 * 1000), // 15 دقيقة
+              expiresAt: Date.now() + (30 * 60 * 1000),
               date:new Date().toISOString()
             }],
             $position:0
