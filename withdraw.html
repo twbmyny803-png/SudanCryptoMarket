@@ -2,24 +2,40 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>سحب | سودان كربتو</title>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 <style>
-body{
-margin:0;
-font-family:Tahoma;
-background:#f2f5fa;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.header{
-background:#0b1f3a;
-color:white;
-padding:18px;
-text-align:center;
-font-size:20px;
-font-weight:bold;
-position:relative;
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Tahoma', sans-serif;
+  background: linear-gradient(135deg, #0b1f3a 0%, #1a2f4e 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.header {
+  background: linear-gradient(135deg, #0f4ea8 0%, #1e6fdf 100%);
+  color: white;
+  padding: 18px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 28px 28px 0 0;
+  position: relative;
+  margin-bottom: 20px;
 }
 
 .back-btn {
@@ -45,99 +61,208 @@ position:relative;
   background: rgba(255,255,255,0.3);
 }
 
-.container{
-max-width:600px;
-margin:auto;
-padding:20px;
+.card {
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
-.card{
-background:white;
-border-radius:12px;
-padding:18px;
-margin-bottom:16px;
-box-shadow:0 6px 16px rgba(0,0,0,0.08);
+.title {
+  font-weight: 700;
+  margin-bottom: 16px;
+  font-size: 16px;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-right: 3px solid #2D6AF6;
+  padding-right: 12px;
 }
 
-.title{
-font-weight:bold;
-margin-bottom:10px;
+.title i {
+  color: #2D6AF6;
 }
 
-input,select{
-width:100%;
-padding:12px;
-border-radius:8px;
-border:1px solid #ddd;
-margin-top:6px;
+label {
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
 }
 
-.submit{
-background:#10B981;
-color:white;
-border:none;
-padding:12px;
-border-radius:8px;
-width:100%;
-margin-top:12px;
-font-size:16px;
-cursor:pointer;
+label i {
+  margin-left: 6px;
+  color: #2D6AF6;
 }
 
-.save{
-background:#2D6AF6;
-color:white;
-border:none;
-padding:12px;
-border-radius:8px;
-width:100%;
-margin-top:12px;
-cursor:pointer;
+input, select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  font-size: 14px;
+  transition: all 0.2s;
+  outline: none;
 }
 
-.status{
-text-align:center;
-font-size:20px;
-font-weight:bold;
-margin-top:10px;
+input:focus, select:focus {
+  border-color: #2D6AF6;
+  box-shadow: 0 0 0 3px rgba(45,106,246,0.1);
 }
 
-.warning{
-color:#e74c3c;
-font-size:13px;
-margin-top:8px;
+.btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 40px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-save {
+  background: linear-gradient(135deg, #2D6AF6, #1e4fcf);
+  color: white;
+}
+
+.btn-submit {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.btn:hover {
+  transform: scale(0.98);
+}
+
+.warning {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: #b45309;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fee-info {
+  background: #eef2ff;
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 12px;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.time-info {
+  background: #dcfce7;
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 12px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #166534;
+}
+
+.status {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 40px;
+  display: none;
+}
+
+.status.success {
+  background: #dcfce7;
+  color: #166534;
+  display: block;
+}
+
+.status.error {
+  background: #fee2e2;
+  color: #991b1b;
+  display: block;
+}
+
+/* Toast Notification */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 40px;
+  font-size: 14px;
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.toast.success {
+  background: #10b981;
+}
+
+.toast.error {
+  background: #ef4444;
 }
 </style>
 </head>
 
 <body>
 
+<div class="container">
 <div class="header">
 <button class="back-btn" onclick="goBack()">←</button>
-سحب العملات
+<i class="fa-solid fa-arrow-down"></i> سحب العملات
 </div>
 
-<div class="container">
-
 <div class="card">
-<div class="title">عناوين محفظة السحب</div>
+<div class="title">
+<i class="fa-solid fa-wallet"></i> عناوين محفظة السحب
+</div>
 
-<label>USDT TRC20</label>
+<label><i class="fa-brands fa-tron"></i> USDT TRC20</label>
 <input type="text" id="trc20" placeholder="أدخل عنوان TRC20">
 
-<label>USDT BEP20</label>
+<label><i class="fa-brands fa-ethereum"></i> USDT BEP20</label>
 <input type="text" id="bep20" placeholder="أدخل عنوان BEP20">
 
-<button class="save" onclick="saveWallets()">حفظ العناوين</button>
+<button class="btn btn-save" onclick="saveWallets()">
+<i class="fa-regular fa-floppy-disk"></i> حفظ العناوين
+</button>
 
 <div class="warning">
-بعد الحفظ لا يمكن تعديل العنوان
+<i class="fa-solid fa-triangle-exclamation"></i> بعد الحفظ لا يمكن تعديل العنوان
 </div>
 </div>
 
 <div class="card">
-<div class="title">اختيار الشبكة</div>
-
+<div class="title">
+<i class="fa-solid fa-network-wired"></i> اختيار الشبكة
+</div>
 <select id="network">
 <option value="">اختر الشبكة</option>
 <option value="USDT TRC20">USDT TRC20</option>
@@ -146,170 +271,223 @@ margin-top:8px;
 </div>
 
 <div class="card">
-<div class="title">المبلغ</div>
-<input type="number" id="amount" placeholder="أدخل مبلغ السحب">
+<div class="title">
+<i class="fa-solid fa-dollar-sign"></i> المبلغ
+</div>
+<input type="number" id="amount" step="0.01" placeholder="أدخل مبلغ السحب (الحد الأدنى 10 USDT)">
+<div class="fee-info">
+<span><i class="fa-solid fa-receipt"></i> رسوم السحب</span>
+<span>1.5 USDT (ثابتة)</span>
+</div>
+<div class="time-info">
+<i class="fa-regular fa-clock"></i>
+وقت السحب: من 8 صباحاً حتى 8 مساءً
+</div>
 </div>
 
 <div class="card">
-<div class="title">كلمة مرور السحب</div>
+<div class="title">
+<i class="fa-solid fa-lock"></i> كلمة مرور السحب
+</div>
 <input type="password" id="withdrawPass" placeholder="أدخل كلمة السحب (6 أرقام)">
 </div>
 
 <div class="card">
-<button class="submit" onclick="submitWithdraw()">إرسال طلب السحب</button>
+<button class="btn btn-submit" onclick="submitWithdraw()">
+<i class="fa-solid fa-paper-plane"></i> إرسال طلب السحب
+</button>
 <div class="status" id="status"></div>
 </div>
+</div>
 
+<div class="toast" id="toastMessage">
+<i class="fa-solid fa-circle-check"></i>
+<span id="toastText"></span>
 </div>
 
 <script>
 
-const API="https://sudancryptomarket-api.onrender.com";
-const email=localStorage.getItem("userEmail");
+const API = "https://sudancryptomarket-api.onrender.com";
+const email = localStorage.getItem("userEmail");
+const MIN_WITHDRAW = 10;
+const WITHDRAW_FEE = 1.5;
 
 function goBack() {
   window.history.back();
 }
 
+// دالة عرض Toast
+function showToast(message, isError = false) {
+  const toast = document.getElementById("toastMessage");
+  const toastText = document.getElementById("toastText");
+  const icon = toast.querySelector("i");
+  
+  toastText.innerText = message;
+  
+  if (isError) {
+    icon.className = "fa-solid fa-circle-exclamation";
+    toast.className = "toast error";
+  } else {
+    icon.className = "fa-solid fa-circle-check";
+    toast.className = "toast success";
+  }
+  
+  toast.style.display = "flex";
+  
+  setTimeout(() => {
+    toast.style.display = "none";
+  }, 3000);
+}
+
+// التحقق من وقت السحب
+function isWithdrawTime() {
+  const now = new Date();
+  const hour = now.getHours();
+  return hour >= 8 && hour < 20; // من 8 صباحاً إلى 8 مساءً
+}
+
 if(!email){
-window.location.href="login.html";
+  window.location.href = "login.html";
 }
 
-/* Popup */
-function showPopup(msg,color){
-let div=document.createElement("div");
-div.innerText=msg;
-div.style.position="fixed";
-div.style.bottom="20px";
-div.style.left="50%";
-div.style.transform="translateX(-50%)";
-div.style.background=color;
-div.style.color="#fff";
-div.style.padding="12px 20px";
-div.style.borderRadius="8px";
-
-document.body.appendChild(div);
-setTimeout(()=>div.remove(),3000);
-}
-
-/* حفظ العناوين */
+// حفظ العناوين
 function saveWallets(){
+  const trc = document.getElementById("trc20").value.trim();
+  const bep = document.getElementById("bep20").value.trim();
 
-const trc=document.getElementById("trc20").value;
-const bep=document.getElementById("bep20").value;
+  if(!trc && !bep){
+    showToast("أدخل عنوان واحد على الأقل", true);
+    return;
+  }
 
-if(!trc && !bep){
-showPopup("أدخل عنوان واحد على الأقل","red");
-return;
+  localStorage.setItem("userWallets", JSON.stringify({
+    trc20: trc,
+    bep20: bep
+  }));
+
+  showToast("تم حفظ العناوين");
+  lockWalletInputs();
 }
 
-localStorage.setItem("userWallets",JSON.stringify({
-trc20:trc,
-bep20:bep
-}));
-
-showPopup("تم حفظ العناوين","green");
-lockWalletInputs();
-}
-
-/* قفل */
+// قفل العناوين
 function lockWalletInputs(){
+  const saved = JSON.parse(localStorage.getItem("userWallets"));
+  if(!saved) return;
 
-const saved=JSON.parse(localStorage.getItem("userWallets"));
-if(!saved) return;
-
-document.getElementById("trc20").value=saved.trc20 || "";
-document.getElementById("bep20").value=saved.bep20 || "";
-
-document.getElementById("trc20").disabled=true;
-document.getElementById("bep20").disabled=true;
+  document.getElementById("trc20").value = saved.trc20 || "";
+  document.getElementById("bep20").value = saved.bep20 || "";
+  document.getElementById("trc20").disabled = true;
+  document.getElementById("bep20").disabled = true;
 }
 
-window.onload=lockWalletInputs;
+window.onload = lockWalletInputs;
 
-/* السحب */
-function submitWithdraw(){
+// السحب
+async function submitWithdraw(){
+  const network = document.getElementById("network").value;
+  let amount = parseFloat(document.getElementById("amount").value);
+  const pass = document.getElementById("withdrawPass").value;
+  const wallets = JSON.parse(localStorage.getItem("userWallets"));
+  const statusDiv = document.getElementById("status");
 
-const network=document.getElementById("network").value;
-const amount=parseFloat(document.getElementById("amount").value);
-const pass=document.getElementById("withdrawPass").value;
+  statusDiv.style.display = "none";
 
-const wallets=JSON.parse(localStorage.getItem("userWallets"));
+  // التحقق من وقت السحب
+  if(!isWithdrawTime()){
+    showToast("⏰ وقت السحب من 8 صباحاً حتى 8 مساءً فقط", true);
+    return;
+  }
 
-if(!wallets){
-showPopup("احفظ العناوين أولاً","red");
-return;
-}
+  if(!wallets){
+    showToast("احفظ العناوين أولاً", true);
+    return;
+  }
 
-if(network===""){
-showPopup("اختر الشبكة","red");
-return;
-}
+  if(network === ""){
+    showToast("اختر الشبكة", true);
+    return;
+  }
 
-if(!amount || amount<=0){
-showPopup("مبلغ غير صحيح","red");
-return;
-}
+  if(!amount || amount <= 0){
+    showToast("مبلغ غير صحيح", true);
+    return;
+  }
 
-if(pass.length!==6){
-showPopup("كلمة السحب يجب تكون 6 أرقام","red");
-return;
-}
+  // الحد الأدنى للسحب
+  if(amount < MIN_WITHDRAW){
+    showToast(`الحد الأدنى للسحب ${MIN_WITHDRAW} USDT`, true);
+    return;
+  }
 
-let wallet="";
+  if(pass.length !== 6){
+    showToast("كلمة السحب يجب أن تكون 6 أرقام", true);
+    return;
+  }
 
-if(network==="USDT TRC20"){
-wallet=wallets.trc20;
-}
+  // حساب المبلغ بعد الخصم
+  const netAmount = amount - WITHDRAW_FEE;
+  if(netAmount <= 0){
+    showToast(`المبلغ بعد الخصم يجب أن يكون أكبر من 0`, true);
+    return;
+  }
 
-if(network==="USDT BEP20"){
-wallet=wallets.bep20;
-}
+  let wallet = "";
+  if(network === "USDT TRC20"){
+    wallet = wallets.trc20;
+  }
+  if(network === "USDT BEP20"){
+    wallet = wallets.bep20;
+  }
 
-if(!wallet){
-showPopup("لا يوجد عنوان لهذه الشبكة","red");
-return;
-}
+  if(!wallet){
+    showToast("لا يوجد عنوان لهذه الشبكة", true);
+    return;
+  }
 
-fetch(API+"/withdraw",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-email:email,
-amount:amount,
-network:network,
-wallet:wallet,
-password:pass // 🔥 تم التصحيح هنا
-})
-})
-.then(res=>res.json())
-.then(data=>{
+  statusDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الإرسال...';
+  statusDiv.className = "status";
+  statusDiv.style.display = "block";
 
-if(data.success){
+  try {
+    const res = await fetch(API + "/withdraw", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: email,
+        amount: amount,
+        network: network,
+        wallet: wallet,
+        withdrawPassword: pass
+      })
+    });
 
-document.getElementById("status").innerText="تم إرسال الطلب";
-document.getElementById("status").style.color="green";
+    const data = await res.json();
 
-showPopup("تم إرسال طلب السحب","green");
-
-setTimeout(()=>{
-location.reload();
-},1500);
-
-}else{
-
-if(data.message && data.message.includes("كلمة السحب")){
-window.location.href="set-withdraw-password.html";
-}else{
-showPopup(data.message || "فشل العملية","red");
-}
-
-}
-
-});
-
+    if(data.success){
+      statusDiv.innerHTML = '<i class="fa-solid fa-check-circle"></i> تم إرسال الطلب بنجاح';
+      statusDiv.className = "status success";
+      showToast("✅ تم إرسال طلب السحب");
+      setTimeout(() => {
+        location.reload();
+      }, 2000);
+    } else {
+      if(data.message && data.message.includes("كلمة السحب")){
+        showToast("🔐 يرجى تعيين كلمة السحب أولاً", true);
+        setTimeout(() => {
+          window.location.href = "set-withdraw-password.html";
+        }, 1500);
+      } else {
+        statusDiv.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> ' + (data.message || "فشل السحب");
+        statusDiv.className = "status error";
+        showToast(data.message || "فشل السحب", true);
+      }
+    }
+  } catch(e) {
+    console.error(e);
+    statusDiv.innerHTML = '<i class="fa-solid fa-wifi"></i> خطأ في الاتصال';
+    statusDiv.className = "status error";
+    showToast("خطأ في الاتصال بالخادم", true);
+  }
 }
 
 </script>
