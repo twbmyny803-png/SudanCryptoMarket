@@ -2,7 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>طلبات السحب</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>طلبات السحب | سودان كربتو</title>
 
 <style>
 body{
@@ -18,11 +19,36 @@ padding:18px;
 text-align:center;
 font-size:22px;
 font-weight:bold;
+position:relative;
+}
+
+.back-btn {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.2);
+  color: white;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.back-btn:hover {
+  background: rgba(255,255,255,0.3);
 }
 
 .container{
 padding:20px;
-max-width:1100px;
+max-width:1200px;
 margin:auto;
 }
 
@@ -39,7 +65,7 @@ th,td{
 padding:12px;
 border-bottom:1px solid #eee;
 text-align:center;
-font-size:14px;
+font-size:13px;
 }
 
 th{
@@ -51,188 +77,246 @@ padding:8px 12px;
 border:none;
 border-radius:6px;
 cursor:pointer;
-font-size:13px;
+font-size:12px;
 margin:2px;
 }
 
 .approve{
-background:#2ecc71;
+background:#27ae60;
 color:white;
+}
+
+.approve:hover{
+background:#219a52;
 }
 
 .reject{
-background:#e74c3c;
+background:#c0392b;
 color:white;
 }
 
-.pending{color:#f39c12;font-weight:bold;}
-.approved{color:#27ae60;font-weight:bold;}
-.rejected{color:#e74c3c;font-weight:bold;}
-</style>
+.reject:hover{
+background:#a53225;
+}
 
+.refresh{
+background:#2D6AF6;
+color:white;
+margin-bottom:15px;
+padding:10px 16px;
+border-radius:8px;
+cursor:pointer;
+border:none;
+}
+
+.empty{
+padding:25px;
+color:#777;
+text-align:center;
+}
+
+.status-badge{
+display:inline-block;
+padding:4px 10px;
+border-radius:20px;
+font-size:11px;
+font-weight:bold;
+}
+
+.status-pending{
+background:#fff3cd;
+color:#856404;
+}
+
+.status-approved{
+background:#d4edda;
+color:#155724;
+}
+
+.status-rejected{
+background:#f8d7da;
+color:#721c24;
+}
+
+.wallet-address {
+  font-family: monospace;
+  font-size: 11px;
+  word-break: break-all;
+  max-width: 150px;
+}
+
+@media (max-width: 768px) {
+  th, td {
+    padding: 8px;
+    font-size: 11px;
+  }
+  button {
+    padding: 6px 10px;
+    font-size: 10px;
+  }
+}
+</style>
 </head>
 
 <body>
 
-<div class="header">طلبات السحب</div>
+<div class="header">
+<a href="dashboard.html" class="back-btn">←</a>
+طلبات السحب
+</div>
 
 <div class="container">
 
-<button onclick="loadWithdraws()" style="margin-bottom:10px;padding:10px;background:#2D6AF6;color:white;border:none;border-radius:8px;">
-تحديث
-</button>
+<div style="margin-bottom:15px; display:flex; gap:10px;">
+<button class="refresh" onclick="loadWithdraws()">🔄 تحديث</button>
+</div>
 
 <table>
-
 <thead>
 <tr>
 <th>البريد</th>
 <th>المبلغ</th>
 <th>الشبكة</th>
+<th>عنوان المحفظة</th>
 <th>الحالة</th>
 <th>التاريخ</th>
 <th>التحكم</th>
 </tr>
 </thead>
-
 <tbody id="withdrawsTable"></tbody>
-
 </table>
 
 </div>
 
 <script>
 
-const API="https://sudancryptomarket-api.onrender.com";
-const adminToken=localStorage.getItem("adminToken");
+const API = "https://sudancryptomarket-api.onrender.com";
+const adminToken = localStorage.getItem("adminToken");
 
 if(!adminToken){
-window.location.href="login.html";
+  window.location.href = "login.html";
 }
 
 function getStatusClass(status){
-if(status==="approved") return "approved";
-if(status==="rejected") return "rejected";
-return "pending";
+  if(status === "approved") return "status-approved";
+  if(status === "rejected") return "status-rejected";
+  return "status-pending";
 }
 
 function getStatusText(status){
-if(status==="approved") return "تمت الموافقة";
-if(status==="rejected") return "مرفوض";
-return "قيد المراجعة";
+  if(status === "approved") return "✅ مقبول";
+  if(status === "rejected") return "❌ مرفوض";
+  return "⏳ قيد المراجعة";
 }
 
 async function loadWithdraws(){
-
-document.getElementById("withdrawsTable").innerHTML="<tr><td colspan='6'>جاري التحميل...</td></tr>";
-
-try{
-
-const res=await fetch(API+"/admin-withdraws",{
-headers:{
-"x-admin-token":adminToken
-}
-});
-
-const data=await res.json();
-
-if(!data.success){
-alert(data.message||"فشل التحميل");
-return;
-}
-
-let html="";
-
-(data.withdraws||[]).forEach(w=>{
-
-html+=`
-<tr>
-
-<td>${w.email}</td>
-
-<td>${w.amount} USDT</td>
-
-<td>${w.network || "-"}</td>
-
-<td class="${getStatusClass(w.status)}">${getStatusText(w.status)}</td>
-
-<td>${w.index}</td>
-
-<td>
-
-<button class="approve" onclick="approveWithdraw('${w.email}',${w.index})">موافقة</button>
-
-<button class="reject" onclick="rejectWithdraw('${w.email}',${w.index})">رفض</button>
-
-</td>
-
-</tr>
-`;
-
-});
-
-document.getElementById("withdrawsTable").innerHTML =
-html || `<tr><td colspan="6">لا توجد طلبات</td></tr>`;
-
-}catch(e){
-
-document.getElementById("withdrawsTable").innerHTML =
-"<tr><td colspan='6'>خطأ في الاتصال</td></tr>";
-
+  document.getElementById("withdrawsTable").innerHTML = '<tr><td colspan="7" class="empty">⏳ جاري التحميل...</td></tr>';
+  
+  try{
+    const res = await fetch(API + "/admin-withdraws", {
+      headers: { "x-admin-token": adminToken }
+    });
+    
+    const data = await res.json();
+    
+    if(!data.success){
+      alert(data.message || "فشل التحميل");
+      return;
+    }
+    
+    let html = "";
+    const withdraws = data.withdraws || [];
+    
+    if(withdraws.length === 0){
+      html = '<tr><td colspan="7" class="empty">📭 لا توجد طلبات سحب</td></tr>';
+    } else {
+      withdraws.forEach(w => {
+        // عرض عنوان المحفظة مختصراً مع إمكانية نسخه
+        let walletDisplay = w.wallet || "-";
+        if(walletDisplay !== "-" && walletDisplay.length > 20){
+          walletDisplay = `<span class="wallet-address" title="${w.wallet}">${w.wallet.substring(0, 12)}...${w.wallet.substring(w.wallet.length - 8)}</span>`;
+        }
+        
+        html += `
+          <tr>
+            <td>${w.email}</td>
+            <td><strong>${w.amount || 0} USDT</strong></td>
+            <td>${w.network || "-"}</td>
+            <td>${walletDisplay}</td>
+            <td><span class="status-badge ${getStatusClass(w.status)}">${getStatusText(w.status)}</span></td>
+            <td>${w.date ? new Date(w.date).toLocaleString() : "-"}</td>
+            <td>
+              ${w.status === "pending" ? `
+                <button class="approve" onclick="approveWithdraw('${w.email}', ${w.index})">✅ قبول</button>
+                <button class="reject" onclick="rejectWithdraw('${w.email}', ${w.index})">❌ رفض</button>
+              ` : "-"}
+            </td>
+          </tr>
+        `;
+      });
+    }
+    
+    document.getElementById("withdrawsTable").innerHTML = html;
+    
+  } catch(e){
+    console.error(e);
+    document.getElementById("withdrawsTable").innerHTML = '<tr><td colspan="7" class="empty">⚠️ خطأ في الاتصال بالسيرفر</td></tr>';
+  }
 }
 
+function approveWithdraw(email, index){
+  if(confirm("✅ هل أنت متأكد من قبول طلب السحب؟")){
+    fetch(API + "/admin-approve-withdraw", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-token": adminToken
+      },
+      body: JSON.stringify({ email, index })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if(data.success){
+        alert("✅ تمت الموافقة على السحب");
+        loadWithdraws();
+      } else {
+        alert("❌ " + (data.message || "فشلت العملية"));
+      }
+    })
+    .catch(() => alert("❌ خطأ في الاتصال"));
+  }
 }
 
-function approveWithdraw(email,index){
+function rejectWithdraw(email, index){
+  if(confirm("❌ هل أنت متأكد من رفض طلب السحب؟")){
+    fetch(API + "/admin-reject-withdraw", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-token": adminToken
+      },
+      body: JSON.stringify({ email, index })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if(data.success){
+        alert("✅ تم رفض طلب السحب");
+        loadWithdraws();
+      } else {
+        alert("❌ " + (data.message || "فشلت العملية"));
+      }
+    })
+    .catch(() => alert("❌ خطأ في الاتصال"));
+  }
+}
 
-fetch(API+"/admin-approve-withdraw",{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-"x-admin-token":adminToken
-},
-body:JSON.stringify({email,index})
-})
-.then(res=>res.json())
-.then(data=>{
-if(data.success){
-alert("تمت الموافقة");
+// تحميل الطلبات عند فتح الصفحة
 loadWithdraws();
-}else{
-alert(data.message||"فشل");
-}
-});
 
-}
-
-function rejectWithdraw(email,index){
-
-fetch(API+"/admin-reject-withdraw",{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-"x-admin-token":adminToken
-},
-body:JSON.stringify({email,index})
-})
-.then(res=>res.json())
-.then(data=>{
-if(data.success){
-alert("تم الرفض");
-loadWithdraws();
-}else{
-alert(data.message||"فشل");
-}
-});
-
-}
-
-/* 🔥 تحديث تلقائي */
-setInterval(()=>{
-loadWithdraws();
-},5000);
-
-loadWithdraws();
+// تحديث تلقائي كل 30 ثانية
+setInterval(() => {
+  loadWithdraws();
+}, 30000);
 
 </script>
 
