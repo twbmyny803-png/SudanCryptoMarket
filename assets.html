@@ -159,7 +159,7 @@ padding:10px;
 <div class="card-desc">سحب الأموال إلى محفظتك</div>
 </div>
 
-<div class="card" onclick="transferProfit()">
+<div class="card" onclick="transferIncome()">
 <div class="card-title">تحويل</div>
 <div class="card-desc">اضغط لتحويل الأرباح</div>
 </div>
@@ -245,7 +245,6 @@ fetch(API + "/user-data", {
 
 // دوال الانتقال
 function goToPackages(){
-  // يودي لصفحة الباقات مباشرة بدون رسالة
   window.location.href = "packages.html";
 }
 
@@ -257,24 +256,34 @@ function goToTransactions(){
   window.location.href = "transactions.html";
 }
 
-function transferProfit(){
-  fetch(API + "/transfer-profit", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if(data.success){
-      alert("✅ تم تحويل الأرباح بنجاح");
+// ✅ دالة تحويل الأرباح الجديدة
+async function transferIncome() {
+  if(!email){
+    alert("سجل الدخول أولاً");
+    return;
+  }
+
+  try {
+    const res = await fetch(API + "/transfer-income", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email })
+    });
+
+    const data = await res.json();
+
+    if(data.success) {
+      alert("تم تحويل الأرباح إلى الرصيد");
       location.reload();
     } else {
-      alert(data.message || "❌ فشل التحويل");
+      alert(data.message || "فشل التحويل");
     }
-  })
-  .catch(() => {
-    alert("❌ فشل الاتصال بالخادم");
-  });
+  } catch(e) {
+    console.error(e);
+    alert("خطأ في الاتصال بالسيرفر");
+  }
 }
 
 </script>
