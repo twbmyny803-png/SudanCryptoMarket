@@ -768,6 +768,7 @@ app.post("/withdraw", async (req,res)=>{
     const amount = Number(req.body.amount);
     const network = cleanText(req.body.network);
     const withdrawPass = cleanText(req.body.withdrawPassword);
+    const wallet = cleanText(req.body.wallet);  // 👈 أضف هذا السطر
 
     let user = await usersCollection.findOne({ email });
 
@@ -808,6 +809,7 @@ app.post("/withdraw", async (req,res)=>{
               type:"withdraw",
               amount,
               network,
+              wallet: wallet,  // 👈 أضف هذا السطر
               status:"pending",
               date:new Date().toISOString()
             }],
@@ -904,18 +906,23 @@ app.get("/admin-withdraws", async (req,res)=>{
             amount:op.amount,
             currency:"USDT",
             network:op.network || "",
+            wallet: op.wallet || "",  // 👈 أضف هذا السطر
             status:op.status,
-            index
+            index: index,
+            date: op.date || ""
           });
         }
       });
     });
 
-    res.json({success:true,withdraws});
+    // ترتيب من الأحدث للأقدم
+    withdraws.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    res.json({success:true, withdraws});
 
   }catch(e){
     console.log(e);
-    res.json({success:false,message:"فشل تحميل طلبات السحب"});
+    res.json({success:false, message:"فشل تحميل طلبات السحب"});
   }
 });
 
