@@ -528,10 +528,16 @@ app.post("/register", async (req,res)=>{
     const phone = cleanText(req.body.phone);
     const password = cleanText(req.body.password);
 
+    // ✅ تم تخطي التحقق من البريد مؤقتاً
+    // const saved = await otpCollection.findOne({ email });
+    // if(!saved || saved.verified !== true){
+    //   return res.json({success:false, message:"يجب التحقق من البريد"});
+    // }
+
     const existingUser = await usersCollection.findOne({ email });
 
     if(existingUser){
-      return res.json({success:false,message:"البريد مسجل"});
+      return res.json({success:false, message:"البريد مسجل"});
     }
 
     await usersCollection.insertOne({
@@ -576,7 +582,7 @@ app.post("/register", async (req,res)=>{
 
   }catch(e){
     console.log(e);
-    res.json({success:false,message:"فشل إنشاء الحساب"});
+    res.json({success:false, message:"فشل إنشاء الحساب"});
   }
 });
 
