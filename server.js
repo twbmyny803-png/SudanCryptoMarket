@@ -72,7 +72,7 @@ return Math.random().toString(36).substring(2,8).toUpperCase();
 }
 
 function isValidEmail(email){
-return /^[^\s@]+@[^\s@]+.[^\s@]+$/.test(email);
+return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 function requireAdmin(req,res){
@@ -428,9 +428,9 @@ await otpCollection.updateOne(
 
 await resend.emails.send({  
   from: "onboarding@resend.dev",  
-  to:email,  
-  subject:"رمز التحقق",  
-  html:`<h2>${code}</h2>`  
+  to: email,  
+  subject: "رمز التحقق",  
+  html: `<h2>${code}</h2>`  
 });  
 
 res.json({success:true});
@@ -474,9 +474,9 @@ await otpCollection.updateOne(
 
 await resend.emails.send({  
   from: "onboarding@resend.dev",  
-  to:email,  
-  subject:"رمز سحب الأموال",  
-  html:`<h2>${code}</h2>`  
+  to: email,  
+  subject: "رمز سحب الأموال",  
+  html: `<h2>${code}</h2>`  
 })  
 
 res.json({success:true})
