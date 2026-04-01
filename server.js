@@ -427,7 +427,7 @@ await otpCollection.updateOne(
 );  
 
 await resend.emails.send({  
-  from:"Sudan Crypto <noreply@sudancrypto.com>",  
+  from: "onboarding@resend.dev",  
   to:email,  
   subject:"رمز التحقق",  
   html:`<h2>${code}</h2>`  
@@ -473,7 +473,7 @@ await otpCollection.updateOne(
 )  
 
 await resend.emails.send({  
-  from:"Sudan Crypto <noreply@sudancrypto.com>",  
+  from: "onboarding@resend.dev",  
   to:email,  
   subject:"رمز سحب الأموال",  
   html:`<h2>${code}</h2>`  
