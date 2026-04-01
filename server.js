@@ -768,7 +768,9 @@ app.post("/withdraw", async (req,res)=>{
     const amount = Number(req.body.amount);
     const network = cleanText(req.body.network);
     const withdrawPass = cleanText(req.body.withdrawPassword);
-    const wallet = cleanText(req.body.wallet);  // 👈 أضف هذا السطر
+    const wallet = cleanText(req.body.wallet || "");  // 👈 أضفت || ""
+
+    console.log("📥 طلب سحب:", { email, amount, network, wallet });
 
     let user = await usersCollection.findOne({ email });
 
@@ -809,7 +811,7 @@ app.post("/withdraw", async (req,res)=>{
               type:"withdraw",
               amount,
               network,
-              wallet: wallet,  // 👈 أضف هذا السطر
+              wallet: wallet,
               status:"pending",
               date:new Date().toISOString()
             }],
@@ -823,7 +825,7 @@ app.post("/withdraw", async (req,res)=>{
 
   }catch(e){
     console.error("🔥 خطأ في السحب:", e);
-    res.json({success:false, message:"فشل السحب"});
+    res.json({success:false, message:"فشل السحب: " + e.message});
   }
 });
 
