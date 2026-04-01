@@ -13,6 +13,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// ✅ خدمة الملفات الثابتة (HTML, CSS, JS)
+app.use(express.static(__dirname));
+
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const client = new MongoClient(process.env.MONGODB_URI);
@@ -360,8 +363,14 @@ async function distributeReferralCommission(user, price) {
 
 /* ---------------- ROOT ---------------- */
 
-app.get("/",(req,res)=>{
-  res.json({success:true,message:"Sudan Crypto API running"});
+// ✅ الصفحة الرئيسية
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "dashboard.html"));
+});
+
+// ✅ API root
+app.get("/api", (req, res) => {
+  res.json({ success: true, message: "Sudan Crypto API running" });
 });
 
 /* ---------------- ADMIN LOGIN ---------------- */
@@ -768,7 +777,7 @@ app.post("/withdraw", async (req,res)=>{
     const amount = Number(req.body.amount);
     const network = cleanText(req.body.network);
     const withdrawPass = cleanText(req.body.withdrawPassword);
-    const wallet = cleanText(req.body.wallet || "");  // 👈 أضفت || ""
+    const wallet = cleanText(req.body.wallet || "");
 
     console.log("📥 طلب سحب:", { email, amount, network, wallet });
 
@@ -778,7 +787,6 @@ app.post("/withdraw", async (req,res)=>{
       return res.json({success:false, message:"المستخدم غير موجود"});
     }
 
-    // ✅ إذا كانت كلمة المرور غير موجودة، نحفظها أولاً
     if(!user.withdrawPassword || user.withdrawPassword === ""){
       if(withdrawPass.length !== 6){
         return res.json({success:false, message:"كلمة السحب يجب أن تكون 6 أرقام"});
@@ -908,7 +916,7 @@ app.get("/admin-withdraws", async (req,res)=>{
             amount:op.amount,
             currency:"USDT",
             network:op.network || "",
-            wallet: op.wallet || "",  // 👈 أضف هذا السطر
+            wallet: op.wallet || "",
             status:op.status,
             index: index,
             date: op.date || ""
@@ -917,7 +925,6 @@ app.get("/admin-withdraws", async (req,res)=>{
       });
     });
 
-    // ترتيب من الأحدث للأقدم
     withdraws.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     res.json({success:true, withdraws});
