@@ -109,44 +109,43 @@ function getPackageInfo(pack){
   return null;
 }
 
-// دالة إلغاء الطلبات منتهية الوقت
-async function cancelExpiredDepositsNow() {
-  try {
-    const users = await usersCollection.find({}).toArray();
-    let anyChanged = false;
+async function cancelExpiredDeposits(){
+  try{
 
-    for (const user of users) {
-      const operations = user.operations || [];
-      let changed = false;
+    const users = await usersCollection.find({}).toArray()
 
-      for (let i = 0; i < operations.length; i++) {
-        const op = operations[i];
+    for(const user of users){
 
-        if (
-          (op.type === "package_deposit" || op.type === "deposit") &&
+      const operations = user.operations || []
+      let changed = false
+
+      for(let i=0;i<operations.length;i++){
+
+        const op = operations[i]
+
+        if(
+          op.type === "deposit" &&
           op.status === "pending" &&
           op.expiresAt &&
           Date.now() > op.expiresAt
-        ) {
-          operations[i].status = "cancelled";
-          changed = true;
-          anyChanged = true;
+        ){
+          operations[i].status = "cancelled"
+          changed = true
         }
+
       }
 
-      if (changed) {
+      if(changed){
         await usersCollection.updateOne(
-          { email: user.email },
-          { $set: { operations } }
-        );
+          { email:user.email },
+          { $set:{ operations } }
+        )
       }
+
     }
 
-    if (anyChanged) {
-      console.log("✅ تم إلغاء الطلبات منتهية الوقت:", new Date().toISOString());
-    }
-  } catch (e) {
-    console.log("خطأ في إلغاء الطلبات:", e);
+  }catch(e){
+    console.log(e)
   }
 }
 
@@ -193,6 +192,7 @@ async function applyPendingDailyProfit(user){
 
   let actualDays = Math.min(daysToAdd, remainingDays);
 
+  // التأكد من عدم إضافة ربح لليوم الأول إذا كان قد تم احتسابه بالفعل
   if (totalDays === 0 && actualDays > 0) {
     actualDays = 1;
   }
@@ -251,6 +251,7 @@ async function runDailyProfitForAllUsers(){
 
 /* ---------------- REFERRAL FUNCTIONS WITH LEVELS ---------------- */
 
+// جدول العمولات حسب الباقة والمستوى (3 مستويات فقط)
 function getCommissionByPackageAndLevel(packageAmount, level) {
   const commissionTable = {
     50: { level1: 5, level2: 2, level3: 1 },
@@ -272,6 +273,7 @@ function getCommissionByPackageAndLevel(packageAmount, level) {
 async function distributeReferralCommission(user, price) {
   if (!user.referrer) return;
   
+  // المستوى 1: اللي دعاه مباشرة
   const level1User = await usersCollection.findOne({ refCode: user.referrer });
   if (level1User) {
     const commission = getCommissionByPackageAndLevel(price, 1);
@@ -298,6 +300,7 @@ async function distributeReferralCommission(user, price) {
       );
     }
     
+    // المستوى 2: اللي دعاه اللي دعاه
     if (level1User.referrer) {
       const level2User = await usersCollection.findOne({ refCode: level1User.referrer });
       if (level2User) {
@@ -325,6 +328,7 @@ async function distributeReferralCommission(user, price) {
           );
         }
         
+        // المستوى 3: اللي دعاه اللي دعاه اللي دعاه
         if (level2User.referrer) {
           const level3User = await usersCollection.findOne({ refCode: level2User.referrer });
           if (level3User) {
@@ -704,11 +708,14 @@ app.post("/my-team", async (req, res) => {
       return res.json({ success: false, message: "المستخدم غير موجود" });
     }
     
+    // جلب جميع المستخدمين
     const allUsers = await usersCollection.find({ isDeleted: { $ne: true } }).toArray();
     
+    // دالة لجلب المستوى لكل مستخدم
     function getUserLevel(targetEmail, referrerCode, currentLevel = 1) {
       if (!referrerCode || currentLevel > 3) return null;
       
+      // البحث عن المستخدم صاحب الـ referrerCode
       const referrerUser = allUsers.find(u => u.refCode === referrerCode);
       if (!referrerUser) return null;
       
@@ -716,6 +723,7 @@ app.post("/my-team", async (req, res) => {
         return currentLevel;
       }
       
+      // البحث في المستوى الأعلى
       if (referrerUser.referrer) {
         return getUserLevel(targetEmail, referrerUser.referrer, currentLevel + 1);
       }
@@ -723,6 +731,7 @@ app.post("/my-team", async (req, res) => {
       return null;
     }
     
+    // بناء قائمة الفريق مع المستويات
     const teamWithLevels = [];
     
     for (const u of allUsers) {
@@ -741,6 +750,7 @@ app.post("/my-team", async (req, res) => {
       }
     }
     
+    // إحصائيات حسب المستوى
     const level1Count = teamWithLevels.filter(m => m.level === 1).length;
     const level2Count = teamWithLevels.filter(m => m.level === 2).length;
     const level3Count = teamWithLevels.filter(m => m.level === 3).length;
@@ -768,38 +778,25 @@ app.post("/withdraw", async (req,res)=>{
     const amount = Number(req.body.amount);
     const network = cleanText(req.body.network);
     const withdrawPass = cleanText(req.body.withdrawPassword);
-    const wallet = cleanText(req.body.wallet || "");  // 👈 أضفت || ""
-
-    console.log("📥 طلب سحب:", { email, amount, network, wallet });
 
     let user = await usersCollection.findOne({ email });
 
     if(!user || user.isDeleted){
-      return res.json({success:false, message:"المستخدم غير موجود"});
+      return res.json({success:false});
     }
 
-    // ✅ إذا كانت كلمة المرور غير موجودة، نحفظها أولاً
-    if(!user.withdrawPassword || user.withdrawPassword === ""){
-      if(withdrawPass.length !== 6){
-        return res.json({success:false, message:"كلمة السحب يجب أن تكون 6 أرقام"});
-      }
-      
-      await usersCollection.updateOne(
-        { email },
-        { $set: { withdrawPassword: withdrawPass } }
-      );
-      
-      user = await usersCollection.findOne({ email });
+    if(!user.withdrawPassword){
+      return res.json({success:false,message:"قم بتعيين كلمة السحب أولاً"});
     }
 
     if(user.withdrawPassword !== withdrawPass){
-      return res.json({success:false, message:"كلمة السحب غير صحيحة"});
+      return res.json({success:false,message:"كلمة السحب غير صحيحة"});
     }
 
     user = await applyPendingDailyProfit(user);
 
     if(Number(user.balance || 0) < amount){
-      return res.json({success:false, message:"الرصيد غير كافي"});
+      return res.json({success:false,message:"الرصيد غير كافي"});
     }
 
     await usersCollection.updateOne(
@@ -811,7 +808,6 @@ app.post("/withdraw", async (req,res)=>{
               type:"withdraw",
               amount,
               network,
-              wallet: wallet,
               status:"pending",
               date:new Date().toISOString()
             }],
@@ -821,11 +817,11 @@ app.post("/withdraw", async (req,res)=>{
       }
     );
 
-    res.json({success:true, message:"تم إرسال طلب السحب"});
+    res.json({success:true});
 
   }catch(e){
-    console.error("🔥 خطأ في السحب:", e);
-    res.json({success:false, message:"فشل السحب: " + e.message});
+    console.log(e);
+    res.json({success:false,message:"فشل السحب"});
   }
 });
 
@@ -845,12 +841,13 @@ app.get("/admin-users", async (req,res)=>{
   }
 });
 
-/* ---------------- ADMIN DEPOSITS ---------------- */
+/* ---------------- ADMIN DEPOSITS (MODIFIED) ---------------- */
 
 app.get("/admin-deposits", async (req,res)=>{
   try{
     if(!requireAdmin(req,res)) return;
 
+    // جلب كل المستخدمين (بدون فلتر isDeleted لضمان ظهور كل الإيداعات)
     const users = await usersCollection.find({}).toArray();
 
     const deposits = [];
@@ -859,10 +856,10 @@ app.get("/admin-deposits", async (req,res)=>{
       if (!user.operations) return;
       
       user.operations.forEach((op, index) => {
+        // قبول أي عملية نوعها deposit أو package_deposit
         if (op.type === "deposit" || op.type === "package_deposit") {
           deposits.push({
             id: user.email + "_" + index,
-            orderId: op.orderId,
             email: user.email,
             name: user.name || "غير معروف",
             amount: op.amount,
@@ -879,6 +876,7 @@ app.get("/admin-deposits", async (req,res)=>{
       });
     });
 
+    // ترتيب من الأحدث للأقدم
     deposits.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     res.json({ success: true, deposits });
@@ -908,153 +906,102 @@ app.get("/admin-withdraws", async (req,res)=>{
             amount:op.amount,
             currency:"USDT",
             network:op.network || "",
-            wallet: op.wallet || "",  // 👈 أضف هذا السطر
             status:op.status,
-            index: index,
-            date: op.date || ""
+            index
           });
         }
       });
     });
 
-    // ترتيب من الأحدث للأقدم
-    withdraws.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    res.json({success:true, withdraws});
+    res.json({success:true,withdraws});
 
   }catch(e){
     console.log(e);
-    res.json({success:false, message:"فشل تحميل طلبات السحب"});
+    res.json({success:false,message:"فشل تحميل طلبات السحب"});
   }
 });
 
 /* ---------------- ADMIN OPERATIONS ---------------- */
 
-// قبول الإيداع
 app.post("/admin-approve-deposit", async (req,res)=>{
   try{
     if(!requireAdmin(req,res)) return;
 
     const email = normalizeEmail(req.body.email);
-    const orderId = req.body.orderId;
-
-    console.log("📥 قبول الإيداع:", { email, orderId });
+    const index = Number(req.body.index);
 
     const user = await usersCollection.findOne({ email });
 
     if(!user){
-      return res.json({success:false, message:"المستخدم غير موجود"});
+      return res.json({success:false,message:"المستخدم غير موجود"});
     }
 
     const operations = user.operations || [];
-    const opIndex = operations.findIndex(op => op.orderId === orderId);
+    const op = operations[index];
 
-    if(opIndex === -1){
-      return res.json({success:false, message:"العملية غير موجودة"});
+    if(!op){
+      return res.json({success:false,message:"العملية غير موجودة"});
     }
 
-    const op = operations[opIndex];
-
-    if(op.status !== "pending"){
-      return res.json({success:false, message:`العملية بحالة ${op.status}`});
+    if(op.status === "approved"){
+      return res.json({success:false,message:"تمت الموافقة مسبقاً"});
     }
 
-    const amount = Number(op.amount) || 0;
-    const dailyProfit = Number(op.dailyProfit) || 0;
+    operations[index].status = "approved";
 
-    operations[opIndex].status = "approved";
-
-    if(op.type === "package_deposit"){
-      
-      await usersCollection.updateOne(
-        { email },
-        {
-          $set: {
-            operations: operations,
-            packageName: op.packageName || "",
-            packagePrice: amount,
-            dailyProfit: dailyProfit,
-            packageStart: new Date().toISOString(),
-            lastProfitAt: new Date().toISOString(),
-            packageDurationDays: 280,
-            profitDays: 1
-          },
-          $inc: {
-            balance: amount,
-            incomeBalance: dailyProfit
-          }
-        }
-      );
-
-      await usersCollection.updateOne(
-        { email },
-        {
-          $push: {
-            operations: {
-              $each: [{
-                type: "daily_profit",
-                amount: dailyProfit,
-                days: 1,
-                status: "approved",
-                date: new Date().toISOString()
-              }],
-              $position: 0
-            }
-          }
-        }
-      );
-
-      await distributeReferralCommission(user, amount);
-
-      console.log("✅ تم قبول الباقة:", email, amount);
-      return res.json({success:true, message:"تم قبول الإيداع والباقة"});
-    }
+    const updateData = { operations };
 
     if(op.type === "deposit"){
-      await usersCollection.updateOne(
-        { email },
-        {
-          $set: { operations: operations },
-          $inc: { balance: amount }
-        }
-      );
-      return res.json({success:true, message:"تم قبول الإيداع"});
+      updateData.balance = Number(user.balance || 0) + Number(op.amount || 0);
     }
 
-    return res.json({success:false, message:"نوع العملية غير معروف"});
+    if(op.type === "package_deposit"){
+      updateData.balance = Number(user.balance || 0) + Number(op.amount || 0);
+      updateData.packageName = op.packageName || "";
+      updateData.packagePrice = Number(op.amount || 0);
+      updateData.dailyProfit = Number(op.dailyProfit || 0);
+      updateData.packageStart = new Date().toISOString();
+      updateData.lastProfitAt = new Date().toISOString();
+      updateData.packageDurationDays = 280;
+      updateData.profitDays = 0;
 
-  } catch(e){
-    console.error("🔥 خطأ في قبول الإيداع:", e);
-    res.json({success:false, message:"حدث خطأ في السيرفر: " + e.message});
+      // توزيع العمولات على المستويات
+      await distributeReferralCommission(user, op.amount);
+    }
+
+    await usersCollection.updateOne(
+      { email },
+      { $set:updateData }
+    );
+
+    res.json({success:true});
+
+  }catch(e){
+    console.log(e);
+    res.json({success:false,message:"فشلت العملية"});
   }
 });
 
-// رفض الإيداع
 app.post("/admin-reject-deposit", async (req,res)=>{
   try{
     if(!requireAdmin(req,res)) return;
 
     const email = normalizeEmail(req.body.email);
-    const orderId = req.body.orderId;
+    const index = Number(req.body.index);
 
     const user = await usersCollection.findOne({ email });
 
     if(!user){
-      return res.json({success:false, message:"المستخدم غير موجود"});
+      return res.json({success:false,message:"المستخدم غير موجود"});
     }
 
     const operations = user.operations || [];
-    const opIndex = operations.findIndex(op => op.orderId === orderId);
-    
-    if(opIndex === -1){
-      return res.json({success:false, message:"العملية غير موجودة"});
+
+    if(!operations[index]){
+      return res.json({success:false,message:"العملية غير موجودة"});
     }
 
-    if(operations[opIndex].status !== "pending"){
-      return res.json({success:false, message:"العملية ليست معلقة"});
-    }
-
-    operations[opIndex].status = "rejected";
+    operations[index].status = "rejected";
 
     await usersCollection.updateOne(
       { email },
@@ -1065,7 +1012,7 @@ app.post("/admin-reject-deposit", async (req,res)=>{
 
   }catch(e){
     console.log(e);
-    res.json({success:false, message:"فشلت العملية"});
+    res.json({success:false,message:"فشلت العملية"});
   }
 });
 
@@ -1376,27 +1323,17 @@ app.post("/admin-set-package", async (req,res)=>{
           packageStart:new Date().toISOString(),
           lastProfitAt: new Date().toISOString(),
           packageDurationDays:info.durationDays,
-          profitDays:1
+          profitDays:0
         },
-        $inc: { incomeBalance: info.dailyProfit },
         $push:{
-          operations: {
-            $each: [
-              {
-                type:"admin_set_package",
-                amount:info.price,
-                packageName:info.name,
-                status:"approved",
-                date:new Date().toISOString()
-              },
-              {
-                type:"daily_profit",
-                amount: info.dailyProfit,
-                days: 1,
-                status:"approved",
-                date:new Date().toISOString()
-              }
-            ],
+          operations:{
+            $each:[{
+              type:"admin_set_package",
+              amount:info.price,
+              packageName:info.name,
+              status:"approved",
+              date:new Date().toISOString()
+            }],
             $position:0
           }
         }
@@ -1640,52 +1577,6 @@ app.post("/upload-proof", upload.single("file"), async (req,res)=>{
   }
 });
 
-/* ---------------- TRANSFER INCOME ---------------- */
-
-app.post("/transfer-income", async (req,res)=>{
-  try{
-    const email = normalizeEmail(req.body.email);
-    const user = await usersCollection.findOne({ email });
-
-    if(!user){
-      return res.json({success:false, message:"المستخدم غير موجود"});
-    }
-
-    const income = Number(user.incomeBalance || 0);
-
-    if(income <= 0){
-      return res.json({success:false, message:"لا يوجد أرباح للتحويل"});
-    }
-
-    await usersCollection.updateOne(
-      { email },
-      {
-        $inc: {
-          balance: income,
-          incomeBalance: -income
-        },
-        $push: {
-          operations: {
-            $each: [{
-              type: "transfer_income",
-              amount: income,
-              status: "approved",
-              date: new Date().toISOString()
-            }],
-            $position: 0
-          }
-        }
-      }
-    );
-
-    res.json({success:true, message:"تم تحويل الأرباح بنجاح"});
-
-  } catch(e){
-    console.error("🔥 خطأ في تحويل الأرباح:", e);
-    res.json({success:false, message:"حدث خطأ في السيرفر"});
-  }
-});
-
 /* ---------------- DATABASE CONNECT ---------------- */
 
 async function connectDB(){
@@ -1698,16 +1589,14 @@ async function connectDB(){
 
     console.log("Connected to MongoDB");
 
-    cancelExpiredDepositsNow();
-    setInterval(() => {
-      cancelExpiredDepositsNow();
-    }, 60 * 1000);
-
+    // تشغيل المهمة كل يوم في منتصف الليل
     cron.schedule("0 0 * * *", () => {
       console.log("Running daily profit job...");
       runDailyProfitForAllUsers();
+      cancelExpiredDeposits();
     });
 
+    // تشغيل مرة عند بدء التشغيل لحساب الأرباح المتراكمة
     setTimeout(() => {
       runDailyProfitForAllUsers();
     }, 5000);
