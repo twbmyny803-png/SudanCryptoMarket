@@ -8,7 +8,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-/* كل الستايل كما هو، بدون تغيير */
 * {
   margin: 0;
   padding: 0;
@@ -500,8 +499,11 @@ hr {
 
 <script>
 
-const API = "https://sudancryptomarket-api.onrender.com";
+// ✅ تم تغيير الرابط إلى الخادم الجديد
+const API = "https://sudan-crypto-4mgt.onrender.com";
 const email = localStorage.getItem("userEmail");
+
+console.log("📧 البريد المخزن:", email);
 
 function goDeposit(){
   localStorage.removeItem("activeOrder");
@@ -511,6 +513,7 @@ function goDeposit(){
 }
 
 if(!email){
+  console.log("❌ لا يوجد بريد، سيتم التحويل إلى login.html");
   window.location.href = "login.html";
 } else {
   fetch(API + "/user-data", {
@@ -520,7 +523,9 @@ if(!email){
   })
   .then(r => r.json())
   .then(data => {
+    console.log("📥 رد السيرفر:", data);
     if(!data.success){
+      console.log("❌ فشل جلب البيانات، سيتم تسجيل الخروج");
       localStorage.removeItem("userEmail");
       window.location.href = "login.html";
       return;
@@ -535,7 +540,11 @@ if(!email){
     const link = window.location.origin + "/index.html?ref=" + (data.refCode || "");
     document.getElementById("myRefLink").innerText = link;
   })
-  .catch(err => console.error(err));
+  .catch(err => {
+    console.error("❌ خطأ في الاتصال:", err);
+    localStorage.removeItem("userEmail");
+    window.location.href = "login.html";
+  });
 }
 
 function copyRefCode(){
